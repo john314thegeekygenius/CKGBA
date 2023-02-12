@@ -6,6 +6,9 @@
 
 #include "CK_Heads.h"
 
+extern signed int CK_GlobalCameraX;
+extern signed int CK_GlobalCameraY;
+
 int main(){
 
 	CK_InitVideo();
@@ -23,16 +26,16 @@ int main(){
 	while(1){
 
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_RIGHT)){
-			levelX += 1;
+			CK_GlobalCameraX += 1;
 		}
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_LEFT)){
-			levelX -= 1;
+			CK_GlobalCameraX -= 1;
 		}
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_UP)){
-			levelY -= 1;
+			CK_GlobalCameraY -= 1;
 		}
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_DOWN)){
-			levelY += 1;
+			CK_GlobalCameraY += 1;
 		}
 
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER)){
@@ -56,14 +59,16 @@ int main(){
 			curLvlID += chngLvlV;
 			CK_LoadLevel(curLvlID);
 			chngLvl = 0;
-			levelX = levelY = 0;
+			CK_GlobalCameraX = CK_GlobalCameraY = 0;
 		}
-
-		CK_MoveCamera(levelX, levelY);
 		
 		CK_UpdateLevel();
 
 		CK_RenderLevel();
+
+		CK_FixCamera();
+
+		//CK_MoveCamera(levelX, levelY);
 
 //		GBA_Delay(50);
 	};

@@ -59,8 +59,13 @@ const char *CK_TileInfo[2] = { CK_TileInfoBG, CK_TileInfoFG };
 
 unsigned int CK_NumOfAnimations[2];
 
+signed int CK_GlobalCameraX = 0;
+signed int CK_GlobalCameraY = 0;
+
 signed int CK_CameraX = 0;
 signed int CK_CameraY = 0;
+signed int CK_NCameraX = 0;
+signed int CK_NCameraY = 0;
 signed int CK_CameraBlockX = 0;
 signed int CK_CameraBlockY = 0;
 
@@ -129,26 +134,31 @@ void CK_LoadLevel(unsigned short lvlNumber){
 
 
 void CK_MoveCamera(int x,int y){
+    CK_GlobalCameraX = x;
+    CK_GlobalCameraY = y;
+};
 
-    if(CK_CameraX != (x%16) && (x%16)==0) CK_UpdateRendering = true;
-    if(CK_CameraY != (y%16) && (y%16)==0) CK_UpdateRendering = true;
-
-    CK_CameraX = x%16;
-    CK_CameraY = y%16;
-    CK_CameraBlockX = x/16;
-    CK_CameraBlockY = y/16;
-
+void CK_FixCamera(){
     // Clamp the camera
-    if(CK_CameraBlockX <= 0) { CK_CameraBlockX = 0; if(CK_CameraX < 0) {CK_CameraX = 0; } }
-    if(CK_CameraBlockX <= 0) { CK_CameraBlockX = 0; if(CK_CameraY < 0) {CK_CameraY = 0; } }
-    if(CK_CameraBlockX >= (CK_CurLevelWidth - CK_CameraWidth)){
-        CK_CameraBlockX = (CK_CurLevelWidth - CK_CameraWidth);
-        CK_CameraX = 0;
+    if(CK_GlobalCameraX <= 0) { CK_GlobalCameraX = 0; }
+    if(CK_GlobalCameraY <= 0) { CK_GlobalCameraY = 0; }
+    if(CK_GlobalCameraX >= (CK_CurLevelWidth - CK_CameraWidth)<<4){
+        CK_GlobalCameraX = (CK_CurLevelWidth - CK_CameraWidth)<<4;
     }
-    if(CK_CameraBlockY >= (CK_CurLevelHeight - CK_CameraHeight)){
-        CK_CameraY = 0;
-        CK_CameraBlockY = (CK_CurLevelHeight - CK_CameraHeight);
+    if(CK_GlobalCameraY >= (CK_CurLevelHeight - CK_CameraHeight)<<4){
+        CK_GlobalCameraY = (CK_CurLevelHeight - CK_CameraHeight)<<4;
     }
+
+    CK_NCameraX = CK_GlobalCameraX%16;
+    CK_NCameraY = CK_GlobalCameraY%16;
+
+    if(CK_CameraX != CK_NCameraX && CK_NCameraX==0) CK_UpdateRendering = true;
+    if(CK_CameraY != CK_NCameraY && CK_NCameraY==0) CK_UpdateRendering = true;
+
+    CK_CameraX = CK_NCameraX;
+    CK_CameraY = CK_NCameraY;
+    CK_CameraBlockX = CK_GlobalCameraX/16;
+    CK_CameraBlockY = CK_GlobalCameraY/16;
 
 };
 

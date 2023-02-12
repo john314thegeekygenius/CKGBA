@@ -19,7 +19,8 @@ void CK_InitVideo(){
 	*(volatile unsigned int*)GBA_REG_DISPCNT = GBA_MODE_0 | GBA_ENABLE_BG0 | GBA_ENABLE_BG1;// | GBA_BG_BACK;// | GBA_SHOW_BACK;
 	
 	// Copy the palette
-	for(int i = 0; i < 16; i++)
+	for(int i = 0; i < 16; i++){
 		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+	}
 
 };

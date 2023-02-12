@@ -27,6 +27,8 @@ void CK_RenderLevel();
 
 void CK_MoveCamera(int x,int y);
 
+void CK_FixCamera();
+
 void CK_UpdateLevel();
 
 #endif

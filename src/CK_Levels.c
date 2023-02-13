@@ -204,11 +204,16 @@ void CK_RenderLevel(){
                 tileX = keenTile-(tileY*18);
                 BlitTile = CKTILEFG(tileX,tileY);
 
-                // Copy the background tiles
+                // Copy the foreground tiles
                 tileptr = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
-                GBA_DMA_Copy32(vptr2, tileptr, 16);
-                GBA_DMA_Copy32(vptr2+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
-                skipdraw2:
+                // If it covers sprites, draw it in the foreground, else background
+//                if(CK_TileInfoFG[keenTile+(CK_TileInfo_FGTiles*5)&0x80]){
+                    GBA_DMA_Copy32(vptr2, tileptr, 16);
+                    GBA_DMA_Copy32(vptr2+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
+/*                }else{
+                    GBA_DMA_Copy32(vptr, tileptr, 16);
+                    GBA_DMA_Copy32(vptr+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
+                }*/
                 vptr += 16;
                 vptr2 += 16;
                 ++doffset;

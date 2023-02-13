@@ -24,5 +24,6 @@ typedef enum {false, true } bool ;
 
 #include "GBA_Defs.h"
 #include "CK_Graphics.h"
+#include "CK_Sprites.h"
 
 #endif

@@ -80,10 +80,17 @@ extern unsigned int GBA_VSyncCounter;
 /* this causes the DMA repeat interval to be synced with timer 0 */
 #define GBA_DMA_SNC_TO_TIMER 0x30000000
 
+/* this causes the DMA transfer at VBlank */
+#define GBA_DMA_SNC_TO_VBLANK 0x1000
+/* this causes the DMA transfer at HBlank */
+#define GBA_DMA_SNC_TO_VBLANK 0x2000
+/* this causes the DMA transfer at line draw for DMA3??? */
+#define GBA_DMA_SNC_TO_LINE 0x3000
+
 
 // Copy data using DMA 
 void GBA_DMA_Copy16(uint16_t* dest, uint16_t* source, int amount);
-void GBA_DMA_Copy32(uint32_t* dest, uint32_t* source, int amount) ;
+inline void GBA_DMA_Copy32(uint32_t* dest, uint32_t* source, int amount) ;
 
 void GBA_DMA_MemSet16(uint16_t* dest, uint16_t val, int len);
 void GBA_DMA_MemSet32(uint32_t* dest, uint32_t val, int len);
@@ -285,6 +292,7 @@ X  X  X  X   S  I  I  I   I  I  I  I   I  I  I  I   I  I  I  I   I  I  I I  F F 
 
 #define GBA_VRAM 0x06000000
 #define GBA_VRAMBUFF 0x0600A000
+#define GBA_VSRAM 0x06010000
 #define GBA_ORAM 0x07000000
 
 
@@ -323,6 +331,11 @@ X  X  X  X   S  I  I  I   I  I  I  I   I  I  I  I   I  I  I  I   I  I  I I  F F 
 // 0x06011800  -- block 23 (23<<8) 1700h
 
 #define GBA_WAIT_VBLANK while (*(volatile uint16_t*) GBA_REG_VTRACE < 160) { }
+
+#define GBA_WAIT_VBLANKN(n) while (*(volatile uint16_t*) GBA_REG_VTRACE < n) { }
+
+#define GBA_WAIT_FOR_VBLANKN(n) while (*(volatile uint16_t*) GBA_REG_VTRACE != n) { }
+
 
 // set all control the bits in this register
 #define GBA_FINISH_BG0(flags) *(volatile uint16_t*)GBA_REG_BG0CNT = flags | GBA_BG_256COLORS;

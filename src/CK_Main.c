@@ -14,6 +14,8 @@ int main(){
 	CK_InitVideo();
 	
 	CK_SetupLevelGBAMaps();
+	
+	CK_SetupSprites();
 
 	int chngLvl = 0;
 	int chngLvlV = 0;
@@ -22,20 +24,25 @@ int main(){
 	int levelY = 0;
 
 	CK_LoadLevel(curLvlID);
+
+	int fps_limiter = 0;
 	
 	while(1){
-
-		if(GBA_TEST_BUTTONS(GBA_BUTTON_RIGHT)){
-			CK_GlobalCameraX += 1;
-		}
-		if(GBA_TEST_BUTTONS(GBA_BUTTON_LEFT)){
-			CK_GlobalCameraX -= 1;
-		}
-		if(GBA_TEST_BUTTONS(GBA_BUTTON_UP)){
-			CK_GlobalCameraY -= 1;
-		}
-		if(GBA_TEST_BUTTONS(GBA_BUTTON_DOWN)){
-			CK_GlobalCameraY += 1;
+		++fps_limiter;
+		if(fps_limiter == 3){
+			fps_limiter = 0;
+			if(GBA_TEST_BUTTONS(GBA_BUTTON_RIGHT)){
+				CK_GlobalCameraX += 1;
+			}
+			if(GBA_TEST_BUTTONS(GBA_BUTTON_LEFT)){
+				CK_GlobalCameraX -= 1;
+			}
+			if(GBA_TEST_BUTTONS(GBA_BUTTON_UP)){
+				CK_GlobalCameraY -= 1;
+			}
+			if(GBA_TEST_BUTTONS(GBA_BUTTON_DOWN)){
+				CK_GlobalCameraY += 1;
+			}
 		}
 
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER)){
@@ -64,9 +71,9 @@ int main(){
 		
 		CK_UpdateLevel();
 
-		CK_RenderLevel();
-
 		CK_FixCamera();
+
+		CK_RenderLevel();
 
 		//CK_MoveCamera(levelX, levelY);
 

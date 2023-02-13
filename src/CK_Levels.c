@@ -62,12 +62,15 @@ unsigned int CK_NumOfAnimations[2];
 signed int CK_GlobalCameraX = 0;
 signed int CK_GlobalCameraY = 0;
 
-signed int CK_CameraX = 0;
-signed int CK_CameraY = 0;
-signed int CK_NCameraX = 0;
-signed int CK_NCameraY = 0;
+signed int CK_GlobalCameraLX = 0;
+signed int CK_GlobalCameraLY = 0;
+
+uint32_t CK_CameraX = 0;
+uint32_t CK_CameraY = 0;
+
 signed int CK_CameraBlockX = 0;
 signed int CK_CameraBlockY = 0;
+bool CK_CameraMoved = false;
 
 const int CK_CameraWidth = 30>>1;
 const int CK_CameraHeight = 20>>1;
@@ -139,6 +142,9 @@ void CK_MoveCamera(int x,int y){
 };
 
 void CK_FixCamera(){
+    if(CK_GlobalCameraLX != CK_GlobalCameraX || CK_GlobalCameraLY != CK_GlobalCameraY){
+        CK_CameraMoved = true;
+    }
     // Clamp the camera
     if(CK_GlobalCameraX <= 0) { CK_GlobalCameraX = 0; }
     if(CK_GlobalCameraY <= 0) { CK_GlobalCameraY = 0; }
@@ -149,24 +155,37 @@ void CK_FixCamera(){
         CK_GlobalCameraY = (CK_CurLevelHeight - CK_CameraHeight)<<4;
     }
 
-    CK_NCameraX = CK_GlobalCameraX%16;
-    CK_NCameraY = CK_GlobalCameraY%16;
+    CK_GlobalCameraLX = CK_GlobalCameraX;
+    CK_GlobalCameraLY = CK_GlobalCameraY;
 
-    if(CK_CameraX != CK_NCameraX && CK_NCameraX==0) CK_UpdateRendering = true;
-    if(CK_CameraY != CK_NCameraY && CK_NCameraY==0) CK_UpdateRendering = true;
+    uint32_t CK_NCameraX = CK_GlobalCameraX%16;
+    uint32_t CK_NCameraY = CK_GlobalCameraY%16;
+
+    if(CK_CameraX != CK_NCameraX){
+        if((CK_NCameraX==0|| CK_NCameraX==15)) CK_UpdateRendering = true;
+    }
+    if(CK_CameraY != CK_NCameraY){
+        if((CK_NCameraY==0 || CK_NCameraY==15)) CK_UpdateRendering = true;
+    }
 
     CK_CameraX = CK_NCameraX;
     CK_CameraY = CK_NCameraY;
-    CK_CameraBlockX = CK_GlobalCameraX/16;
-    CK_CameraBlockY = CK_GlobalCameraY/16;
+
+    CK_CameraBlockX = CK_GlobalCameraX>>4;
+    CK_CameraBlockY = CK_GlobalCameraY>>4;
 
 };
 
 #define UMTILESET_WIDTH_VAL (288)
 #define MTILESET_WIDTH_VAL (288)
 
-#define CKTILEBG(x,y) (((y)*(UMTILESET_WIDTH_VAL<<1)) + ((x)<<4))
-#define CKTILEFG(x,y) (((y)*(MTILESET_WIDTH_VAL<<1)) + ((x)<<4))
+#define UMTILESET_WIDTH_VALD (UMTILESET_WIDTH_VAL<<1)
+#define MTILESET_WIDTH_VALD (MTILESET_WIDTH_VAL<<1)
+
+#define CKTILEBG(x,y) (((y)*(UMTILESET_WIDTH_VALD)) + ((x)<<4))
+#define CKTILEFG(x,y) (((y)*(MTILESET_WIDTH_VALD)) + ((x)<<4))
+
+GBA_IN_IWRAM uint32_t *CK_BlitBuffer[16*11][2];
 
 void CK_RenderLevel(){
     // Removed because it's useless
@@ -174,7 +193,7 @@ void CK_RenderLevel(){
 
     volatile uint32_t *vptr = (volatile uint32_t *)TILESTART_0;
     volatile uint32_t *vptr2 = (volatile uint32_t *)TILESTART_1;
-    volatile uint32_t *tileptr = NULL;
+    volatile uint32_t *tileptr = (volatile uint32_t *)CK_TILESET_UNMASKED+128;
     
     uint32_t doffset;
     uint16_t keenTile;
@@ -185,43 +204,65 @@ void CK_RenderLevel(){
 
         // Load the tiles in real time
         doffset = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
+        const unsigned int VSHIFT = (32<<3);
+        // Pregenerate a new map
         for(int i = 0; i < 11; ++i){
             for(int e = 0; e < 16; ++e){
-                
                 keenTile = CK_CurLevelData[doffset];
                 tileY = (keenTile/18);
-                tileX = keenTile-(tileY*18);
+                tileX = keenTile%18;
                 BlitTile = CKTILEBG(tileX,tileY);
 
                 // Copy the background tiles
-                tileptr = (volatile uint32_t *)CK_TILESET_UNMASKED+BlitTile;
-                GBA_DMA_Copy32(vptr, tileptr, 16);
-                GBA_DMA_Copy32(vptr+(32<<3), tileptr+(UMTILESET_WIDTH_VAL), 16);
+                CK_BlitBuffer[(i*16)+e][0] = (volatile uint32_t *)CK_TILESET_UNMASKED+BlitTile;
 
                 keenTile = CK_CurLevelData[doffset+CK_CurLevelSize];
 //                if(keenTile==0) goto skipdraw2; // Skip blank tiles???????
                 tileY = (keenTile/18);
-                tileX = keenTile-(tileY*18);
+                tileX = keenTile%18;
                 BlitTile = CKTILEFG(tileX,tileY);
 
                 // Copy the foreground tiles
-                tileptr = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
+                CK_BlitBuffer[(i*16)+e][1] = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
                 // If it covers sprites, draw it in the foreground, else background
 //                if(CK_TileInfoFG[keenTile+(CK_TileInfo_FGTiles*5)&0x80]){
-                    GBA_DMA_Copy32(vptr2, tileptr, 16);
-                    GBA_DMA_Copy32(vptr2+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
 /*                }else{
                     GBA_DMA_Copy32(vptr, tileptr, 16);
                     GBA_DMA_Copy32(vptr+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
                 }*/
-                vptr += 16;
-                vptr2 += 16;
                 ++doffset;
             }
             doffset += (CK_CurLevelWidth-16);
+        }
+
+        GBA_WAIT_FOR_VBLANKN(160)
+
+        // Move the camera if need be
+        if(CK_CameraMoved){
+            CK_CameraMoved = false;
+            *(volatile uint16_t*)GBA_REG_BG0HOFS = (uint16_t)CK_CameraX&0x1FF;
+            *(volatile uint16_t*)GBA_REG_BG0VOFS = (uint16_t)CK_CameraY&0x1FF;
+
+            *(volatile uint16_t*)GBA_REG_BG1HOFS = (uint16_t)CK_CameraX&0x1FF;
+            *(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_CameraY&0x1FF;
+        }
+
+        // Do the data transfer
+        for(int i = 0; i < 11; ++i){
+            for(int e = 0; e < 16; ++e){
+                GBA_DMA_Copy32(vptr, CK_BlitBuffer[(i<<4)+e][0], 16);
+                GBA_DMA_Copy32(vptr+VSHIFT, CK_BlitBuffer[(i<<4)+e][0]+(UMTILESET_WIDTH_VAL), 16);
+
+                GBA_DMA_Copy32(vptr2, CK_BlitBuffer[(i<<4)+e][1], 16);
+                GBA_DMA_Copy32(vptr2+VSHIFT, CK_BlitBuffer[(i<<4)+e][1]+(MTILESET_WIDTH_VAL), 16);
+
+                vptr += 16;
+                vptr2 += 16;
+            }
             vptr += 256;
             vptr2 += 256;
         }
+
         CK_UpdateRendering = false;
 //        CK_POICount = 0; // Reset this
     }/*else{
@@ -230,20 +271,22 @@ void CK_RenderLevel(){
             --CK_POICount;
         }
     }*/
-    GBA_WAIT_VBLANK
 
     // Move the camera if need be
-    *(volatile uint32_t*)GBA_REG_BG0HOFS = CK_CameraX;
-    *(volatile uint32_t*)GBA_REG_BG0VOFS = CK_CameraY;
+    if(CK_CameraMoved){
+        CK_CameraMoved = false;
+        *(volatile uint16_t*)GBA_REG_BG0HOFS = (uint16_t)CK_CameraX&0x1FF;
+        *(volatile uint16_t*)GBA_REG_BG0VOFS = (uint16_t)CK_CameraY&0x1FF;
 
-    *(volatile uint32_t*)GBA_REG_BG1HOFS = CK_CameraX;
-    *(volatile uint32_t*)GBA_REG_BG1VOFS = CK_CameraY;
+        *(volatile uint16_t*)GBA_REG_BG1HOFS = (uint16_t)CK_CameraX&0x1FF;
+        *(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_CameraY&0x1FF;
+    }
 
 };
 
 void CK_UpdateLevel(){
     CK_UpdateTick ++;
-    if(CK_UpdateTick == 24*2){
+    if(CK_UpdateTick == 12){
         CK_UpdateTick = 0;
         uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
         uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;

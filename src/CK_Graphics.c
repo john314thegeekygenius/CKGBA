@@ -20,7 +20,8 @@ void CK_InitVideo(){
 	
 	// Copy the palette
 	for(int i = 0; i < 16; i++){
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16); // Background (tiles)
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16); // Foreground (sprites)
 	}
 
 };

@@ -38,6 +38,7 @@ void DONT_OPTIMISE GBA_DMA_Copy16(uint16_t* dest, uint16_t* source, int amount) 
     *(volatile unsigned int*)GBA_DMA_COUNT = amount | GBA_DMA_16 | GBA_DMA_ENABLE;
 };
 
+__attribute__((section(".iwram"), long_call, target("arm")))
 void DONT_OPTIMISE GBA_DMA_Copy32(uint32_t* dest, uint32_t* source, int amount) {
     *(volatile unsigned int*)GBA_DMA_SRC   = (unsigned int) source;
     *(volatile unsigned int*)GBA_DMA_DEST  = (unsigned int) dest;

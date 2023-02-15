@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"ck_heads.h": "c"
+			"ck_heads.h": "c",
+			"ck_levels.h": "c"
 		}
 	}
 }

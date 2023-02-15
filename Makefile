@@ -30,8 +30,8 @@ MUS_FILES=$(wildcard src/romstuffs/AUDIO/MUSIC/*.c)
 OBJ_MUS=$(addprefix obj/rom/audio/music/, $(notdir $(MUS_FILES:.c=.o)))
 
 
-.PHONY: src
-src: $(OBJ_SRC)
+.PHONY: src 
+src: clean_src $(OBJ_SRC) build
 
 .PHONY: music
 music: $(OBJ_MUS)
@@ -75,3 +75,6 @@ clean:
 	rm -rf obj/rom/audio/music/*.o
 	rm -rf obj/rom/audio/sound/*.o
 
+.PHONY: clean_src
+clean_src:
+	rm -rf obj/*.o

@@ -26,5 +26,6 @@ typedef enum {false, true } bool ;
 #include "CK_Graphics.h"
 #include "CK_Sprites.h"
 #include "CK_Audio.h"
+#include "CK_Levels.h"
 
 #endif

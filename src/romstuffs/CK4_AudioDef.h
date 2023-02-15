@@ -28,26 +28,26 @@ const GBA_SoundSample CKM_GBA_Samples [] = {
 };
 
 const unsigned int CK_LevelAudio[] = {
-    SHADOWS_MUS,
-	KICKPANT_MUS,
-	OASIS_MUS,
-	OASIS_MUS,
-	TOOHOT_MUS,
-	TOOHOT_MUS,
-	KICKPANT_MUS,
-	OASIS_MUS,
-	VEGGIES_MUS,
-	VEGGIES_MUS,
-	VEGGIES_MUS,
-	TOOHOT_MUS,
-	TOOHOT_MUS,
-	TOOHOT_MUS,
-	TOOHOT_MUS,
-	TOOHOT_MUS,
-	VEGGIES_MUS,
-	OASIS_MUS,
-
-	// WONDER_MUS Used for interaction
+    SHADOWS_MUS, // Lvl 0 - Shadowlands
+	KICKPANT_MUS, // Lvl 1 - Border Village
+	OASIS_MUS, // Lvl 2 - Slug Village
+	OASIS_MUS, // Lvl 3 - The Perilous Pit
+	TOOHOT_MUS, // Lvl 4 - Cave of the Descendents
+	TOOHOT_MUS, // Lvl 5 - Chasm of Chills
+	KICKPANT_MUS, // Lvl 6 - Crystalus
+	OASIS_MUS, // Lvl 7 - Hillville
+	VEGGIES_MUS, // Lvl 8 - Sand Yego
+	VEGGIES_MUS, // Lvl 9 - Miragia
+	VEGGIES_MUS, // Lvl 10 - Lifewater Oasis
+	TOOHOT_MUS, // Lvl 11 - Pyramid of the Moons
+	TOOHOT_MUS, // Lvl 12 - Pyramid of Shadows
+	TOOHOT_MUS, // Lvl 13 - Pyramid of the Gnosticene Ancients
+	TOOHOT_MUS, // Lvl 14 - Pyramid of the Forbidden (Secret Level)
+	TOOHOT_MUS, // Lvl 15 - Isle of Tar
+    TOOHOT_MUS, // Lvl 16 - Isle of Fire
+	VEGGIES_MUS, // Lvl 17 - Well of Wishes
+	OASIS_MUS, // Lvl 18 - Bean-with-Bacon
+    WONDER_MUS, // Lvl 19 - High Scores
 };
 
 // TODO:

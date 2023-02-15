@@ -8,13 +8,7 @@
 #define __CK_LEVELS__
 
 #ifdef CK4
-#include "romstuffs/CK4_LDefs.h"
-#endif
-#ifdef CK5
-#include "romstuffs/CK5_LDefs.h"
-#endif
-#ifdef CK6
-#include "romstuffs/CK6_LDefs.h"
+#define CK_NumOfLevels  20
 #endif
 
 // Functions

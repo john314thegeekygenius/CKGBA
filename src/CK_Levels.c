@@ -5,7 +5,15 @@
 */
 
 #include "CK_Heads.h"
-#include "CK_Levels.h"
+#ifdef CK4
+#include "romstuffs/CK4_LDefs.h"
+#endif
+#ifdef CK5
+#include "romstuffs/CK5_LDefs.h"
+#endif
+#ifdef CK6
+#include "romstuffs/CK6_LDefs.h"
+#endif
 
 extern const unsigned char CK_TILESET_MASKED[];
 extern const unsigned char CK_TILESET_UNMASKED[];
@@ -79,7 +87,7 @@ bool CK_UpdateRendering = false;
 
 uint32_t CK_UpdateTick = 0;
 
-
+#include "romstuffs/CK4_Spectators.c"
 
 void CK_LoadLevel(unsigned short lvlNumber){
 	int lvloff = lvlNumber*3;
@@ -127,32 +135,36 @@ void CK_LoadLevel(unsigned short lvlNumber){
             }
         }
     }
-    
+    // Load the spectators
+    CK_LoadSpectators();
+
     // Tell the engine to render the level
     CK_UpdateRendering = true;
 
-    // Move the camera
-    CK_MoveCamera(0,0);
 };
-
 
 void CK_MoveCamera(int x,int y){
     CK_GlobalCameraX = x;
     CK_GlobalCameraY = y;
 };
 
+#define CK_MIN_WIN_X 32
+#define CK_MIN_WIN_Y 32
+#define CK_MAX_WIN_X 32
+#define CK_MAX_WIN_Y 32
+
 void CK_FixCamera(){
     if(CK_GlobalCameraLX != CK_GlobalCameraX || CK_GlobalCameraLY != CK_GlobalCameraY){
         CK_CameraMoved = true;
     }
     // Clamp the camera
-    if(CK_GlobalCameraX <= 0) { CK_GlobalCameraX = 0; }
-    if(CK_GlobalCameraY <= 0) { CK_GlobalCameraY = 0; }
-    if(CK_GlobalCameraX >= (CK_CurLevelWidth - CK_CameraWidth)<<4){
-        CK_GlobalCameraX = (CK_CurLevelWidth - CK_CameraWidth)<<4;
+    if(CK_GlobalCameraX <= CK_MIN_WIN_X) { CK_GlobalCameraX = CK_MIN_WIN_X; }
+    if(CK_GlobalCameraY <= CK_MIN_WIN_Y) { CK_GlobalCameraY = CK_MIN_WIN_Y; }
+    if(CK_GlobalCameraX >= ((CK_CurLevelWidth - CK_CameraWidth)<<4)-CK_MAX_WIN_X){
+        CK_GlobalCameraX = ((CK_CurLevelWidth - CK_CameraWidth)<<4)-CK_MAX_WIN_X;
     }
-    if(CK_GlobalCameraY >= (CK_CurLevelHeight - CK_CameraHeight)<<4){
-        CK_GlobalCameraY = (CK_CurLevelHeight - CK_CameraHeight)<<4;
+    if(CK_GlobalCameraY >= ((CK_CurLevelHeight - CK_CameraHeight)<<4)-CK_MAX_WIN_Y){
+        CK_GlobalCameraY = ((CK_CurLevelHeight - CK_CameraHeight)<<4)-CK_MAX_WIN_Y;
     }
 
     CK_GlobalCameraLX = CK_GlobalCameraX;

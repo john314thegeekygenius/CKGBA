@@ -28,7 +28,7 @@ int main(){
 	int levelY = 0;
 
 	CK_LoadLevel(curLvlID);
-	if(curLvlID >= 0 && curLvlID < CKM_LastSong)
+	if(curLvlID >= 0 && curLvlID < CK_NumOfLevels)
 		CK_SD_PlayMusic(CK_LevelAudio[curLvlID], 1);
 
 	int fps_limiter = 0;
@@ -70,11 +70,16 @@ int main(){
 
 		if(chngLvl==2){
 			curLvlID += chngLvlV;
+			if(curLvlID >= CK_NumOfLevels) {
+				curLvlID = CK_NumOfLevels-1;
+			}
+			if(curLvlID < 0) {
+				curLvlID = 0;
+			}
 			CK_LoadLevel(curLvlID);
-			if(curLvlID >= 0 && curLvlID < CKM_LastSong)
+			if(curLvlID >= 0 && curLvlID < CK_NumOfLevels)
 				CK_SD_PlayMusic(CK_LevelAudio[curLvlID], 1);
 			chngLvl = 0;
-			CK_GlobalCameraX = CK_GlobalCameraY = 0;
 		}
 		
 		CK_UpdateLevel();

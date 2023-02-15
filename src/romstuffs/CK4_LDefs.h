@@ -64,7 +64,6 @@ extern const unsigned short WELL_OF_WISHES_width;
 extern const unsigned short WELL_OF_WISHES_height;
 extern const unsigned short WELL_OF_WISHES_data[];
 
-
 const unsigned short* CK_LevelInfo[] = {
 	// Lvl 0 - Shadowlands
     &SHADOWLANDS_width, &SHADOWLANDS_height, SHADOWLANDS_data,
@@ -75,7 +74,7 @@ const unsigned short* CK_LevelInfo[] = {
 	// Lvl 3 - The Perilous Pit
     &PERILOUS_PIT_width, &PERILOUS_PIT_height, PERILOUS_PIT_data,
 	// Lvl 4 - Cave of the Descendents
-    &DESCENDENTSCAVE_width, &DESCENDENTSCAVE_width, DESCENDENTSCAVE_data,
+    &DESCENDENTSCAVE_width, &DESCENDENTSCAVE_height, DESCENDENTSCAVE_data,
 	// Lvl 5 - Chasm of Chills
     &CHASM_OF_CHILLS_width, &CHASM_OF_CHILLS_height, CHASM_OF_CHILLS_data,
 	// Lvl 6 - Crystalus

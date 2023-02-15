@@ -7,7 +7,8 @@
 	"settings": {
 		"files.associations": {
 			"ck_heads.h": "c",
-			"ck_levels.h": "c"
+			"ck_levels.h": "c",
+			"AUDIOCK4.H": "cpp"
 		}
 	}
 }

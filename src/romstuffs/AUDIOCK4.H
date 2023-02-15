@@ -89,9 +89,11 @@ typedef enum {
 	LASTSOUND
 } soundnames;
 
-#if LASTSOUND != 52
-#error bad sound enum!
-#endif
+// MODIFIED FROM ORIGINAL
+//
+//#if LASTSOUND != 52
+//#error bad sound enum!
+//#endif
 
 #define NOWAYSND SND_NOWAY
 

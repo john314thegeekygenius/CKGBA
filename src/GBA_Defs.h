@@ -717,7 +717,7 @@ void GBA_SetSoundFreq(short id, int freq);
 
 typedef struct GBA_SoundSample {
     unsigned char *sample;
-    int num_samples;
+    unsigned int num_samples;
     float sample_rate;
     int rate;
 }GBA_SoundSample;

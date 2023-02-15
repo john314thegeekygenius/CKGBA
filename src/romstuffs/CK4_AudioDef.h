@@ -2,33 +2,53 @@
 
 // Include all the episode music
 #ifdef CK4
-extern const unsigned int SND1_156_size;
+// Sizes must be manually moved from the C source files
+const unsigned int SND1_156_size = 222073;
 extern const unsigned char SND1_156_data[];
-extern const unsigned int SND1_157_size;
+const unsigned int SND1_157_size = 568880;
 extern const unsigned char SND1_157_data[];
-extern const unsigned int SND1_158_size;
+const unsigned int SND1_158_size = 172084;
 extern const unsigned char SND1_158_data[];
-extern const unsigned int SND1_159_size;
+const unsigned int SND1_159_size = 482297;
 extern const unsigned char SND1_159_data[];
-extern const unsigned int SND1_160_size;
+const unsigned int SND1_160_size = 348727;
 extern const unsigned char SND1_160_data[];
-extern const unsigned int SND1_161_size;
+const unsigned int SND1_161_size = 136554;
 extern const unsigned char SND1_161_data[];
 
-const unsigned char ** CK_MusicChunks = {
-    &SND1_156_data,
-    &SND1_157_data,
-    &SND1_158_data,
-    &SND1_159_data,
-    &SND1_160_data,
-    &SND1_161_data,
-};
+#define NUM_OF_SONGS 6
 
 const GBA_SoundSample CKM_GBA_Samples [] = {
-    {&ck_music_0 , ck_music_0_bytes, GBA_INV_11025, GBA_SAMP_RATE_11025 }
-    
+    {&SND1_156_data , SND1_156_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
+    {&SND1_157_data , SND1_157_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
+    {&SND1_158_data , SND1_158_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
+    {&SND1_159_data , SND1_159_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
+    {&SND1_160_data , SND1_160_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
+    {&SND1_161_data , SND1_161_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
 };
 
+const unsigned int CK_LevelAudio[] = {
+    SHADOWS_MUS,
+	KICKPANT_MUS,
+	OASIS_MUS,
+	OASIS_MUS,
+	TOOHOT_MUS,
+	TOOHOT_MUS,
+	KICKPANT_MUS,
+	OASIS_MUS,
+	VEGGIES_MUS,
+	VEGGIES_MUS,
+	VEGGIES_MUS,
+	TOOHOT_MUS,
+	TOOHOT_MUS,
+	TOOHOT_MUS,
+	TOOHOT_MUS,
+	TOOHOT_MUS,
+	VEGGIES_MUS,
+	OASIS_MUS,
+
+	// WONDER_MUS Used for interaction
+};
 
 // TODO:
 // Include all the sounds :E

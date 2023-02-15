@@ -9,10 +9,14 @@
 extern signed int CK_GlobalCameraX;
 extern signed int CK_GlobalCameraY;
 
+extern unsigned int CK_LevelAudio[];
+
 int main(){
 
 	CK_InitVideo();
-	
+
+	CK_SD_InitAudio();
+
 	CK_SetupLevelGBAMaps();
 	
 	CK_SetupSprites();
@@ -24,6 +28,8 @@ int main(){
 	int levelY = 0;
 
 	CK_LoadLevel(curLvlID);
+	if(curLvlID >= 0 && curLvlID < CKM_LastSong)
+		CK_SD_PlayMusic(CK_LevelAudio[curLvlID], 1);
 
 	int fps_limiter = 0;
 	
@@ -65,6 +71,8 @@ int main(){
 		if(chngLvl==2){
 			curLvlID += chngLvlV;
 			CK_LoadLevel(curLvlID);
+			if(curLvlID >= 0 && curLvlID < CKM_LastSong)
+				CK_SD_PlayMusic(CK_LevelAudio[curLvlID], 1);
 			chngLvl = 0;
 			CK_GlobalCameraX = CK_GlobalCameraY = 0;
 		}

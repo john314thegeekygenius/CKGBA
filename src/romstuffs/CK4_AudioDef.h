@@ -1,7 +1,5 @@
 #pragma once
 
-// Include all the episode music
-#ifdef CK4
 // Sizes must be manually moved from the C source files
 const unsigned int SND1_156_size = 222073;
 extern const unsigned char SND1_156_data[];
@@ -52,5 +50,4 @@ const unsigned int CK_LevelAudio[] = {
 
 // TODO:
 // Include all the sounds :E
-#endif
 

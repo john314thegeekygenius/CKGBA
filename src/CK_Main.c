@@ -13,6 +13,8 @@ extern unsigned int CK_LevelAudio[];
 
 int main(){
 
+	CK_US_InitRndT();
+
 	CK_InitVideo();
 
 	CK_SD_InitAudio();
@@ -87,6 +89,10 @@ int main(){
 		CK_FixCamera();
 
 		CK_RenderLevel();
+
+		CK_UpdateObjects();
+
+		CK_MoveDopey();
 
 		//CK_MoveCamera(levelX, levelY);
 

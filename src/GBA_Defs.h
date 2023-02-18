@@ -291,6 +291,7 @@ X  X  X  X   S  I  I  I   I  I  I  I   I  I  I  I   I  I  I  I   I  I  I I  F F 
 #define GBA_PAL_SPR_START 0x05000200
 
 #define GBA_VRAM 0x06000000
+#define GBA_VRAM2 0x06008000
 #define GBA_VRAMBUFF 0x0600A000
 #define GBA_VSRAM 0x06010000
 #define GBA_ORAM 0x07000000

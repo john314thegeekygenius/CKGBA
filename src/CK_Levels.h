@@ -11,6 +11,12 @@
 #define CK_NumOfLevels  20
 #endif
 
+extern signed int CK_GlobalCameraX ;
+extern signed int CK_GlobalCameraY ;
+
+extern signed int CK_GlobalCameraLX ;
+extern signed int CK_GlobalCameraLY ;
+
 // Functions
 
 void CK_SetupLevelGBAMaps();
@@ -24,5 +30,10 @@ void CK_MoveCamera(int x,int y);
 void CK_FixCamera();
 
 void CK_UpdateLevel();
+
+
+//==========================================================================
+
+void ScanInfoPlane(void);
 
 #endif

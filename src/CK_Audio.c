@@ -11,11 +11,15 @@
 #include "romstuffs/CK4_AudioDef.h"
 #endif
 
-void CK_SD_InitAudio(){
+SDMode SoundMode;
+SMMode MusicMode;
+longword TimeCount;
+
+void SD_InitAudio(){
     GBA_InitAudio();
 };
 
-void CK_SD_PlayMusic(uint32_t chunk, uint32_t asLoop){
+void SD_PlayMusic(uint32_t chunk, uint32_t asLoop){
 #ifndef CK_DISABLE_MUSIC
     if(chunk >= 0 && chunk < LASTMUSIC){
         GBA_StopChannel(GBA_CHANNEL_A);
@@ -23,3 +27,10 @@ void CK_SD_PlayMusic(uint32_t chunk, uint32_t asLoop){
     }
 #endif
 };
+
+void SD_MusicOff(){
+#ifndef CK_DISABLE_MUSIC
+    GBA_StopChannel(GBA_CHANNEL_A);
+#endif    
+};
+

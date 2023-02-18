@@ -9,7 +9,7 @@
 
 extern objtype *ck_newobj;
 
-unsigned short CK_GetNewObj(boolean dummy);
+unsigned short GetNewObj(boolean dummy);
 
 void CK_SetNewSprite(CK_SpriteType type);
 
@@ -17,7 +17,10 @@ void CK_UpdateObjGraphics(objtype *obj);
 
 void CK_UpdateObjects();
 
+void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy);
+
 void CK_SetupSprites();
 
+void CK_RemoveSprites();
 
 #endif

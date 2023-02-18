@@ -12,8 +12,24 @@
 
 #define CKM_LastSong LASTMUSIC
 
-void CK_SD_InitAudio();
+typedef	enum {
+    sdm_Off,
+    sdm_PC,sdm_AdLib,
+}	SDMode;
 
-void CK_SD_PlayMusic(uint32_t chunk, uint32_t asLoop);
+typedef	enum {
+    smm_Off,smm_AdLib
+}	SMMode;
+
+extern SDMode SoundMode;
+extern SMMode MusicMode;
+extern longword TimeCount;
+
+
+void SD_InitAudio();
+
+void SD_PlayMusic(uint32_t chunk, uint32_t asLoop);
+
+void SD_MusicOff();
 
 #endif

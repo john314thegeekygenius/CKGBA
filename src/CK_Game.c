@@ -22,6 +22,9 @@ Uint16 fadecount;
 Sint16 levelcompleted;
 Sint32 chunkcount, chunkmax, handpic;
 
+// From ID_CA.C
+int	mapon;
+
 /*
 =============================================================================
 
@@ -433,9 +436,7 @@ void FadeAndUnhook(void)
 
 void SetupGameLevel(boolean loadnow)
 {
-    // TODO:
-    // Make this "do the right thing"
-    /*
+	CK_SetupLevelGBAMaps();
 
 //
 // randomize if not a demo
@@ -450,62 +451,25 @@ void SetupGameLevel(boolean loadnow)
 		US_InitRndT(true);
 	}
 
+	// Handle invalid map id's here:
+	mapon = gamestate.mapon;
+
 //
 // load the level header and three map planes
 //
-	CA_CacheMap(gamestate.mapon);
+	CK_LoadLevel(mapon);
 
-//
-// let the refresh manager set up some variables
-//
-	RF_NewMap();
-
-//
-// decide which graphics are needed and spawn actors
-//
-	CA_ClearMarks();
 	ScanInfoPlane();
 	if (mapon == 0)
 	{
 		PatchWorldMap();
 	}
-	RF_MarkTileGraphics();
 
-//
-// have the caching manager load and purge stuff to make sure all marks
-// are in memory
-//
-	MM_BombOnError(false);
-	CA_LoadAllSounds();
 	if (loadnow)
 	{
-		if (scorescreenkludge)
-		{
-			CA_CacheMarks(NULL);
-		}
-		else if (DemoMode)
-		{
-			CA_CacheMarks("DEMO");
-		}
-#ifdef KEEN5
-		else if (mapon == 0 && player->tiletop > 100)
-		{
-			CA_CacheMarks("Keen steps out\nonto Korath III");
-		}
-#endif
-		else
-		{
-			_fstrcpy(str, levelenter[mapon]);
-			CA_CacheMarks(str);
-		}
-	}
-	MM_BombOnError(true);
-
-	if (!mmerror && loadnow)
-	{
 		DelayedFade();
-	}*/
-}
+	}
+};
 
 //===========================================================================
 
@@ -615,28 +579,6 @@ void DialogFinish(void)
 {
 	//this is empty
 }
-
-//==========================================================================
-
-/*
-==================
-=
-= StartDemoRecord
-=
-==================
-*/
-
-//void StartDemoRecord(void){}; // Unused
-
-/*
-==================
-=
-= EndDemoRecord
-=
-==================
-*/
-
-//void EndDemoRecord(void){}; // Unused
 
 //==========================================================================
 
@@ -760,6 +702,7 @@ void HandleDeath(void)
 
 void GameLoop(void)
 {
+
     // TODO:
     // Make this do somthing??
     /*

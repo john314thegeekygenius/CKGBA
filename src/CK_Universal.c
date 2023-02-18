@@ -6,6 +6,37 @@
 
 #include "CK_Heads.h"
 
+//      Global variables
+boolean ingame,abortgame,loadedgame;
+GameDiff restartgame = gd_Continue;
+
+boolean         NoWait,
+			HighScoresDirty;
+word            PrintX,PrintY;
+word            WindowX,WindowY,WindowW,WindowH;
+
+// From ID_RF.C
+unsigned	tics;
+long		lasttimecount;
+
+
+
+// Draws the into text screen
+void US_TextScreen(){
+	
+};
+
+
+
+
+
+
+
+
+
+
+
+
 /*
     Derrived from assembly code
 
@@ -82,7 +113,7 @@ PROC	US_InitRndT randomize:word
 ENDP
 */
 //unsigned int CK_US_InitRndT(unsigned short randomize){
-unsigned int CK_US_InitRndT(){
+unsigned int US_InitRndT(){
 //    if(randomize){
         // Initiate with (time)
 //        ck_rndindex = time(t);
@@ -118,7 +149,7 @@ PROC	US_RndT
 ENDP
 */
 
-unsigned int CK_US_RndT(){
+unsigned int US_RndT(){
     return ck_rndtable[(ck_rndindex++)&0xFF];
 };
 

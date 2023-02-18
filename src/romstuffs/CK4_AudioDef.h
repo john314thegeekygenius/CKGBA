@@ -25,6 +25,7 @@ const GBA_SoundSample CKM_GBA_Samples [] = {
     {&SND1_161_data , SND1_161_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
 };
 
+const unsigned int CK_NumberOfSongs = 0;
 const unsigned int CK_LevelAudio[] = {
     SHADOWS_MUS, // Lvl 0 - Shadowlands
 	KICKPANT_MUS, // Lvl 1 - Border Village
@@ -47,6 +48,76 @@ const unsigned int CK_LevelAudio[] = {
 	OASIS_MUS, // Lvl 18 - Bean-with-Bacon
     WONDER_MUS, // Lvl 19 - High Scores
 };
+
+/*
+	static Sint16 songs[] =
+	{
+#if defined KEEN4
+		SHADOWS_MUS,
+		KICKPANT_MUS,
+		OASIS_MUS,
+		OASIS_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		KICKPANT_MUS,
+		OASIS_MUS,
+		VEGGIES_MUS,
+		VEGGIES_MUS,
+		VEGGIES_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		TOOHOT_MUS,
+		VEGGIES_MUS,
+		OASIS_MUS,
+		-1
+#elif defined KEEN5
+		ROBOROCK_MUS,
+		WEDNESDY_MUS,
+		BREATHE_MUS,
+		SPHEREFUL_MUS,
+		TIGHTER_MUS,
+		SPHEREFUL_MUS,
+		TIGHTER_MUS,
+		SPHEREFUL_MUS,
+		TIGHTER_MUS,
+		SPHEREFUL_MUS,
+		TIGHTER_MUS,
+		SNOOPING_MUS,
+		FEARSOME_MUS,
+		BAGPIPES_MUS,
+		FANFARE_MUS,
+		SKATING_MUS,
+		ROCK_ME_MUS,
+		HAVING_T_MUS,
+		CAMEIN_MUS,
+		SHIKAIRE_MUS,
+#elif defined KEEN6
+		ALIENATE_MUS,
+		FASTER_MUS,
+		BRERTAR_MUS,
+		MAMSNAKE_MUS,
+		MAMSNAKE_MUS,
+		MAMSNAKE_MUS,
+		METAL_MUS,
+		TOFUTURE_MUS,
+		METAL_MUS,
+		BRERTAR_MUS,
+		FASTER_MUS,
+		TOFUTURE_MUS,
+		BRERTAR_MUS,
+		SPACFUNK_MUS,
+		SPACFUNK_MUS,
+		OMINOUS_MUS,
+		TOFUTURE_MUS,
+		WONDER_MUS,
+		WONDER_MUS,
+		WONDER_MUS
+#endif
+	};
+*/
 
 // TODO:
 // Include all the sounds :E

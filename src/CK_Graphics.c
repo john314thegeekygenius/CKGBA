@@ -25,3 +25,9 @@ void CK_InitVideo(){
 	}
 
 };
+
+void VW_ClearVideo(unsigned int color){
+	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM, color, 32*32*8);
+	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM2, 0x00, 32*32*8);
+};
+

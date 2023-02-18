@@ -7,7 +7,7 @@
 #ifndef __CK_DEF__
 #define __CK_DEF__
 
-#define CK_DISABLE_MUSIC
+//#define CK_DISABLE_MUSIC
 #define CK4
 
 //
@@ -42,6 +42,7 @@ typedef boolean bool; // For sanity
 #endif
 
 
+
 #ifdef CK4
 #define KEEN4
 #include "romstuffs/CK4_Defs.h"
@@ -55,6 +56,64 @@ typedef boolean bool; // For sanity
 #include "romstuffs/CK6_Defs.h"
 #endif
 
+
+
+// Pulled from ID_RF.H
+/*
+=============================================================================
+
+							CONSTANTS
+
+=============================================================================
+*/
+
+#define	MINTICS				2
+#define	MAXTICS				5
+#define DEMOTICS			3
+
+#define	MAPBORDER			2		// map border must be at least 1
+
+#ifdef KEEN5
+
+#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXANIMTILES		90		// max animating tiles on screen
+#define MAXANIMTYPES		80		// max different unique anim tiles on map
+
+#define	MAXMAPHEIGHT		250
+
+#else
+
+#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXANIMTILES		90		// max animating tiles on screen
+#define MAXANIMTYPES		65		// max different unique anim tiles on map
+
+#define	MAXMAPHEIGHT		200
+
+#endif
+
+#define	PRIORITIES			4
+#define	MASKEDTILEPRIORITY	3		// planes go: 0,1,2,MTILES,3
+
+#define TILEGLOBAL			256
+#define PIXGLOBAL			16
+
+#define	G_T_SHIFT			8		// global >> ?? = tile
+#define	G_P_SHIFT			4		// global >> ?? = pixels
+#define P_T_SHIFT			4		// pixels >> ?? = tile
+
+#define	PORTTILESWIDE		21      // all drawing takes place inside a
+#define	PORTTILESHIGH		14		// non displayed port of this size
+
+//#define	PORTGLOBALWIDE		(21*TILEGLOBAL)
+//#define	PORTGLOBALHIGH		(14*TILEGLOBAL)
+
+#define UPDATEWIDE			(PORTTILESWIDE+1)
+#define UPDATEHIGH			PORTTILESHIGH
+
+
+//===========================================================================
+
+typedef enum {spritedraw,maskdraw} drawtype;
 
 
 // Pulled from CK_DEF.H
@@ -72,8 +131,7 @@ typedef boolean bool; // For sanity
 
 #define GAMELEVELS 25
 
-#define G_T_SHIFT 4
-#define G_P_SHIFT 4
+
 
 #define CONVERT_GLOBAL_TO_TILE(x)  ((x)>>(G_T_SHIFT))
 #define CONVERT_TILE_TO_GLOBAL(x)  ((x)<<(G_T_SHIFT))
@@ -357,6 +415,7 @@ extern statetype sc_badstate;
 
 extern boolean scorescreenkludge;
 
+void Terminator(void);
 
 /*
 =============================================================================
@@ -375,6 +434,125 @@ extern Uint16 originxtilemax, originytilemax;
 extern objtype dummyobj;
 extern Sint16 invincible;
 extern boolean debugok;
+
+// From CK_Game.c
+extern int	mapon;
+
+void InitObjArray(void);
+
+void StopMusic(void);
+void StartMusic(Uint16 num);
+void PlayLoop(void);
+
+
+/*
+=============================================================================
+
+						CK_KEEN2 DEFINITIONS
+
+=============================================================================
+*/
+
+/*
+=============================================================================
+
+						CK_KEEN2 DEFINITIONS
+
+=============================================================================
+*/
+
+extern const statetype s_score;
+extern const statetype s_demo;
+void SpawnScore(void);
+void UpdateScore(objtype *ob);
+void DrawDemoPlaque(objtype *ob);
+
+extern const statetype s_worldkeen;
+extern const statetype s_worldkeenwave1;
+extern const statetype s_worldkeenwave2;
+extern const statetype s_worldkeenwave3;
+extern const statetype s_worldkeenwave4;
+extern const statetype s_worldkeenwave5;
+extern const statetype s_worldkeenwalk;
+void SpawnWorldKeen(Sint16 x, Sint16 y);
+#ifdef KEEN5
+void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY);
+#endif
+void CheckEnterLevel(objtype *ob);
+void T_KeenWorld(objtype *ob);
+void T_KeenWorldWalk(objtype *ob);
+void CheckWorldInTiles(objtype *ob);
+
+#ifdef KEEN4
+extern const statetype s_keenonfoot1;
+extern const statetype s_keenonfoot2;
+extern const statetype s_worldswim;
+void T_FootFly(objtype *ob);
+void T_KeenWorldSwim(objtype *ob);
+#endif
+
+#ifdef KEEN5
+extern const statetype s_worldelevate;
+void T_Elevate(objtype *ob);
+#endif
+
+extern const statetype s_flagwave1;
+extern const statetype s_flagwave2;
+extern const statetype s_flagwave3;
+extern const statetype s_flagwave4;
+void SpawnFlag(Sint16 x, Sint16 y);
+
+#ifndef KEEN5
+extern const statetype s_throwflag0;
+extern const statetype s_throwflag1;
+extern const statetype s_throwflag2;
+extern const statetype s_throwflag3;
+extern const statetype s_throwflag4;
+extern const statetype s_throwflag5;
+extern const statetype s_throwflag6;
+void SpawnThrowFlag(Sint16 x, Sint16 y);
+void TossThink(objtype *ob);
+void PathThink(objtype *ob);
+void FlagAlign(objtype *ob);
+#endif
+
+extern const statetype s_stunray1;
+extern const statetype s_stunray2;
+extern const statetype s_stunray3;
+extern const statetype s_stunray4;
+extern const statetype s_stunhit;
+extern const statetype s_stunhit2;
+void SpawnShot(Uint16 x, Uint16 y, Direction dir);
+void ExplodeShot(objtype *ob);
+void T_Shot(objtype *ob);
+void R_Shot(objtype *ob);
+
+extern const statetype s_door1;
+extern const statetype s_door2;
+extern const statetype s_door3;
+void DoorOpen(objtype *ob);
+
+#ifdef KEEN5
+extern const statetype s_carddoor;
+void CardDoorOpen(objtype *ob);
+#endif
+
+
+/*
+=============================================================================
+
+						CK_STATE DEFINITIONS
+
+=============================================================================
+*/
+extern const Sint16 wallclip[8][16];
+
+extern Sint16 xtry;
+extern Sint16 ytry;
+extern boolean playerkludgeclipcancel;
+
+void R_Draw(objtype *ob);
+
 
 
 #endif

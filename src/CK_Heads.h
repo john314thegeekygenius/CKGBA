@@ -8,11 +8,15 @@
 
 #include "GBA_Defs.h"
 
+#include "CK_Input.h"
+
 #include "CK_Defs.h"
+
 #include "CK_Graphics.h"
 #include "CK_Sprites.h"
 #include "CK_Audio.h"
 #include "CK_Levels.h"
-#include "CK_Input.h"
+#include "CK_Universal.h"
+
 
 #endif

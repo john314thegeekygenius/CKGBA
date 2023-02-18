@@ -135,8 +135,6 @@ void CK_LoadLevel(unsigned short lvlNumber){
             }
         }
     }
-    // Load the spectators
-    CK_LoadSpectators();
 
     // Tell the engine to render the level
     CK_UpdateRendering = true;
@@ -339,3 +337,19 @@ void CK_UpdateLevel(){
     }
 };
 
+//==========================================================================
+
+/*
+==========================
+=
+= ScanInfoPlane
+=
+= Spawn all actors and mark down special places
+=
+==========================
+*/
+
+void ScanInfoPlane(void){
+    InitObjArray(); // start spawning things with a clean slate
+    CK_LoadSpectators();
+};

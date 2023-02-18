@@ -13,5 +13,6 @@
 #include "CK_Sprites.h"
 #include "CK_Audio.h"
 #include "CK_Levels.h"
+#include "CK_Input.h"
 
 #endif

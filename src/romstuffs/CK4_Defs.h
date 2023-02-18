@@ -3,6 +3,36 @@
 #define __CK4_DEFS__
 
 
+
+// K4_DEF.H stuff
+
+// TODO:
+// Make this correct
+#define STARPALETTE {}
+
+#define WORLDMAPNAME "Shadowlands"
+#define DROPSNAME "DROPS"
+
+// TODO:
+// Make this correct
+#define HIGHSCORE_LEFT	24
+#define HIGHSCORE_TOP	51
+#define HIGHSCORE_RIGHT	296
+#define HIGHSCORE_MAP	19
+
+#define STARWARSMUSIC	12
+#define ENDINGMUSIC	7
+
+// levels in this range can NOT be re-entered (BWB level should be > MAXDONELEVEL)
+#define MINDONELEVEL 1
+#define MAXDONELEVEL 17
+
+
+
+// Graphics Stuff
+
+#include "CK4_GFX.h"
+
 typedef enum CK_SpriteType{
     CKS_PADDLE,
     CKS_BALL,

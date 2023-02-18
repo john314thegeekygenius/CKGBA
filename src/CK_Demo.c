@@ -7,4 +7,8 @@
 #include "CK_Heads.h"
 
 
+boolean scorescreenkludge;
+
+
+
 

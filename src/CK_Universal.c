@@ -121,3 +121,4 @@ ENDP
 unsigned int CK_US_RndT(){
     return ck_rndtable[(ck_rndindex++)&0xFF];
 };
+

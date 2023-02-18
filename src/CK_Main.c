@@ -92,8 +92,6 @@ int main(){
 
 		CK_UpdateObjects();
 
-		CK_MoveDopey();
-
 		//CK_MoveCamera(levelX, levelY);
 
 //		GBA_Delay(50);

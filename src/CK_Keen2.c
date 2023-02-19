@@ -67,7 +67,6 @@ void SpawnScore(void)
 	{
 		NewState(scoreobj, &s_demo);
 	    CK_SetSprite(scoreobj, CKS_DEMO);
-		//CA_MarkGrChunk(DEMOPLAQUESPR); // Unused
 	}
 }
 
@@ -364,6 +363,40 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 }
 
 
+
+/*
+======================
+=
+= CheckEnterLevel
+=
+======================
+*/
+
+void CheckEnterLevel(objtype *ob)
+{
+	Uint16 x, y, info;
+
+	for (y = ob->y>>G_T_SHIFT; y <= (ob->y+16)>>G_T_SHIFT; y++)
+	{
+		for (x = ob->x>>G_T_SHIFT; x <= (ob->x+16)>>G_T_SHIFT; x++)
+		{
+            const uint32_t offset = (y*CK_CurLevelWidth)+x+(CK_CurLevelSize*2);
+            // Copy the level data over
+            const uint32_t info = CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
+
+			if (info > 0xC000 && info <= (0xC000 + 18))
+			{
+				gamestate.worldx = ob->x;
+				gamestate.worldy = ob->y;
+				gamestate.mapon = info - 0xC000;
+				playstate = ex_completed;
+				//SD_PlaySound(SND_ENTERLEVEL);
+			}
+		}
+	}
+}
+
+
 /*
 ======================
 =
@@ -382,7 +415,7 @@ void T_KeenWorld(objtype *ob)
 	}
 	if (jumpbutton || pogobutton || firebutton)
 	{
-		//CheckEnterLevel(ob);
+		CheckEnterLevel(ob);
 	}
 }
 
@@ -408,7 +441,7 @@ void T_KeenWorldWalk(objtype *ob)
 		ob->ydir = c.yaxis;
 		if (pogobutton || firebutton || jumpbutton)
 		{
-			//CheckEnterLevel(ob);
+			CheckEnterLevel(ob);
 		}
 		if (c.dir == dir_None)
 		{

@@ -14,6 +14,10 @@
 extern unsigned short CK_CurLevelWidth;
 extern unsigned short CK_CurLevelHeight;
 extern unsigned short CK_CurLevelSize;
+extern unsigned short CK_CurLevelIndex;
+
+extern GBA_IN_EWRAM uint16_t CK_CurLevelData[32768];
+extern const unsigned short* CK_LevelInfo[];
 
 extern signed int CK_GlobalCameraX ;
 extern signed int CK_GlobalCameraY ;

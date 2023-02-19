@@ -97,16 +97,16 @@ void Quit(char *error)
 
 void DemoLoop(void)
 {
-	static char *ParmStrings[] = {"easy", "normal", "hard", ""};
-
-	register Sint16 i, state;
+	Sint16 i, state;
 	Sint16 level;
-	DemoMode = 1;
+	DemoMode = demo_Off;
+
 //
 // demo loop
 //
 	state = 0;
 	playstate = ex_stillplaying;
+	playstate = ex_resetgame;
 	while (1)
 	{
 		switch (state++)

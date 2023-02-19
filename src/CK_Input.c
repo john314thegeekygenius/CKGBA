@@ -103,6 +103,7 @@ IN_ReadControl(int player, ControlInfo *info)
 	info->yaxis = my;
 	info->button0 = buttons & (1 << 0);
 	info->button1 = buttons & (1 << 1);
+	info->button2 = buttons & (1 << 2);
 	info->dir = DirTable[((my + 1) * 3) + (mx + 1)];
 
     // Removed Demo recording code

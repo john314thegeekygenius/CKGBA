@@ -703,10 +703,6 @@ void HandleDeath(void)
 void GameLoop(void)
 {
 
-    // TODO:
-    // Make this do somthing??
-    /*
-
 	Uint16 temp;
 #ifdef KEEN6
 	Uint16 i;
@@ -735,55 +731,21 @@ reset:
 	{
 startlevel:
 		SetupGameLevel(true);
-		if (mmerror)
-		{
-			if (gamestate.mapon != 0)
-			{
-				mmerror = false;
-				US_CenterWindow(20, 8);
-				PrintY += 20;
-				US_CPrint("Insufficient memory\nto load level!");
-				VW_UpdateScreen();
-				IN_Ack();
-				gamestate.mapon = 0;		// exit to world map
-				SetupGameLevel(true);
-			}
-			if (mmerror)
-			{
-				Quit("GameLoop: Insufficient memory to load world map!");
-			}
-		}
+
 loaded:
 		keenkilled = false;
-		SD_WaitSoundDone();
+		//SD_WaitSoundDone();
 
 		PlayLoop();
 
 		if (playstate != ex_loadedgame)
 		{
-			memset(gamestate.keys, 0, sizeof(gamestate.keys));
+			gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
 #ifdef KEEN5
 			gamestate.keycard = false;
 #endif
 		}
-		VW_FixRefreshBuffer();
-
-		if (tedlevel)
-		{
-			if (playstate == ex_loadedgame)
-			{
-				goto loaded;
-			}
-			else if (playstate == ex_died)
-			{
-				goto startlevel;
-			}
-			else
-			{
-				TEDDeath();
-			}
-		}
-
+		
 		levelcompleted = -1;
 		switch (playstate)
 		{
@@ -794,29 +756,29 @@ loaded:
 			goto loaded;
 
 		case ex_died:
-			HandleDeath();
+			//HandleDeath();
 			break;
 
 #if defined KEEN4
 		case ex_rescued:
 			if (mapon != 0)
 			{
-				SD_PlaySound(SND_LEVELDONE);
+				//SD_PlaySound(SND_LEVELDONE);
 			}
 			levelcompleted = mapon;
 			gamestate.leveldone[mapon] = true;
-			RescuedMember();
+			//RescuedMember();
 			if (gamestate.rescued != 8)
 			{
 				gamestate.mapon = 0;
 			}
 			else
-			{
+			{/*
 				FreeGraphics();
 				RF_FixOfs();
 				VW_FixRefreshBuffer();
 				FinaleLayout();
-				CheckHighScore(gamestate.score, gamestate.rescued);
+				CheckHighScore(gamestate.score, gamestate.rescued);*/
 				return;
 			}
 			break;
@@ -865,44 +827,31 @@ loaded:
 completed:
 			if (mapon != 0)
 			{
-				SD_PlaySound(SND_LEVELDONE);
+				//SD_PlaySound(SND_LEVELDONE);
 				gamestate.mapon = 0;
 				levelcompleted = mapon;
 				gamestate.leveldone[mapon] = true;
-				if (storedemo && mapon == 2)
-				{
-					IN_ClearKeysDown();
-					return;
-				}
 			}
 			else
 			{
-#if GRMODE != CGAGR
-				temp = bufferofs;
-				bufferofs = displayofs;
-#endif
-				US_CenterWindow(26, 8);
+/*				US_CenterWindow(26, 8);
 				PrintY += 25;
-				US_CPrint("One moment");
-#if GRMODE == CGAGR
-				VW_UpdateScreen();
-#else
-				bufferofs = temp;
-#endif
+				US_CPrint("One moment");*/
 			}
 			break;
 
 		case ex_abortgame:
-			IN_ClearKeysDown();
+			//IN_ClearKeysDown();
 			return;
 		}
 	} while (gamestate.lives >= 0);
 
-	GameOver();
+//	GameOver();
 
 check_score:
 #if defined KEEN4
-	CheckHighScore(gamestate.score, gamestate.rescued);
+//	CheckHighScore(gamestate.score, gamestate.rescued);
+;
 #else
 	temp = 0;
 #if defined KEEN6
@@ -914,6 +863,6 @@ check_score:
 #endif
 	CheckHighScore(gamestate.score, temp);
 #endif
-*/
+
 };
 

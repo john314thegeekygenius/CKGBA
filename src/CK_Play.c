@@ -67,18 +67,18 @@ void WorldScrollScreen(objtype *ob)
 	if (keenkilled)
 		return;
 
-    if(ob->x < CK_GlobalCameraX + 3*TILEGLOBAL){
-        xscroll = ob->x - (CK_GlobalCameraX + 3*TILEGLOBAL);
-    }else if(ob->x+ 16 > CK_GlobalCameraX + 12*TILEGLOBAL){
-        xscroll = ob->x + 16 - (CK_GlobalCameraX + 12*TILEGLOBAL);
+    if(ob->x < CK_GlobalCameraX + 7*TILEGLOBAL){
+        xscroll = ob->x - (CK_GlobalCameraX + 7*TILEGLOBAL);
+    }else if(ob->x+ 16 > CK_GlobalCameraX + 9*TILEGLOBAL){
+        xscroll = ob->x + 16 - (CK_GlobalCameraX + 9*TILEGLOBAL);
     }else{
         xscroll = 0;
     }
 
-    if(ob->y < CK_GlobalCameraY + 2*TILEGLOBAL){
-        yscroll = ob->y - (CK_GlobalCameraY + 2*TILEGLOBAL);
-    }else if(ob->y > CK_GlobalCameraY + 7*TILEGLOBAL){
-        yscroll = ob->y - (CK_GlobalCameraY + 7*TILEGLOBAL);
+    if(ob->y < CK_GlobalCameraY + 4*TILEGLOBAL){
+        yscroll = ob->y - (CK_GlobalCameraY + 4*TILEGLOBAL);
+    }else if(ob->y > CK_GlobalCameraY + 5*TILEGLOBAL){
+        yscroll = ob->y - (CK_GlobalCameraY + 5*TILEGLOBAL);
     }else{
         yscroll = 0;
     }
@@ -236,6 +236,39 @@ void PollControls(void)
 }
 
 
+//===========================================================================
+
+/*
+=====================
+=
+= CheckKeys
+=
+=====================
+*/
+
+void CheckKeys(void)
+{
+/*	if (screenfaded)			// don't do anything with a faded screen
+	{
+		return;
+	}
+*/
+//
+// Enter for status screen
+//
+/*	if (Keyboard[sc_Enter] || (GravisGamepad && GravisAction[ga_Status]))
+	{
+		StatusWindow();
+		IN_ClearKeysDown();
+		RF_ForceRefresh();
+		lasttimecount = TimeCount;	// BUG: should be the other way around
+	}
+*/
+}
+
+//===========================================================================
+
+
 /*
 =================
 =
@@ -298,14 +331,15 @@ void PlayLoop(void)
 {
 	objtype *check;
 
-	StartMusic(gamestate.mapon);/*
+	StartMusic(gamestate.mapon);
 	fireheld = pogoheld = upheld = jumpheld = false;
 	ingame = true;
 	playstate = ex_stillplaying;
 	invincible = keenkilled = oldfirecount = 0;
 
-	CenterActor(player);
-*/
+//TODO: Find out what this does
+//	CenterActor(player);
+
 	if (DemoMode)
 	{
 		US_InitRndT(false);
@@ -528,7 +562,7 @@ void PlayLoop(void)
 		}
 		else
 		{
-			//CheckKeys();
+			CheckKeys();
 		}
 /*
 //

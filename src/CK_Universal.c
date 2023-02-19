@@ -59,11 +59,13 @@ void RF_CalcTics (void)
 //
 // non demo, so report actual time
 //
-		do
+		// Hmmmm
+		tics = MINTICS;
+/*		do
 		{
 			newtime = TimeCount;
 			tics = newtime-lasttimecount;
-		} while (tics<MINTICS);
+		} while (tics<MINTICS);*/
 		lasttimecount = newtime;
 
 		if (tics>MAXTICS)

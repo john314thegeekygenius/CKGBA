@@ -434,6 +434,22 @@ void R_WalkNormal(objtype *ob)
 //	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
+//==========================================================================
+
+/*
+===============
+=
+= T_Projectile
+=
+===============
+*/
+
+void T_Projectile(objtype *ob)
+{
+//	DoGravity(ob);
+	xtry = ob->xspeed*tics;
+}
+
 
 /*
 ===============

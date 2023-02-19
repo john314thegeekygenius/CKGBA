@@ -406,6 +406,169 @@ void StopMusic(void);
 void StartMusic(Uint16 num);
 void PlayLoop(void);
 
+/*
+=============================================================================
+
+						CK_KEEN DEFINITIONS
+
+=============================================================================
+*/
+
+extern const Uint16 bounceangle[8][8];
+#ifndef KEEN4
+extern const arrowdirtype arrowflip[];
+#endif
+
+extern const statetype s_keenstand;
+extern const statetype s_keenpauselook;
+extern const statetype s_keenwait1;
+extern const statetype s_keenwait2;
+extern const statetype s_keenwait3;
+extern const statetype s_keenwait4;
+extern const statetype s_keenwait5;
+extern const statetype s_keenwait6;
+extern const statetype s_keenmoon1;
+extern const statetype s_keenmoon2;
+extern const statetype s_keenmoon3;
+extern const statetype s_keenread;
+extern const statetype s_keenread2;
+extern const statetype s_keenread3;
+extern const statetype s_keenread4;
+extern const statetype s_keenread5;
+extern const statetype s_keenread6;
+extern const statetype s_keenread7;
+extern const statetype s_keenstopread;
+extern const statetype s_keenstopread2;
+extern const statetype s_keenstopread3;
+extern const statetype s_keenlookup;
+extern const statetype s_keenlookup2;
+extern const statetype s_keenlookdown;
+extern const statetype s_keenlookdown2;
+extern const statetype s_keenlookdown3;
+extern const statetype s_keenlookdown4;
+extern const statetype s_keendrop;
+extern const statetype s_keendead;
+extern const statetype s_keendie1;
+extern const statetype s_keendie2;
+#ifdef KEEN4
+extern const statetype s_keensuitdie1;
+extern const statetype s_keensuitdie2;
+#endif
+extern const statetype s_keenshoot1;
+extern const statetype s_keenshoot2;
+extern const statetype s_keenshootup1;
+extern const statetype s_keenshootup2;
+extern const statetype s_keenswitch;
+extern const statetype s_keenswitch2;
+extern const statetype s_keenkey;
+extern const statetype s_keenlineup;
+extern const statetype s_keenenter1;
+extern const statetype s_keenenter2;
+extern const statetype s_keenenter3;
+extern const statetype s_keenenter4;
+extern const statetype s_keenenter5;
+extern const statetype s_keenpole;
+extern const statetype s_keenclimb1;
+extern const statetype s_keenclimb2;
+extern const statetype s_keenclimb3;
+extern const statetype s_keenslide1;
+extern const statetype s_keenslide2;
+extern const statetype s_keenslide3;
+extern const statetype s_keenslide4;
+extern const statetype s_keenpoleshoot1;
+extern const statetype s_keenpoleshoot2;
+extern const statetype s_keenpoleshootup1;
+extern const statetype s_keenpoleshootup2;
+extern const statetype s_keenpoleshootdown1;
+extern const statetype s_keenpoleshootdown2;
+extern const statetype s_keenwalk1;
+extern const statetype s_keenwalk2;
+extern const statetype s_keenwalk3;
+extern const statetype s_keenwalk4;
+extern const statetype s_keenpogodown;
+extern const statetype s_keenpogo;
+extern const statetype s_keenpogo2;
+extern const statetype s_keenjump1;
+extern const statetype s_keenjump2;
+extern const statetype s_keenjump3;
+extern const statetype s_keenjump4;
+extern const statetype s_keenairshoot1;
+extern const statetype s_keenairshoot2;
+extern const statetype s_keenairshoot3;
+extern const statetype s_keenairshootup1;
+extern const statetype s_keenairshootup2;
+extern const statetype s_keenairshootup3;
+extern const statetype s_keenairshootdown1;
+extern const statetype s_keenairshootdown2;
+extern const statetype s_keenairshootdown3;
+extern const statetype s_keenholdon;
+extern const statetype s_keenholdon2;
+extern const statetype s_keenclimbup;
+extern const statetype s_keenclimbup2;
+extern const statetype s_keenclimbup3;
+extern const statetype s_keenclimbup4;
+extern const statetype s_keenclimbup5;
+
+extern const Sint16 slopespeed[8];
+extern const Sint16 polexspeed[3];
+
+extern const Sint16 shotsinclip[4];
+extern const Sint16 bonussound[];
+extern const Sint16 bonuspoints[];
+extern const Sint16 bonussprite[];
+
+extern Uint16 zeromap;
+
+extern Sint16 singlegravity;
+extern Sint16 jumptime;
+extern Sint32 leavepoletime;
+extern Sint16 moonok;
+
+void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir);
+boolean CheckGrabPole(objtype *ob);
+boolean CheckEnterHouse(objtype *ob);
+void WalkSound1(objtype *ob);
+void WalkSound2(objtype *ob);
+void KeenStandThink(objtype *ob);
+void KeenPauseThink(objtype *ob);
+void KeenReadThink(objtype *ob);
+void KeenLookUpThink(objtype *ob);
+void KeenLookDownThink(objtype *ob);
+void KeenWalkThink(objtype *ob);
+void T_LineUp(objtype *ob);
+void KeenEnterThink(objtype *ob);
+void KeenSwitchThink(objtype *ob);
+void KeenKeyThink(objtype *ob);
+void KeenAirThink(objtype *ob);
+void KeenBounceThink(objtype *ob);
+void KeenPogoThink(objtype *ob);
+void PoleActions(objtype *ob);
+void KeenPoleThink(objtype *ob);
+void KeenClimbThink(objtype *ob);
+void KeenDropThink(objtype *ob);
+void KeenDropDownThink(objtype *ob);
+void KeenHoldThink(objtype *ob);
+void KeenShootThink(objtype *ob);
+void T_PullUp1(objtype *ob);
+void T_PullUp2(objtype *ob);
+void T_PullUp3(objtype *ob);
+void T_PulledUp(objtype *ob);
+void KeenDieThink(objtype *ob);
+void KillKeen(void);
+void KeenContact(objtype *ob, objtype *hit);
+void KeenPosContact(objtype *ob, objtype *hit);
+void HandleRiding(objtype *ob);
+void TileBonus(Uint16 x, Uint16 y, Uint16 bonus);
+void GiveDrop(Uint16 x, Uint16 y);
+void CheckInTiles(objtype *ob);
+void KeenSimpleReact(objtype *ob);
+void KeenStandReact(objtype *ob);
+void KeenWalkReact(objtype *ob);
+void KeenAirReact(objtype *ob);
+void KeenPogoReact(objtype *ob);
+void KeenPoleReact(objtype *ob);
+
+
 
 /*
 =============================================================================
@@ -512,7 +675,7 @@ void ChangeState(objtype *ob, statetype *state);
 
 
 void R_Draw(objtype *ob);
-
+void T_Projectile(objtype *ob);
 
 
 #endif

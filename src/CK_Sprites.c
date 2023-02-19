@@ -49,9 +49,7 @@ void CK_SetSprite(objtype *obj, CK_SpriteType type){
         obj->gfxoffset = CK_SprGfxOffset;
         for(int i = 0; i < obj->gbaSpriteCount; i++){
             obj->sprtype[i] = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)];
-            int sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1];
-            int spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2];
-            obj->gbaSprites[i] = GBA_CreateSprite(sprx,spry,obj->sprtype[i],CK_SprTileOffset,0,0);
+            obj->gbaSprites[i] = GBA_CreateSprite(GBA_SPR_OFFX,GBA_SPR_OFFY,obj->sprtype[i],CK_SprTileOffset,0,0);
             CK_SprTileOffset += CK_SpriteSizes[obj->sprtype[i]]>>3;
         }
         CK_SprGfxOffset += (*CK_SpritePtrs[(obj->ck_sprType<<2)+3])>>3;
@@ -73,7 +71,7 @@ void CK_UpdateObjGraphics(objtype *obj){
 };
 
 void CK_UpdateObjects(){
-    
+    return;
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
         if(obj->isFree) continue;
@@ -92,8 +90,8 @@ void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
 
     for(int i = 0; i < obj->gbaSpriteCount; i++){
         // Make the object work in global map space
-        signed int sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + dx - CK_GlobalCameraX;
-        signed int spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + dy - CK_GlobalCameraY;
+        signed int sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + dx - CK_GlobalCameraX + obj->state->xmove;
+        signed int spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + dy - CK_GlobalCameraY + obj->state->ymove;
         // Make sure we can even see the sprite
         if(sprx > -64 && sprx < (240+64) && spry > -64 && spry < (160+64)){
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)

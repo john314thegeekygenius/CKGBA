@@ -242,8 +242,8 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 	player->obclass = keenobj;
 	player->active = ac_allways;
 	player->priority = 1;
-	player->x = CONVERT_TILE_TO_GLOBAL(x)>>8;
-	player->y = CONVERT_TILE_TO_GLOBAL(y) + 16;//- (0xF1>>8);	//TODO: weird
+	player->x = CONVERT_TILE_TO_GLOBAL(x) ;
+	player->y = CONVERT_TILE_TO_GLOBAL(y) -16;//- 0xF1;	//TODO: weird
 
 	player->xdir = dir;
 	player->ydir = 1;

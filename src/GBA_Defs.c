@@ -3,7 +3,10 @@
 
 #include "GBA_Defs.h"
 
-
+int min(int a, int b){
+	if(a > b) return b;
+	return a;
+};
 
 void GBA_Delay(uint32_t ms){
 	ms *= 250;
@@ -147,6 +150,8 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 	GBA_SpriteList[index].a0 = y | palflags | (shape_bits<<14);
 	GBA_SpriteList[index].a1 = x | (size_bits<<14);
 	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
+
+	GBA_UPDATE_SPRITE(index)
 
 	return index;
 };

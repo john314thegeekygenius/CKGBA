@@ -14,6 +14,7 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 
+int min(int a, int b);
 
 #define GBA_ABS(x) ((x)<0?-(x):(x))
 
@@ -411,6 +412,9 @@ X  X  X  X   S  I  I  I   I  I  I  I   I  I  I  I   I  I  I  I   I  I  I I  F F 
 
 // 1024 chunks of 32 bytes
 #define GBA_SPRGFX_START 0x6010000
+
+#define GBA_SPR_OFFX 0xF0
+#define GBA_SPR_OFFY 0xF0
 
 typedef struct GBA_Sprite {
 	uint16_t a0;

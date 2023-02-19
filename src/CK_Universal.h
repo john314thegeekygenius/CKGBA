@@ -11,6 +11,14 @@
 extern	unsigned	tics;
 extern	long		lasttimecount;
 
+#define	PORTTILESWIDE		30      // all drawing takes place inside a
+#define	PORTTILESHIGH		20		// non displayed port of this size
+
+extern	unsigned	originxglobal,originyglobal;
+extern	unsigned	originxtile,originytile;
+extern	unsigned	originxscreen,originyscreen;
+extern	unsigned	originxmin,originxmax,originymin,originymax;
+
 
 // From ID_US.H
 typedef	enum

@@ -95,18 +95,15 @@ void CK_LoadSpectators(){
                 case 1:
                     // Commander Keen (Right)
                     SpawnKeen(x, y, 1);
-                    CK_MoveCamera((x-7)<<4, (y-5)<<4); // Move the camera there
 		    		SpawnScore();
                     break;
                 case 2:
                     // Commander Keen (Left)
                     SpawnKeen(x, y, -1);
-                    CK_MoveCamera((x-7)<<4, (y-5)<<4); // Move the camera there
 	    			SpawnScore();
                     break;
                 case 3:
                     // Commander Keen (Map)
-                    CK_MoveCamera((x-7)<<4, (y-5)<<4); // Move the camera there
                     SpawnWorldKeen(x, y);
     				SpawnScore();
                     break;

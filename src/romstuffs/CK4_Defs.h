@@ -27,7 +27,7 @@
 #define MINDONELEVEL 1
 #define MAXDONELEVEL 17
 
-
+#define INACTIVATEDIST 4
 
 // Graphics Stuff
 

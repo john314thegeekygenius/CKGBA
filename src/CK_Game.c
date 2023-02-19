@@ -50,6 +50,29 @@ void FadeAndUnhook(void);
 
 //===========================================================================
 
+void ClearGameState(){
+	gamestate.worldx = gamestate.worldy = 0;
+	for(int i = 0; i < GAMELEVELS; i++)
+		gamestate.leveldone[i] = false;
+	gamestate.score = gamestate.nextextra = 0;
+	gamestate.ammo = gamestate.drops = 0;
+#if defined CK4
+	gamestate.wetsuit = 0;
+	gamestate.rescued = 0;
+#elif defined CK5
+	gamestate.keycard = false;
+	gamestate.destroyed = 0;	// never used
+	gamestate.numfuses = 0;
+#elif defined CK6
+	gamestate.sandwichstate = gamestate.hookstate = gamestate.passcardstate = gamestate.rocketstate;
+#endif
+	gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
+	gamestate.mapon;
+	gamestate.lives;
+	gamestate.difficulty;
+	gamestate.riding = NULL;
+};
+
 /*
 =====================
 =
@@ -62,7 +85,7 @@ void FadeAndUnhook(void);
 
 void NewGame(void)
 {
-	GBA_DMA_MemSet32(&gamestate, 0, sizeof(gamestate)>>2); // TODO: Check this
+	ClearGameState();
 	gamestate.nextextra = 20000;
 	gamestate.lives = 3;
 	gamestate.ammo = 5;

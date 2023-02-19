@@ -15,7 +15,7 @@ extern unsigned int CK_NumOfObjects;
 
 unsigned short GetNewObj(boolean dummy);
 
-void CK_SetNewSprite(CK_SpriteType type);
+void CK_SetSprite(objtype *obj, CK_SpriteType type);
 
 void CK_UpdateObjGraphics(objtype *obj);
 

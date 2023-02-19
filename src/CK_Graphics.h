@@ -20,6 +20,10 @@ typedef enum {
 
 
 void CK_InitVideo();
+
+
+extern boolean	screenfaded;
+
 void VW_ClearVideo(unsigned int color);
 
 #endif

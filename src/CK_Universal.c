@@ -18,6 +18,23 @@ word            WindowX,WindowY,WindowW,WindowH;
 // From ID_RF.C
 unsigned	tics = 1;
 long		lasttimecount = 0;
+//
+// Global : Actor coordinates are in this, at 1/16 th of a pixel, to allow
+// for fractional movement and acceleration.
+//
+// Tiles  : Tile offsets from the upper left corner of the current map.
+//
+// Screen : Graphics level offsets from map origin, x in bytes, y in pixels.
+// originxscreen is the same spot as originxtile, just with extra precision
+// so graphics don't need to be done in tile boundaries.
+//
+
+unsigned	originxglobal,originyglobal;
+unsigned	originxtile,originytile;
+unsigned	originxscreen,originyscreen;
+unsigned	originmap;
+unsigned	originxmin,originxmax,originymin,originymax;
+
 
 void GBA_UserIRQ(){
 	TimeCount += 1;
@@ -82,9 +99,34 @@ void US_TextScreen(){
 	
 };
 
+///////////////////////////////////////////////////////////////////////////////////////
 
+void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
+	unsigned spritenumber, drawtype draw, int priority)
+{
+	if (!spritenumber || spritenumber == (unsigned)-1)
+	{
+		RF_RemoveSprite (user);
+		return;
+	}
+    CK_UpdateObjGraphics(user);
+    CK_DrawObject((objtype*)user, ((objtype*)user)->x, ((objtype*)user)->y);
 
+}
 
+//===========================================================================
+
+/*
+=====================
+=
+= RF_RemoveSprite  EGA
+=
+=====================
+*/
+
+void RF_RemoveSprite (void **user){
+	// Ummm....
+};
 
 
 

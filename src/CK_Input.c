@@ -109,3 +109,28 @@ IN_ReadControl(int player, ControlInfo *info)
     // Removed Demo recording code
 
 }
+
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_IsUserInput() - Returns true if a key has been pressed or a button
+//		is down
+//
+///////////////////////////////////////////////////////////////////////////
+boolean IN_IsUserInput(void) {
+	boolean result = false;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_A))
+		result = true;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_B))
+		result = true;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_START))
+		result = true;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_SELECT))
+		result = true;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER))
+		result = true;
+	if (GBA_TEST_BUTTONS(GBA_BUTTON_RSHOLDER))
+		result = true;
+	return result;
+}

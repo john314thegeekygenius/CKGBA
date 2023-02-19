@@ -337,6 +337,8 @@ typedef struct objstruct
     CK_SpriteType ck_sprType;
 } objtype;
 
+void ClearGameState();
+
 typedef struct
 {
 	Uint16 worldx, worldy;
@@ -402,10 +404,18 @@ extern int	mapon;
 
 void InitObjArray(void);
 
+
+void CheckKeys(void);
+void StatusWindow(void);
+void CenterActor(objtype *ob);
+void WorldScrollScreen(objtype *ob);
+void ScrollScreen(objtype *ob);
+
+void GivePoints(Uint16 points);
 void StopMusic(void);
 void StartMusic(Uint16 num);
-void PlayLoop(void);
 
+void PlayLoop(void);
 /*
 =============================================================================
 

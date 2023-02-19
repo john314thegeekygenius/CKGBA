@@ -19,6 +19,10 @@ boolean singlestep, jumpcheat, godmode, keenkilled;
 
 exittype playstate;
 gametype gamestate;
+
+Uint16 originxtilemax;
+Uint16 originytilemax;
+
 ControlInfo c;
 
 // ck_newobj is known as new in OG code
@@ -45,8 +49,121 @@ boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld
 */
 Sint16 oldfirecount;
 
+Uint16 centerlevel;
+
+Sint16 inactivateleft;
+Sint16 inactivateright;
+Sint16 inactivatetop;
+Sint16 inactivatebottom;
 
 
+//===========================================================================
+
+
+/*
+=====================
+=
+= CheckKeys
+=
+=====================
+*/
+
+void CheckKeys(void)
+{
+/*	if (screenfaded)			// don't do anything with a faded screen
+	{
+		return;
+	}
+*/
+//
+// Enter for status screen
+//
+/*	if (Keyboard[sc_Enter] || (GravisGamepad && GravisAction[ga_Status]))
+	{
+		StatusWindow();
+		IN_ClearKeysDown();
+		RF_ForceRefresh();
+		lasttimecount = TimeCount;	// BUG: should be the other way around
+	}
+*/
+}
+
+//===========================================================================
+
+/*
+==================
+=
+= CenterActor
+=
+==================
+*/
+
+void CenterActor(objtype *ob)
+{
+	Uint16 orgx, orgy;
+
+	centerlevel = 140;
+	if (ob->x < 152*PIXGLOBAL)
+	{
+		orgx = 0;
+	}
+	else
+	{
+		orgx = ob->x - 152*PIXGLOBAL;
+	}
+	if (mapon == 0)
+	{
+		if (ob->y < 80*PIXGLOBAL)
+		{
+			orgy = 0;
+		}
+		else
+		{
+			orgy = ob->y - 80*PIXGLOBAL;
+		}
+	}
+	else
+	{
+		if (ob->bottom < 140*PIXGLOBAL)
+		{
+			orgy = 0;
+		}
+		else
+		{
+			orgy = ob->bottom - 140*PIXGLOBAL;
+		}
+	}
+	if (!scorescreenkludge)
+	{
+		CK_MoveCamera(orgx, orgy);
+	}
+
+//
+// update limits for onscreen and inactivate checks
+//
+	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
+	originytilemax = (originytile + PORTTILESHIGH) - 1;
+	inactivateleft = originxtile - INACTIVATEDIST;
+	if (inactivateleft < 0)
+	{
+		inactivateleft = 0;
+	}
+	inactivateright = originxtilemax + INACTIVATEDIST;
+	if (inactivateright < 0)
+	{
+		inactivateright = 0;
+	}
+	inactivatetop = originytile - INACTIVATEDIST;
+	if (inactivatetop < 0)
+	{
+		inactivatetop = 0;
+	}
+	inactivatebottom = originytilemax + INACTIVATEDIST;
+	if (inactivatebottom < 0)
+	{
+		inactivatebottom = 0;
+	}
+}
 
 //===========================================================================
 
@@ -67,47 +184,31 @@ void WorldScrollScreen(objtype *ob)
 	if (keenkilled)
 		return;
 
-    if(ob->x < CK_GlobalCameraX + 7*TILEGLOBAL){
-        xscroll = ob->x - (CK_GlobalCameraX + 7*TILEGLOBAL);
-    }else if(ob->x+ 16 > CK_GlobalCameraX + 9*TILEGLOBAL){
-        xscroll = ob->x + 16 - (CK_GlobalCameraX + 9*TILEGLOBAL);
-    }else{
-        xscroll = 0;
-    }
-
-    if(ob->y < CK_GlobalCameraY + 4*TILEGLOBAL){
-        yscroll = ob->y - (CK_GlobalCameraY + 4*TILEGLOBAL);
-    }else if(ob->y > CK_GlobalCameraY + 5*TILEGLOBAL){
-        yscroll = ob->y - (CK_GlobalCameraY + 5*TILEGLOBAL);
-    }else{
-        yscroll = 0;
-    }
-    /*
-	if (ob->left < CK_GlobalCameraX + 9*TILEGLOBAL)
+	if (ob->left < originxglobal + 9*TILEGLOBAL)
 	{
-		xscroll = ob->left - (CK_GlobalCameraX + 9*TILEGLOBAL);
+		xscroll = ob->left - (originxglobal + 9*TILEGLOBAL);
 	}
-	else if (ob->right > CK_GlobalCameraX + 12*TILEGLOBAL)
+	else if (ob->right > originxglobal + 12*TILEGLOBAL)
 	{
-		xscroll = ob->right + 16 - (CK_GlobalCameraX + 12*TILEGLOBAL);
+		xscroll = ob->right + 16 - (originxglobal + 12*TILEGLOBAL);
 	}
 	else
 	{
 		xscroll = 0;
 	}
 
-	if (ob->top < CK_GlobalCameraY + 5*TILEGLOBAL)
+	if (ob->top < originyglobal + 5*TILEGLOBAL)
 	{
-		yscroll = ob->top - (CK_GlobalCameraY + 5*TILEGLOBAL);
+		yscroll = ob->top - (originyglobal + 5*TILEGLOBAL);
 	}
-	else if (ob->bottom > CK_GlobalCameraY + 7*TILEGLOBAL)
+	else if (ob->bottom > originyglobal + 7*TILEGLOBAL)
 	{
-		yscroll = ob->bottom - (CK_GlobalCameraY + 7*TILEGLOBAL);
+		yscroll = ob->bottom - (originyglobal + 7*TILEGLOBAL);
 	}
 	else
 	{
 		yscroll = 0;
-	}*/
+	}
 
 	if (!xscroll && !yscroll)
 		return;
@@ -133,7 +234,244 @@ void WorldScrollScreen(objtype *ob)
 	}
 
     CK_ScrollCamera(xscroll, yscroll);
-};
+
+//
+// update limits for onscreen and inactivate checks
+//
+	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
+	originytilemax = (originytile + PORTTILESHIGH) - 1;
+	inactivateleft = originxtile - INACTIVATEDIST;
+	if (inactivateleft < 0)
+	{
+		inactivateleft = 0;
+	}
+	inactivateright = originxtilemax + INACTIVATEDIST;
+	if (inactivateright < 0)
+	{
+		inactivateright = 0;
+	}
+	inactivatetop = originytile - INACTIVATEDIST;
+	if (inactivatetop < 0)
+	{
+		inactivatetop = 0;
+	}
+	inactivatebottom = originytilemax + INACTIVATEDIST;
+	if (inactivatebottom < 0)
+	{
+		inactivatebottom = 0;
+	}
+}
+
+//===========================================================================
+
+/*
+==================
+=
+= ScrollScreen
+=
+= Scroll if Keen is nearing an edge
+= Set playstate to ex_completes
+=
+==================
+*/
+
+void ScrollScreen(objtype *ob)
+{
+	Sint16 xscroll, yscroll, pix, speed;
+	Uint16 bottom;
+
+	if (keenkilled)
+		return;
+
+//
+// walked off edge of map?
+//
+	if (ob->left < originxmin || ob->right > originxmax + 320*PIXGLOBAL)
+	{
+		playstate = ex_completed;
+		return;
+	}
+
+//
+// fallen off bottom of world?
+//
+	if (ob->bottom > originymax + 13*TILEGLOBAL)
+	{
+		ob->y -= ob->bottom - (originymax + 13*TILEGLOBAL);
+		SD_PlaySound(SND_PLUMMET);
+		godmode = false;
+		KillKeen();
+		return;
+	}
+
+	xscroll=yscroll=0;
+
+	if (ob->x < originxglobal + 9*TILEGLOBAL)
+	{
+		xscroll = ob->x - (originxglobal + 9*TILEGLOBAL);
+	}
+	else if (ob->x > originxglobal + 12*TILEGLOBAL)
+	{
+		xscroll = ob->x - (originxglobal + 12*TILEGLOBAL);
+	}
+
+	if (ob->state == &s_keenlookup2)
+	{
+		if (centerlevel+tics > 167)
+		{
+			pix = 167-centerlevel;
+		}
+		else
+		{
+			pix = tics;
+		}
+		centerlevel += pix;
+		yscroll = CONVERT_PIXEL_TO_GLOBAL(-pix);
+	}
+	else if (ob->state == &s_keenlookdown3)
+	{
+		if (centerlevel-tics < 33)
+		{
+			pix = centerlevel + -33;
+		}
+		else
+		{
+			pix = tics;
+		}
+		centerlevel -= pix;
+		yscroll = CONVERT_PIXEL_TO_GLOBAL(pix);
+	}
+
+#ifdef KEEN6
+	if (groundslam)
+	{
+		static Sint16 shaketable[] = {0,
+			 -64,  -64,  -64,  64,  64,  64,
+			-200, -200, -200, 200, 200, 200,
+			-250, -250, -250, 250, 250, 250,
+			-250, -250, -250, 250, 250, 250
+		};
+		yscroll = yscroll + (bottom - (ob->bottom + shaketable[groundslam]));	// BUG: 'bottom' has not been initialized yet!
+	}
+	else
+#endif
+	if ( (ob->hitnorth || !ob->needtoclip || ob->state == &s_keenholdon))
+	{
+		if (  ob->state != &s_keenclimbup
+			&& ob->state != &s_keenclimbup2
+			&& ob->state != &s_keenclimbup3
+			&& ob->state != &s_keenclimbup4)
+		{
+			yscroll += ob->ymove;
+			bottom = originyglobal + yscroll + CONVERT_PIXEL_TO_GLOBAL(centerlevel);
+			if (ob->bottom == bottom)
+			{
+				// player didn't move, no additional scrolling
+			}
+			else
+			{
+				if (ob->bottom < bottom)
+				{
+					pix = bottom - ob->bottom;
+				}
+				else
+				{
+					pix = ob->bottom - bottom;
+				}
+				speed = CONVERT_PIXEL_TO_GLOBAL(pix) >> 7;
+				if (speed > 0x30)
+				{
+					speed = 0x30;
+				}
+				speed *= tics;
+				if (speed < 0x10)
+				{
+					if (pix < 0x10)
+					{
+						speed = pix;
+					}
+					else
+					{
+						speed = 0x10;
+					}
+				}
+				if (ob->bottom < bottom)
+				{
+					yscroll -= speed;
+				}
+				else
+				{
+					yscroll += speed;
+				}
+			}
+		}
+	}
+	else
+	{
+		centerlevel = 140;
+	}
+
+	pix = (ob->bottom-32*PIXGLOBAL)-(originyglobal+yscroll);
+	if (pix < 0)
+	{
+		yscroll += pix;
+	}
+	pix = (ob->bottom+32*PIXGLOBAL)-(originyglobal+yscroll+200*PIXGLOBAL);
+	if (pix > 0)
+	{
+		yscroll += pix;
+	}
+
+	if (xscroll == 0 && yscroll == 0)
+		return;
+
+//
+// don't scroll more than one tile per frame
+//
+	if (xscroll >= 0x100)
+	{
+		xscroll = 0xFF;
+	}
+	else if (xscroll <= -0x100)
+	{
+		xscroll = -0xFF;
+	}
+	if (yscroll >= 0x100)
+	{
+		yscroll = 0xFF;
+	}
+	else if (yscroll <= -0x100)
+	{
+		yscroll = -0xFF;
+	}
+	CK_ScrollCamera(xscroll, yscroll);
+
+//
+// update limits for onscreen and inactivate checks
+//
+	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
+	originytilemax = (originytile + PORTTILESHIGH) - 1;
+	inactivateleft = originxtile - INACTIVATEDIST;
+	if (inactivateleft < 0)
+	{
+		inactivateleft = 0;
+	}
+	inactivateright = originxtilemax + INACTIVATEDIST;
+	if (inactivateright < 0)
+	{
+		inactivateright = 0;
+	}
+	inactivatetop = originytile - INACTIVATEDIST;
+	if (inactivatetop < 0)
+	{
+		inactivatetop = 0;
+	}
+	inactivatebottom = originytilemax + INACTIVATEDIST;
+	if (inactivatebottom < 0)
+	{
+		inactivatebottom = 0;
+	}
+}
 
 /*
 =========================
@@ -162,6 +500,27 @@ void InitObjArray(void) {
 };
 
 //===========================================================================
+
+/*
+====================
+=
+= GivePoints
+=
+= Grants extra men at 20k,40k,80k,160k,320k
+=
+====================
+*/
+
+void GivePoints(Uint16 points)
+{
+	gamestate.score += points;
+	if (!DemoMode && gamestate.score >= gamestate.nextextra)
+	{
+		SD_PlaySound(SND_EXTRAKEEN);
+		gamestate.lives++;
+		gamestate.nextextra *= 2;
+	}
+}
 
 
 /*
@@ -235,36 +594,6 @@ void PollControls(void)
 	}
 }
 
-
-//===========================================================================
-
-/*
-=====================
-=
-= CheckKeys
-=
-=====================
-*/
-
-void CheckKeys(void)
-{
-/*	if (screenfaded)			// don't do anything with a faded screen
-	{
-		return;
-	}
-*/
-//
-// Enter for status screen
-//
-/*	if (Keyboard[sc_Enter] || (GravisGamepad && GravisAction[ga_Status]))
-	{
-		StatusWindow();
-		IN_ClearKeysDown();
-		RF_ForceRefresh();
-		lasttimecount = TimeCount;	// BUG: should be the other way around
-	}
-*/
-}
 
 //===========================================================================
 
@@ -365,19 +694,19 @@ void PlayLoop(void)
 		{
             objtype *obj = &CK_ObjectList[i];
 
-			if (!obj->active )/*&& obj->tileright >= originxtile-1
+			if (!obj->active && obj->tileright >= originxtile-1
 				&& obj->tileleft <= originxtilemax+1 && obj->tiletop <= originytilemax+1
-				&& obj->tilebottom >= originytile-1)*/
+				&& obj->tilebottom >= originytile-1)
 			{
 				obj->needtoreact = true;
 				obj->active = ac_yes;
 			}
 			if (obj->active)
 			{
-				/*if (obj->tileright < inactivateleft
+				if (obj->tileright < inactivateleft
 					|| obj->tileleft > inactivateright
 					|| obj->tiletop > inactivatebottom
-					|| obj->tilebottom < inactivatetop)*/
+					|| obj->tilebottom < inactivatetop)
 				{
 					if (obj->active == ac_removable)
 					{
@@ -386,7 +715,7 @@ void PlayLoop(void)
 					}
 					else if (obj->active != ac_allways)
 					{
-						if (US_RndT() < tics*2 )//|| screenfaded || loadedgame)
+						if (US_RndT() < tics*2 || screenfaded || loadedgame)
 						{
                             // TODO: Make this remove the sprites???
 							//RF_RemoveSprite(&obj->sprite);
@@ -401,7 +730,7 @@ void PlayLoop(void)
 			}
 		}
 
-/*
+
 		if (gamestate.riding)
 		{
 			HandleRiding(player);
@@ -410,8 +739,9 @@ void PlayLoop(void)
 //
 // check for and handle collisions between objects
 //
-		for (obj=player; obj; obj=obj->next)
+		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
+            objtype *obj = &CK_ObjectList[i];
 			if (obj->active)
 			{
 				for (check=obj->next; check; check=check->next)
@@ -451,7 +781,7 @@ void PlayLoop(void)
 		{
 			CheckWorldInTiles(player);
 		}
-*/
+
 
 //
 // react to whatever happened, and post sprites to the refresh manager
@@ -490,7 +820,7 @@ void PlayLoop(void)
 		if (mapon != 0)
 #endif
 		{
-//			ScrollScreen(player);
+			ScrollScreen(player);
 		}
 		else
 		{
@@ -501,11 +831,11 @@ void PlayLoop(void)
 
 		UpdateScore(scoreobj);
 
-/*		if (loadedgame)
+		if (loadedgame)
 		{
 			loadedgame = false;
 		}
-*/
+
 //
 // update the screen and calculate the number of tics it took to execute
 // this cycle of events (for adaptive timing of next cycle)
@@ -515,7 +845,7 @@ void PlayLoop(void)
 
         RF_CalcTics();
 
-/*
+
 		if (invincible)
 		{
 			if ((invincible = invincible - tics) < 0)
@@ -529,35 +859,20 @@ void PlayLoop(void)
 				groundslam = 0;
 		}
 #endif
-//
-// single step debug mode
-//
-		if (singlestep)
-		{
-			VW_WaitVBL(14);	//reduces framerate to 5 fps on VGA or 4.3 fps on EGA cards
-			lasttimecount = TimeCount;
-		}
-//
-// extra VBLs debug mode
-//
-		if (extravbls)
-		{
-			VW_WaitVBL(extravbls);
-		}
-*/
+
 //
 // handle user inputs
 //
 		if (DemoMode == demo_Playback)
-		{/*
+		{
 			if (!screenfaded && IN_IsUserInput())
-			{*/
+			{
 				playstate = ex_completed;
 				/*if (LastScan != sc_F1)
 				{
 					LastScan = sc_Space;
-				}
-			}*/
+				}*/
+			}
 		}
 		else if (DemoMode == demo_PlayDone)
 		{

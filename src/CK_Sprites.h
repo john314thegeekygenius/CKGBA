@@ -9,6 +9,10 @@
 
 extern objtype *ck_newobj;
 
+extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS];
+extern unsigned int CK_NumOfObjects;
+
+
 unsigned short GetNewObj(boolean dummy);
 
 void CK_SetNewSprite(CK_SpriteType type);

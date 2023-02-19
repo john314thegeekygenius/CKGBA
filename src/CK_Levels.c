@@ -53,7 +53,7 @@ unsigned short CK_CurLevelIndex = 0;
 struct CK_TileAnimation {
     uint16_t map_offset;
     uint16_t tile_to;
-    uint16_t ani_time;
+    signed short ani_time;
 };
 
 // Must be in External Work Ram or else it's too much for the 32K on board
@@ -139,6 +139,7 @@ void CK_LoadLevel(unsigned short lvlNumber){
     // Tell the engine to render the level
     CK_UpdateRendering = true;
 
+    tics = 1;
 };
 
 void CK_MoveCamera(int x,int y){
@@ -184,6 +185,12 @@ void CK_FixCamera(){
     CK_CameraBlockX = CK_GlobalCameraX>>4;
     CK_CameraBlockY = CK_GlobalCameraY>>4;
 
+};
+
+void CK_ScrollCamera(signed short x, signed short y ){
+    CK_GlobalCameraX += x;
+    CK_GlobalCameraY += y;
+    CK_FixCamera();
 };
 
 #define UMTILESET_WIDTH_VAL (288)
@@ -295,19 +302,14 @@ void CK_RenderLevel(){
 };
 
 void CK_UpdateLevel(){
-    CK_UpdateTick ++;
-    if(CK_UpdateTick == 12){
-        CK_UpdateTick = 0;
-        uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
-        uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;
-                    
-        for(int p = 0; p < 2; p++){
-            for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
-                struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
-                if(ck_ani->ani_time > 0){
-                    ck_ani->ani_time--;
-                    continue;
-                }
+    uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
+    uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;
+                
+    for(int p = 0; p < 2; p++){
+        for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
+            struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
+            ck_ani->ani_time -= tics;
+            while(ck_ani->ani_time < 1){
                 // Update the tile
                 uint16_t *tile = &CK_CurLevelData[ck_ani->map_offset];
                 *tile += (signed short)ck_ani->tile_to;
@@ -330,11 +332,18 @@ void CK_UpdateLevel(){
                     CK_POICount++;
     //                */CK_UpdateRendering = true;
                 }
+#ifdef KEEN6
+                if (anim->visible && anim->current == anim->soundtile && anim->sound != -1)
+                {
+                    SD_PlaySound(anim->sound);
+                }
+#endif
             }
-            voff_s += CK_CurLevelSize;
-            voff_e += CK_CurLevelSize;
         }
+        voff_s += CK_CurLevelSize;
+        voff_e += CK_CurLevelSize;
     }
+
 };
 
 //==========================================================================

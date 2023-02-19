@@ -7,40 +7,8 @@
 #ifndef __CK_DEF__
 #define __CK_DEF__
 
-//#define CK_DISABLE_MUSIC
+// #define CK_DISABLE_MUSIC
 #define CK4
-
-//
-//	ID Engine
-//	Types.h - Generic types, #defines, etc.
-//	v1.0d1
-//
-
-#ifndef	__TYPES__
-#define	__TYPES__
-
-typedef	enum	{false,true}	boolean;
-typedef	unsigned	char		byte;
-typedef	unsigned	int			word;
-typedef	unsigned	long		longword;
-typedef	byte *					Ptr;
-
-typedef	struct
-		{
-			int	x,y;
-		} Point;
-typedef	struct
-		{
-			Point	ul,lr;
-		} Rect;
-
-#define	nil	((void *)0)
-
-#endif
-#ifndef bool
-typedef boolean bool; // For sanity
-#endif
-
 
 
 #ifdef CK4
@@ -94,21 +62,12 @@ typedef boolean bool; // For sanity
 #define	PRIORITIES			4
 #define	MASKEDTILEPRIORITY	3		// planes go: 0,1,2,MTILES,3
 
-#define TILEGLOBAL			256
+#define TILEGLOBAL			16 // from 256
 #define PIXGLOBAL			16
 
-#define	G_T_SHIFT			8		// global >> ?? = tile
+#define	G_T_SHIFT			4		// global >> ?? = tile // from 8
 #define	G_P_SHIFT			4		// global >> ?? = pixels
 #define P_T_SHIFT			4		// pixels >> ?? = tile
-
-#define	PORTTILESWIDE		21      // all drawing takes place inside a
-#define	PORTTILESHIGH		14		// non displayed port of this size
-
-//#define	PORTGLOBALWIDE		(21*TILEGLOBAL)
-//#define	PORTGLOBALHIGH		(14*TILEGLOBAL)
-
-#define UPDATEWIDE			(PORTTILESWIDE+1)
-#define UPDATEHIGH			PORTTILESHIGH
 
 
 //===========================================================================
@@ -429,11 +388,14 @@ void Terminator(void);
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;
 extern gametype gamestate;
+extern ControlInfo c;
 extern objtype *ck_newobj, *check, *player, *scoreobj;
 extern Uint16 originxtilemax, originytilemax;
 extern objtype dummyobj;
 extern Sint16 invincible;
 extern boolean debugok;
+
+extern boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
 
 // From CK_Game.c
 extern int	mapon;
@@ -444,14 +406,6 @@ void StopMusic(void);
 void StartMusic(Uint16 num);
 void PlayLoop(void);
 
-
-/*
-=============================================================================
-
-						CK_KEEN2 DEFINITIONS
-
-=============================================================================
-*/
 
 /*
 =============================================================================
@@ -550,6 +504,12 @@ extern const Sint16 wallclip[8][16];
 extern Sint16 xtry;
 extern Sint16 ytry;
 extern boolean playerkludgeclipcancel;
+
+Sint16 DoActor(objtype *ob, Sint16 numtics);
+void StateMachine(objtype *ob);
+void NewState(objtype *ob, statetype *state);
+void ChangeState(objtype *ob, statetype *state);
+
 
 void R_Draw(objtype *ob);
 

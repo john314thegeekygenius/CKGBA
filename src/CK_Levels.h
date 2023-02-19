@@ -11,6 +11,10 @@
 #define CK_NumOfLevels  20
 #endif
 
+extern unsigned short CK_CurLevelWidth;
+extern unsigned short CK_CurLevelHeight;
+extern unsigned short CK_CurLevelSize;
+
 extern signed int CK_GlobalCameraX ;
 extern signed int CK_GlobalCameraY ;
 
@@ -28,6 +32,8 @@ void CK_RenderLevel();
 void CK_MoveCamera(int x,int y);
 
 void CK_FixCamera();
+
+void CK_ScrollCamera(signed short x, signed short y );
 
 void CK_UpdateLevel();
 

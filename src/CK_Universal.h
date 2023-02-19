@@ -11,6 +11,7 @@
 extern	unsigned	tics;
 extern	long		lasttimecount;
 
+
 // From ID_US.H
 typedef	enum
 {

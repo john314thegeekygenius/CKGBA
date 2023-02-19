@@ -17,7 +17,23 @@ unsigned short GetNewObj(boolean dummy){
     // Ummm... Will break if more than MAX_OBJS are spawned... :S
     ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
     ck_newobj->gfxoffset = 0xFFFFFFFF;
+    ck_newobj->isFree = false;
+
+	ck_newobj->active = ac_yes;
+	ck_newobj->needtoclip = cl_midclip;
     return 0;
+};
+
+void RemoveObj(objtype *ob){
+	if (ob->obclass == stunnedobj){
+        // TODO:
+        // Handle stunned objects?
+    }
+    ob->isFree = true;
+    // Remove the GBA sprites???
+     for(int i = 0; i < ob->gbaSpriteCount; i++){
+        GBA_RemoveSprite(ob->gbaSprites[i]);
+     }
 };
 
 const unsigned int CK_SpriteSizes[] = {
@@ -27,7 +43,7 @@ const unsigned int CK_SpriteSizes[] = {
 };
 
 void CK_SetSprite(objtype *obj, CK_SpriteType type){
-    if(ck_newobj->gfxoffset == 0xFFFFFFFF){
+    if(ck_newobj->gfxoffset == 0xFFFFFFFF && obj->isFree == false){
         obj->gbaSpriteCount = *CK_SpritePtrs[(type<<2)+1];
         obj->ck_sprType = type;
         obj->gfxoffset = CK_SprGfxOffset;
@@ -43,6 +59,7 @@ void CK_SetSprite(objtype *obj, CK_SpriteType type){
 };
 
 void CK_UpdateObjGraphics(objtype *obj){
+    if(obj->isFree) return;
     // Copy the graphics memory
     uint32_t* vidmem = (uint32_t*)GBA_VSRAM+obj->gfxoffset;
 
@@ -59,9 +76,10 @@ void CK_UpdateObjects(){
     
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
+        if(obj->isFree) continue;
         for(int i = 0; i < obj->gbaSpriteCount; i++){
-            unsigned short sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + obj->x;
-            unsigned char spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + obj->y;
+            unsigned short sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + obj->x + obj->state->xmove;
+            unsigned char spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + obj->y + obj->state->xmove;
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)
         }
     }
@@ -70,9 +88,12 @@ void CK_UpdateObjects(){
 };
 
 void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
+    if(obj->isFree) return;
+
     for(int i = 0; i < obj->gbaSpriteCount; i++){
-        signed int sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + dx;
-        signed int spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + dy;
+        // Make the object work in global map space
+        signed int sprx = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+1] + dx - CK_GlobalCameraX;
+        signed int spry = CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+2] + dy - CK_GlobalCameraY;
         // Make sure we can even see the sprite
         if(sprx > -64 && sprx < (240+64) && spry > -64 && spry < (160+64)){
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)
@@ -109,135 +130,5 @@ void CK_RemoveSprites(){
     CK_SprTileOffset = 0;
 };
 
-
-
-///////////////////////////////////////////////////////////
-////            Stuff from CK_STATE.C
-////
-
-
-//==========================================================================
-
-
-/*
-====================
-=
-= NewState
-=
-====================
-*/
-
-void NewState(objtype *ob, statetype *state)
-{
-	Sint16 temp;
-	
-	ob->state = state;
-
-	if (state->rightshapenum)
-	{
-		if (ob->xdir > 0)
-		{
-			ob->shapenum = state->rightshapenum;
-		}
-		else
-		{
-			ob->shapenum = state->leftshapenum;
-		}
-	}
-
-	if ((Sint16)ob->shapenum == -1)
-	{
-		ob->shapenum = 0;
-	}
-
-	temp = ob->needtoclip;
-	ob->needtoclip = cl_noclip;
-    // TODO:
-    // Make this work????
-/*
-	xtry = ytry = 0;					// no movement
-	ClipToWalls(ob);					// just calculate values
-
-	ob->needtoclip = temp;
-
-	if (ob->needtoclip == cl_fullclip)
-	{
-		FullClipToWalls(ob);
-	}
-	else if (ob->needtoclip == cl_midclip)
-	{
-		ClipToWalls(ob);
-	}*/
-}
-
-//==========================================================================
-
-
-/*
-====================
-=
-= ChangeState
-=
-====================
-*/
-
-void ChangeState(objtype *ob, statetype *state)
-{
-	ob->state = state;
-	ob->ticcount = 0;
-	if (state->rightshapenum)
-	{
-		if (ob->xdir > 0)
-		{
-			ob->shapenum = state->rightshapenum;
-		}
-		else
-		{
-			ob->shapenum = state->leftshapenum;
-		}
-	}
-
-	if ((Sint16)ob->shapenum == -1)
-	{
-		ob->shapenum = 0;
-	}
-
-	ob->needtoreact = true;			// it will need to be redrawn this frame
-    // TODO:
-    // Make this work????
-/*
-
-	xtry = ytry = 0;					// no movement
-	if (ob->hitnorth != 25)
-	{
-		ClipToWalls(ob);
-	}
-    */
-};
-
-
-
-/*
-===============
-=
-= BadState
-=
-===============
-*/
-
-void BadState(void){
-    // TODO:
-    // Make this work
-    while(1); // Just hang???
-	//Quit("Object with bad state!");
-};
-
-
-//==========================================================================
-
-statetype sc_deadstate = {0, 0, think, false, false, 0, 0, 0, NULL, NULL, NULL, NULL};
-#pragma warn -sus	//BadState is not a valid think/contact/react function. Nobody cares.
-statetype sc_badstate  = {0, 0, think, false, false, 0, 0, 0, &BadState, &BadState, &BadState, NULL};
-#pragma warn +sus
 
 

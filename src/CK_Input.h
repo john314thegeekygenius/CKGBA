@@ -28,7 +28,17 @@ typedef	enum {
     dir_None
 } Direction;
 
+typedef	struct {
+    boolean		button0,button1, button2; // button2 is "space"
+    int			x,y;
+    Motion		xaxis,yaxis;
+    Direction	dir;
+} CursorInfo;
+typedef	CursorInfo	ControlInfo;
+
 extern	Demo		DemoMode;
+
+void IN_ReadControl(int player, ControlInfo *info);
 
 
 #endif

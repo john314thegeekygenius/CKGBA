@@ -8,7 +8,8 @@
 		"files.associations": {
 			"ck_heads.h": "c",
 			"ck_levels.h": "c",
-			"AUDIOCK4.H": "cpp"
+			"AUDIOCK4.H": "cpp",
+			"ck4_defs.h": "c"
 		}
 	}
 }

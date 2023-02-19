@@ -499,6 +499,8 @@ signed char mixerBuffer[736*2] GBA_IN_EWRAM;
 
 unsigned int GBA_VSyncCounter = 0;
 
+void GBA_UserIRQ();
+
 void GBA_VSyncIRQ() {
 	unsigned short temp;
 		
@@ -512,6 +514,7 @@ void GBA_VSyncIRQ() {
     if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_VBLANK) == GBA_INT_VBLANK) {
 		
 		GBA_VSyncCounter += 1; // Update the number of VBlanks
+		GBA_UserIRQ();
 
 		// Force this here to always mix the audio
 //		#ifdef GBA_MIX_MY_AUDIO
@@ -587,6 +590,7 @@ void GBA_VSyncIRQ() {
 			}
 		}
     }
+
 
     // restore/enable interrupts 
     *(volatile uint16_t*)GBA_INT_STATE = temp;

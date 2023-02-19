@@ -16,9 +16,63 @@ word            PrintX,PrintY;
 word            WindowX,WindowY,WindowW,WindowH;
 
 // From ID_RF.C
-unsigned	tics;
-long		lasttimecount;
+unsigned	tics = 1;
+long		lasttimecount = 0;
 
+void GBA_UserIRQ(){
+	TimeCount += 1;
+};
+
+//===========================================================================
+
+/*
+=====================
+=
+= RF_CalcTics
+=
+=====================
+*/
+
+void RF_CalcTics (void)
+{
+	long	newtime,oldtimecount;
+
+//
+// calculate tics since last refresh for adaptive timing
+//
+	if (lasttimecount > TimeCount)
+		TimeCount = lasttimecount;		// if the game was paused a LONG time
+
+	if (DemoMode)					// demo recording and playback needs
+	{								// to be constant
+//
+// take DEMOTICS or more tics, and modify Timecount to reflect time taken
+//
+		oldtimecount = lasttimecount;
+//		while (TimeCount<oldtimecount+DEMOTICS*2);
+		lasttimecount = oldtimecount + DEMOTICS;
+		TimeCount = lasttimecount + DEMOTICS;
+		tics = DEMOTICS;
+	}
+	else
+	{
+//
+// non demo, so report actual time
+//
+		do
+		{
+			newtime = TimeCount;
+			tics = newtime-lasttimecount;
+		} while (tics<MINTICS);
+		lasttimecount = newtime;
+
+		if (tics>MAXTICS)
+		{
+			TimeCount -= (tics-MAXTICS);
+			tics = MAXTICS;
+		}
+	}
+}
 
 
 // Draws the into text screen

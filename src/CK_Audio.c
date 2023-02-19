@@ -17,6 +17,8 @@ longword TimeCount;
 
 void SD_InitAudio(){
     GBA_InitAudio();
+    SoundMode = sdm_AdLib;
+    MusicMode = smm_AdLib;
 };
 
 void SD_PlayMusic(uint32_t chunk, uint32_t asLoop){

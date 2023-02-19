@@ -84,26 +84,6 @@ void SpawnScore(void)
 
 void UpdateScore(objtype *ob)
 {
-	if (scorescreenkludge)
-		return;
-
-	if(ob->state != &sc_deadstate){
-	    CK_UpdateObjGraphics(ob);
-	}
-
-	if (DemoMode)
-	{
-		DrawDemoPlaque(ob);
-		return;
-	}
-
-	CK_DrawObject(ob, ob->x + 4, ob->y + 4);
-
-	/*
-	char		str[10],*ch;
-	spritetype	_seg	*block;
-	Uint8		far *dest;
-	Uint16	i, length, width, planesize, number;
 	boolean changed;
 
 	if (scorescreenkludge)
@@ -115,11 +95,13 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
-	if (!showscorebox)
-		return;
+	//if (!showscorebox)
+	//	return;
 
 	changed = false;
 
+
+	/*
 //code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
 
 //
@@ -242,21 +224,18 @@ to be updated, which means the sprite would be shifted twice. And if the player
 fires a shot during the same frame, the ammo number also needs to be updated,
 leading to up to three shifts in one frame.
 */
-/*
-	if (ob->x != originxglobal || ob->y != originyglobal)
+
+	if (ob->x != CK_GlobalCameraX || ob->y != CK_GlobalCameraY)
 	{
-		ob->x = originxglobal;
-		ob->y = originyglobal;
+		ob->x = CK_GlobalCameraX;
+		ob->y = CK_GlobalCameraY;
 		changed = true;
 	}
-
-	if (changed)
-#if GRMODE == EGAGR
-		RF_PlaceSprite(&ob->sprite, ob->x+4*PIXGLOBAL, ob->y+4*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
-#elif GRMODE == CGAGR
-		RF_PlaceSprite(&ob->sprite, ob->x+8*PIXGLOBAL, ob->y+8*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
-#endif*/
-}
+	if (changed){
+		CK_UpdateObjGraphics(ob);
+		CK_DrawObject(ob, ob->x + 4, ob->y + 4);
+	}
+};
 
 /*
 ===============
@@ -267,14 +246,13 @@ leading to up to three shifts in one frame.
 */
 
 void DrawDemoPlaque(objtype *ob){
-	CK_DrawObject(ob, ob->x + 120 - 32, ob->y + 4);
-	/*
-	if (ob->x != originxglobal || ob->y != originyglobal)
+	if (ob->x != CK_GlobalCameraX || ob->y != CK_GlobalCameraY)
 	{
-		ob->x = originxglobal;
-		ob->y = originyglobal;
-		RF_PlaceSprite(&ob->sprite, ob->x + 160*PIXGLOBAL - 32*PIXGLOBAL, ob->y + 8*PIXGLOBAL, DEMOPLAQUESPR, spritedraw, 3);
-	}*/
+		ob->x = CK_GlobalCameraX;
+		ob->y = CK_GlobalCameraY;
+		CK_UpdateObjGraphics(ob);
+		CK_DrawObject(ob, ob->x + 120 - 32, ob->y + 4);
+	}
 }
 
 
@@ -353,6 +331,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 			player->yspeed = (Sint16)(47*TILEGLOBAL - player->y)/140 + 1;
 		}
 		NewState(player, &s_keenonfoot1);
+		CK_SetSprite(player, CKS_MAPFOOT);
 		return;
 	}
 #endif
@@ -377,6 +356,11 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
 	NewState(player, &s_worldkeen);
+	CK_SetSprite(player, CKS_MAPKEEN);
+
+	// TODO:
+	// How does keen actually orginally update
+	player->needtoreact = true;
 }
 
 
@@ -390,7 +374,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 
 void T_KeenWorld(objtype *ob)
 {
-/*	if (c.dir != dir_None)
+	if (c.dir != dir_None)
 	{
 		ob->state = &s_worldkeenwalk;
 		ob->temp2 = 0;
@@ -398,8 +382,8 @@ void T_KeenWorld(objtype *ob)
 	}
 	if (jumpbutton || pogobutton || firebutton)
 	{
-		CheckEnterLevel(ob);
-	}*/
+		//CheckEnterLevel(ob);
+	}
 }
 
 /*
@@ -419,12 +403,12 @@ void T_KeenWorldWalk(objtype *ob)
 			ob->temp3 = 0;
 	}
 	else
-	{/*
+	{
 		ob->xdir = c.xaxis;
 		ob->ydir = c.yaxis;
 		if (pogobutton || firebutton || jumpbutton)
 		{
-			CheckEnterLevel(ob);
+			//CheckEnterLevel(ob);
 		}
 		if (c.dir == dir_None)
 		{
@@ -432,7 +416,7 @@ void T_KeenWorldWalk(objtype *ob)
 			ob->shapenum = worldshapes[ob->temp1] + 3;
 			return;
 		}
-		ob->temp1 = c.dir;*/
+		ob->temp1 = c.dir;
 	}
 	if (++ob->temp2 == 4)
 		ob->temp2 = 0;
@@ -446,6 +430,13 @@ void T_KeenWorldWalk(objtype *ob)
 	{
 		//SD_PlaySound(SND_WORLDWALK2);
 	}
+
+	// TODO:
+	// Why does this make it work????
+	// Find the right way to do this
+	ob->x += ob->xdir;
+	ob->y += ob->ydir;
+	ob->needtoreact = true;
 }
 
 #ifdef KEEN4

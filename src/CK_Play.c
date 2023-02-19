@@ -19,7 +19,7 @@ boolean singlestep, jumpcheat, godmode, keenkilled;
 
 exittype playstate;
 gametype gamestate;
-
+ControlInfo c;
 
 // ck_newobj is known as new in OG code
 objtype *ck_newobj, *check, *player, *scoreobj;
@@ -34,6 +34,106 @@ Sint16 groundslam;
 
 boolean debugok;
 
+boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
+
+/*
+=============================================================================
+
+						 LOCAL VARIABLES
+
+=============================================================================
+*/
+Sint16 oldfirecount;
+
+
+
+
+//===========================================================================
+
+/*
+==================
+=
+= WorldScrollScreen
+=
+= Scroll if Keen is nearing an edge
+=
+==================
+*/
+
+void WorldScrollScreen(objtype *ob)
+{
+	Sint16 xscroll, yscroll;
+
+	if (keenkilled)
+		return;
+
+    if(ob->x < CK_GlobalCameraX + 3*TILEGLOBAL){
+        xscroll = ob->x - (CK_GlobalCameraX + 3*TILEGLOBAL);
+    }else if(ob->x+ 16 > CK_GlobalCameraX + 12*TILEGLOBAL){
+        xscroll = ob->x + 16 - (CK_GlobalCameraX + 12*TILEGLOBAL);
+    }else{
+        xscroll = 0;
+    }
+
+    if(ob->y < CK_GlobalCameraY + 2*TILEGLOBAL){
+        yscroll = ob->y - (CK_GlobalCameraY + 2*TILEGLOBAL);
+    }else if(ob->y > CK_GlobalCameraY + 7*TILEGLOBAL){
+        yscroll = ob->y - (CK_GlobalCameraY + 7*TILEGLOBAL);
+    }else{
+        yscroll = 0;
+    }
+    /*
+	if (ob->left < CK_GlobalCameraX + 9*TILEGLOBAL)
+	{
+		xscroll = ob->left - (CK_GlobalCameraX + 9*TILEGLOBAL);
+	}
+	else if (ob->right > CK_GlobalCameraX + 12*TILEGLOBAL)
+	{
+		xscroll = ob->right + 16 - (CK_GlobalCameraX + 12*TILEGLOBAL);
+	}
+	else
+	{
+		xscroll = 0;
+	}
+
+	if (ob->top < CK_GlobalCameraY + 5*TILEGLOBAL)
+	{
+		yscroll = ob->top - (CK_GlobalCameraY + 5*TILEGLOBAL);
+	}
+	else if (ob->bottom > CK_GlobalCameraY + 7*TILEGLOBAL)
+	{
+		yscroll = ob->bottom - (CK_GlobalCameraY + 7*TILEGLOBAL);
+	}
+	else
+	{
+		yscroll = 0;
+	}*/
+
+	if (!xscroll && !yscroll)
+		return;
+
+//
+// don't scroll more than one tile per frame
+//
+	if (xscroll >= 0x100)
+	{
+		xscroll = 0xFF;
+	}
+	else if (xscroll <= -0x100)
+	{
+		xscroll = -0xFF;
+	}
+	if (yscroll >= 0x100)
+	{
+		yscroll = 0xFF;
+	}
+	else if (yscroll <= -0x100)
+	{
+		yscroll = -0xFF;
+	}
+
+    CK_ScrollCamera(xscroll, yscroll);
+};
 
 /*
 =========================
@@ -50,7 +150,7 @@ void InitObjArray(void) {
 
     // Remove any old objects
     CK_RemoveSprites();
-    
+
 //
 // give the player and score the first free spots
 //
@@ -64,6 +164,76 @@ void InitObjArray(void) {
 //===========================================================================
 
 
+/*
+===================
+=
+= PollControls
+=
+===================
+*/
+
+void PollControls(void)
+{
+	IN_ReadControl(0, &c);
+	if (c.yaxis != -1)
+		upheld = false;
+
+	if (oldshooting || DemoMode)
+	{
+		if (c.button0 && c.button1)
+		{
+			firebutton = true;
+			jumpbutton = pogobutton = jumpheld = pogoheld = false;
+		}
+		else
+		{
+			firebutton = fireheld = false;
+			if (c.button0)
+			{
+				jumpbutton = true;
+			}
+			else
+			{
+				jumpbutton = jumpheld = false;
+			}
+			if (c.button1)
+			{
+				if (oldfirecount <= 8)
+				{
+					oldfirecount = oldfirecount + tics;
+				}
+				else
+				{
+					pogobutton = true;
+				}
+			}
+			else
+			{
+				if (oldfirecount != 0)
+				{
+					pogobutton = true;
+				}
+				else
+				{
+					pogobutton = pogoheld = false;
+				}
+				oldfirecount = 0;
+			}
+		}
+	}
+	else
+	{
+		jumpbutton = c.button0;
+		pogobutton = c.button1;
+		firebutton = c.button2;
+		if (!jumpbutton)
+			jumpheld = false;
+		if (!pogobutton)
+			pogoheld = false;
+		if (!firebutton)
+			fireheld = false;
+	}
+}
 
 
 /*
@@ -110,7 +280,6 @@ void StartMusic(Uint16 num)
 	{
 		return;
 	}
-
     SD_PlayMusic(song, 1);
 }
 
@@ -146,55 +315,32 @@ void PlayLoop(void)
 		US_InitRndT(true);
 	}
 	TimeCount = lasttimecount = tics = 3;
-    int fps_limiter = 0;
+
 	do
 	{
-		++fps_limiter;
-		if(fps_limiter == 3){
-			fps_limiter = 0;
-			if(GBA_TEST_BUTTONS(GBA_BUTTON_RIGHT)){
-				CK_GlobalCameraX += 1;
-			}
-			if(GBA_TEST_BUTTONS(GBA_BUTTON_LEFT)){
-				CK_GlobalCameraX -= 1;
-			}
-			if(GBA_TEST_BUTTONS(GBA_BUTTON_UP)){
-				CK_GlobalCameraY -= 1;
-			}
-			if(GBA_TEST_BUTTONS(GBA_BUTTON_DOWN)){
-				CK_GlobalCameraY += 1;
-			}
-		}
 
-        if(GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER)){
-            gamestate.mapon -= 1;
-            SetupGameLevel(true);            
-        }
-        if(GBA_TEST_BUTTONS(GBA_BUTTON_RSHOLDER)){
-            gamestate.mapon += 1;
-            SetupGameLevel(true);            
-        }
+		PollControls();
 
-		/*PollControls();
-
-//
-// go through state changes and propose movements
-//
-		for (obj=player; obj; obj=obj->next)
+        //
+        // go through state changes and propose movements
+        //
+		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
-			if (!obj->active && obj->tileright >= originxtile-1
+            objtype *obj = &CK_ObjectList[i];
+
+			if (!obj->active )/*&& obj->tileright >= originxtile-1
 				&& obj->tileleft <= originxtilemax+1 && obj->tiletop <= originytilemax+1
-				&& obj->tilebottom >= originytile-1)
+				&& obj->tilebottom >= originytile-1)*/
 			{
 				obj->needtoreact = true;
 				obj->active = ac_yes;
 			}
 			if (obj->active)
 			{
-				if (obj->tileright < inactivateleft
+				/*if (obj->tileright < inactivateleft
 					|| obj->tileleft > inactivateright
 					|| obj->tiletop > inactivatebottom
-					|| obj->tilebottom < inactivatetop)
+					|| obj->tilebottom < inactivatetop)*/
 				{
 					if (obj->active == ac_removable)
 					{
@@ -203,11 +349,12 @@ void PlayLoop(void)
 					}
 					else if (obj->active != ac_allways)
 					{
-						if (US_RndT() < tics*2 || screenfaded || loadedgame)
+						if (US_RndT() < tics*2 )//|| screenfaded || loadedgame)
 						{
-							RF_RemoveSprite(&obj->sprite);
-							if (obj->obclass == stunnedobj)
-								RF_RemoveSprite((void **)&obj->temp3);
+                            // TODO: Make this remove the sprites???
+							//RF_RemoveSprite(&obj->sprite);
+							//if (obj->obclass == stunnedobj)
+							//	RF_RemoveSprite((void **)&obj->temp3);
 							obj->active = ac_no;
 							continue;
 						}
@@ -217,6 +364,7 @@ void PlayLoop(void)
 			}
 		}
 
+/*
 		if (gamestate.riding)
 		{
 			HandleRiding(player);
@@ -266,17 +414,19 @@ void PlayLoop(void)
 		{
 			CheckWorldInTiles(player);
 		}
+*/
 
 //
 // react to whatever happened, and post sprites to the refresh manager
 //
-		for (obj=player; obj; obj=obj->next)
+		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
+            objtype *obj = &CK_ObjectList[i];
 			if (!obj->active)
 			{
 				continue;
 			}
-			if (obj->tilebottom >= mapheight-1)
+			if (obj->tilebottom >= CK_CurLevelHeight-1)
 			{
 				if (obj->obclass == keenobj)
 				{
@@ -294,7 +444,6 @@ void PlayLoop(void)
 				obj->state->react(obj);
 			}
 		}
-*/
 //
 // scroll the screen and update the score box
 //
@@ -308,13 +457,13 @@ void PlayLoop(void)
 		}
 		else
 		{
-//			WorldScrollScreen(player);
+			WorldScrollScreen(player);
 		}
+        
         CK_UpdateLevel();
-        CK_FixCamera();
-        CK_RenderLevel();
+
 		UpdateScore(scoreobj);
-//        GBA_Delay(50);
+
 /*		if (loadedgame)
 		{
 			loadedgame = false;
@@ -324,7 +473,11 @@ void PlayLoop(void)
 // update the screen and calculate the number of tics it took to execute
 // this cycle of events (for adaptive timing of next cycle)
 //
-		//RF_Refresh();
+        CK_FixCamera();
+        CK_RenderLevel();
+
+        RF_CalcTics();
+
 /*
 		if (invincible)
 		{

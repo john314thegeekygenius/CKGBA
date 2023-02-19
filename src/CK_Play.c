@@ -291,6 +291,9 @@ void StopMusic(void) {
 =================
 */
 
+extern const unsigned int CK_NumberOfSongs;
+extern const unsigned int CK_LevelAudio[];
+
 void StartMusic(Uint16 num)
 {
 	Sint16 song;
@@ -300,13 +303,13 @@ void StartMusic(Uint16 num)
 	SD_MusicOff();
 
 #ifdef KEEN4
-	if (num == 0xFFFF) {
+	if (num == 0xFFFF || num > CK_NumberOfSongs) {
 		song = WONDER_MUS;
 	} else {
-		song = num;
+		song = CK_LevelAudio[num];
 	}
 #else
-	song = num;
+    song = CK_LevelAudio[num];
 #endif
 
 	if (song == -1 || MusicMode != smm_AdLib)

@@ -25,7 +25,7 @@ const GBA_SoundSample CKM_GBA_Samples [] = {
     {&SND1_161_data , SND1_161_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
 };
 
-const unsigned int CK_NumberOfSongs = 0;
+const unsigned int CK_NumberOfSongs = 20;
 const unsigned int CK_LevelAudio[] = {
     SHADOWS_MUS, // Lvl 0 - Shadowlands
 	KICKPANT_MUS, // Lvl 1 - Border Village

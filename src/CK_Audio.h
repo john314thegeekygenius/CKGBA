@@ -25,6 +25,8 @@ extern SDMode SoundMode;
 extern SMMode MusicMode;
 extern longword TimeCount;
 
+// Could be GBA_REFRESH_RATE ???
+#define	TickBase	60		// 60Hz per tick - used as a base for timer 0
 
 void SD_InitAudio();
 

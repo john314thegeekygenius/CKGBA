@@ -25,6 +25,8 @@ void InitGame(void)
 	SD_InitAudio();
 	CK_SetupSprites();
 
+	US_InitRndT(true);              // Initialize the random number generator
+
 	US_TextScreen();
 
 	VW_ClearVideo(BLACK);
@@ -105,8 +107,6 @@ void DemoLoop(void)
 // demo loop
 //
 	state = 0;
-	playstate = ex_stillplaying;
-	playstate = ex_resetgame;
 	while (1)
 	{
 		switch (state++)

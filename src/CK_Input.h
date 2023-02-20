@@ -36,9 +36,21 @@ typedef	struct {
 } CursorInfo;
 typedef	CursorInfo	ControlInfo;
 
+typedef	word ScanCode;
+
 extern	Demo		DemoMode;
+extern byte  *DemoBuffer;
+extern word DemoOffset, DemoSize;
+
 
 void IN_ReadControl(int player, ControlInfo *info);
 
+ScanCode IN_WaitForKey(void);
+DONT_OPTIMISE void IN_AckBack(void);
+DONT_OPTIMISE void IN_Ack(void);
+DONT_OPTIMISE boolean IN_UserInput(longword delay,boolean clear);
+
+void IN_StartDemoPlayback(byte *buffer,word bufsize);
+void IN_StopDemo(void);
 
 #endif

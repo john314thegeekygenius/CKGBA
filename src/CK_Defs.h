@@ -376,6 +376,45 @@ extern statetype sc_badstate;
 
 extern boolean scorescreenkludge;
 
+extern const unsigned char CK_DEMO0_data[];
+extern const unsigned char CK_DEMO1_data[];
+extern const unsigned char CK_DEMO2_data[];
+extern const unsigned char CK_DEMO3_data[];
+extern const unsigned char CK_DEMO4_data[];
+
+
+
+// Intro text
+extern const unsigned int CK_INT0_width;
+extern const unsigned int CK_INT0_height;
+extern const unsigned char CK_INT0[];
+extern const unsigned int CK_INT1_width;
+extern const unsigned int CK_INT1_height;
+extern const unsigned char CK_INT1[];
+extern const unsigned int CK_INT2_width;
+extern const unsigned int CK_INT2_height;
+extern const unsigned char CK_INT2[];
+extern const unsigned int CK_INT3_width;
+extern const unsigned int CK_INT3_height;
+extern const unsigned char CK_INT3[];
+
+
+extern const unsigned int CK_TERM_0_size;
+extern const unsigned int CK_TERM_0_width;
+extern const unsigned int CK_TERM_0_height;
+extern const unsigned char CK_TERM_0[];
+
+extern const unsigned int CK_TERM_1_size;
+extern const unsigned int CK_TERM_1_width;
+extern const unsigned int CK_TERM_1_height;
+extern const unsigned char CK_TERM_1[];
+
+extern const unsigned int CK_TITLESCREEN_size;
+extern const unsigned char CK_TITLESCREEN[];
+
+extern const unsigned char CK_BURNBITS[];
+extern const unsigned short CK_BURNBITS_LINEHEIGHT;
+
 void Terminator(void);
 
 /*
@@ -664,6 +703,17 @@ extern const statetype s_carddoor;
 void CardDoorOpen(objtype *ob);
 #endif
 
+
+/*
+=============================================================================
+
+						CK_TEXT DEFINITIONS
+
+=============================================================================
+*/
+
+void HelpScreens(void);
+void FinaleLayout(void);
 
 /*
 =============================================================================

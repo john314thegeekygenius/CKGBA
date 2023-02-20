@@ -9,6 +9,8 @@
 
 unsigned short ck_def_button0 = GBA_BUTTON_A, ck_def_button1 = GBA_BUTTON_RSHOLDER, ck_def_button2 = GBA_BUTTON_B;
 Demo	DemoMode;
+byte  *DemoBuffer;
+word DemoOffset, DemoSize;
 
 const static Direction	DirTable[] =		// Quick lookup for total direction
 					{
@@ -38,7 +40,7 @@ IN_ReadControl(int player, ControlInfo *info)
 	buttons = 0;
 
 	if (DemoMode == demo_Playback)
-	{/*
+	{
 		dbyte = DemoBuffer[DemoOffset + 1];
 		my = (dbyte & 3) - 1;
 		mx = ((dbyte >> 2) & 3) - 1;
@@ -50,7 +52,6 @@ IN_ReadControl(int player, ControlInfo *info)
 			if (DemoOffset >= DemoSize)
 				DemoMode = demo_PlayDone;
 		}
-*/
 		realdelta = false;
 	}
 	else if (DemoMode == demo_PlayDone)
@@ -133,4 +134,103 @@ boolean IN_IsUserInput(void) {
 	if (GBA_TEST_BUTTONS(GBA_BUTTON_RSHOLDER))
 		result = true;
 	return result;
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_WaitForKey() - Waits for a scan code, then clears LastScan and
+//		returns the scan code
+//
+///////////////////////////////////////////////////////////////////////////
+ScanCode IN_WaitForKey(void)
+{
+	ScanCode	result;
+
+	while (!(result = LastScan))
+		;
+	LastScan = 0;
+	return(result);
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_AckBack() - Waits for either an ASCII keypress or a button press
+//
+///////////////////////////////////////////////////////////////////////////
+DONT_OPTIMISE void IN_AckBack(void)
+{
+	word	i;
+
+	while (!LastScan) { GBA_WAIT_VBLANK };
+	LastScan = 0x00;
+};
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_Ack() - Clears user input & then calls IN_AckBack()
+//
+///////////////////////////////////////////////////////////////////////////
+DONT_OPTIMISE void IN_Ack(void)
+{
+	while (LastScan) { GBA_WAIT_VBLANK };
+	LastScan = 0x00;
+	IN_AckBack();
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_UserInput() - Waits for the specified delay time (in ticks) or the
+//		user pressing a key or a mouse button. If the clear flag is set, it
+//		then either clears the key or waits for the user to let the mouse
+//		button up.
+//
+///////////////////////////////////////////////////////////////////////////
+DONT_OPTIMISE boolean IN_UserInput(longword delay,boolean clear)
+{
+	longword	lasttime;
+
+	lasttime = TimeCount;
+	do
+	{
+		if (IN_IsUserInput())
+		{
+			if (clear)
+				IN_AckBack();
+			return(true);
+		}
+		// Needed because it gets stuck otherwise????
+		GBA_WAIT_VBLANK
+	} while (TimeCount - lasttime < delay);
+	return(false);
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_StartDemoPlayback() - Plays back the demo pointed to of the given size
+//
+///////////////////////////////////////////////////////////////////////////
+void
+IN_StartDemoPlayback(byte *buffer,word bufsize)
+{
+	DemoBuffer = buffer;
+	DemoMode = demo_Playback;
+	DemoSize = bufsize & ~1;
+	DemoOffset = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_StopDemo() - Turns off demo mode
+//
+///////////////////////////////////////////////////////////////////////////
+void
+IN_StopDemo(void)
+{
+	if ((DemoMode == demo_Record) && DemoOffset)
+		DemoOffset += 2;
+
+	DemoMode = demo_Off;
 }

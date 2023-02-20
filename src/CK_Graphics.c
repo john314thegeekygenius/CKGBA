@@ -14,16 +14,30 @@ const unsigned short COMMANDER_KEEN_PALETTE[] = {
 	RGBCONV(0xfc5454), RGBCONV(0xfc54fc), RGBCONV(0xfcfc54), RGBCONV(0xfcfcfc)
 };
 
+void CK_FixPalette(){
+	// Copy the palette
+	for(int i = 0; i < 16; i++)
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+
+	// Copy the palette (foreground)
+	for(int i = 0; i < 16; i++)
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+};
+
+
+volatile uint16_t *TILEMAP_0 = (volatile uint16_t*)GBA_SCREEN_BLOCK(30);
+volatile uint16_t *TILEMAP_1 = (volatile uint16_t*)GBA_SCREEN_BLOCK(31);
+
+volatile uint16_t* TILESTART_0 = (volatile uint16_t*)GBA_VRAM;
+volatile uint16_t* TILESTART_1 = (volatile uint16_t*)(GBA_VRAM+0x6000)-1024;
+
+
 void CK_InitVideo(){
 	// Setup the video
 	*(volatile unsigned int*)GBA_REG_DISPCNT = GBA_MODE_0 | GBA_ENABLE_BG0 | GBA_ENABLE_BG1;// | GBA_BG_BACK;// | GBA_SHOW_BACK;
 	
-	// Copy the palette
-	for(int i = 0; i < 16; i++){
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16); // Background (tiles)
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16); // Foreground (sprites)
-	}
-
+	// Set the palette
+	CK_FixPalette();
 };
 
 
@@ -35,4 +49,5 @@ void VW_ClearVideo(unsigned int color){
 	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM, color, 32*32*8);
 	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM2, 0x00, 32*32*8);
 };
+
 

@@ -19,18 +19,6 @@ extern const unsigned char CK_TILESET_MASKED[];
 extern const unsigned char CK_TILESET_UNMASKED[];
 
 
-#define TILEMAP_BLOCK_0 0x00
-#define TILEMAP_BLOCK_1 0x04
-
-#define TILEMAP_MAP_0 0x1E00
-#define TILEMAP_MAP_1 0x1F00
-
-volatile uint16_t *TILEMAP_0 = (volatile uint16_t*)GBA_SCREEN_BLOCK(30);
-volatile uint16_t *TILEMAP_1 = (volatile uint16_t*)GBA_SCREEN_BLOCK(31);
-
-volatile uint16_t* TILESTART_0 = (volatile uint16_t*)GBA_VRAM;
-volatile uint16_t* TILESTART_1 = (volatile uint16_t*)(GBA_VRAM+0x6000)-1024;
-
 void CK_SetupLevelGBAMaps(){
 	// Set the map to a constant 
 	for(int i = 0; i < 32*32; i++){

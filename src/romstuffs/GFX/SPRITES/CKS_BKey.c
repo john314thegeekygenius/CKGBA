@@ -77,3 +77,8 @@ const unsigned char CKS_BKey_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_BKey_boxinfo[] = {
+	4, 4, 11, 11, 0, 3, 
+	16, 4, 16, 8, 0, 2, };

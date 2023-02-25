@@ -7,6 +7,7 @@
 #ifndef __CK_UNIVERSAL__
 #define __CK_UNIVERSAL__
 
+
 // From ID_RF.C
 extern	unsigned	tics;
 extern	long		lasttimecount;
@@ -89,6 +90,12 @@ extern	boolean		Button0,Button1,
 extern	int			CursorX,CursorY;
 
 #define	US_HomeWindow()	{PrintX = WindowX; PrintY = WindowY;}
+
+// Should have been from ID_VW.C
+extern unsigned char fontcolor;
+extern void USL_DrawString(char*pstr);
+
+void US_Setup();
 
 extern void US_TextScreen(), 
 				US_UpdateTextScreen(void),

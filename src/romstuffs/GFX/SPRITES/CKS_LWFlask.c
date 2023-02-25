@@ -77,3 +77,8 @@ const unsigned char CKS_LWFlask_data[] = {
 	0x88, 0xff, 0x14, 0x0, 
 	0x11, 0x11, 0x1, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_LWFlask_boxinfo[] = {
+	0, 0, 16, 16, 0, 0, 
+	0, 0, 16, 16, 0, 0, };

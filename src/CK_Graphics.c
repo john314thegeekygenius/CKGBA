@@ -50,4 +50,14 @@ void VW_ClearVideo(unsigned int color){
 	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM2, 0x00, 32*32*8);
 };
 
+void VW_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c){
+	const uint32_t col = CK_TXTCOL(c);
+	const uint32_t colc = CK_TXTCOL(CK_EGA_CLEAR);
+	x >>= 3; y >>= 3;
+	w >>= 3; h >>= 3;
+	for(int i = 0; i < h; i++){
+		GBA_DMA_MemSet32((unsigned int *)TILESTART_0+(x<<3)+(y<<8), col, w<<3);
+		GBA_DMA_MemSet32((unsigned int *)TILESTART_1+(x<<3)+(y<<8), colc, w<<3);
+	}
+};
 

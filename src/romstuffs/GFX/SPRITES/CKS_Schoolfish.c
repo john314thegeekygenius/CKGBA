@@ -77,3 +77,10 @@ const unsigned char CKS_Schoolfish_data[] = {
 	0x10, 0x33, 0x13, 0x0, 
 	0x0, 0x11, 0x1, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Schoolfish_boxinfo[] = {
+	3, 0, 13, 8, 0, 0, 
+	3, 0, 13, 8, 0, 0, 
+	3, 0, 13, 8, 0, 0, 
+	3, 0, 13, 8, 0, 0, };

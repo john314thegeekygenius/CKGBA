@@ -56,17 +56,14 @@ void CheckLastScan(void)
 			HelpScreens();
 		}
 #endif
-		else
+		US_ControlPanel();
+		if (restartgame)
 		{
-			US_ControlPanel();
-			if (restartgame)
-			{
-				playstate = ex_resetgame;
-			}
-			else if (loadedgame)
-			{
-				playstate = ex_loadedgame;
-			}
+			playstate = ex_resetgame;
+		}
+		else if (loadedgame)
+		{
+			playstate = ex_loadedgame;
 		}
 	}
 }

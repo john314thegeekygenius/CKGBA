@@ -23,3 +23,7 @@ const unsigned char CKS_Paddle_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Paddle_boxinfo[] = {
+	0, 0, 12, 3, 0, 0, };

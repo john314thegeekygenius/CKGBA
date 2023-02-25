@@ -221,3 +221,12 @@ const unsigned char CKS_Shot_data[] = {
 	0x0, 0x30, 0xfa, 0x8f, 
 	0x0, 0x0, 0xaa, 0x8f, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Shot_boxinfo[] = {
+	16, 2, 16, 12, 0, 0, 
+	16, 2, 16, 12, 0, 0, 
+	16, 2, 16, 12, 0, 0, 
+	16, 2, 16, 12, 0, 0, 
+	16, 2, 16, 12, 0, 0, 
+	16, 2, 16, 12, 0, 0, };

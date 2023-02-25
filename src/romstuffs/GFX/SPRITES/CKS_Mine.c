@@ -248,3 +248,9 @@ const unsigned char CKS_Mine_data[] = {
 	0x5, 0x5, 0x10, 0x1, 
 	0x0, 0x0, 0x0, 0x10, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Mine_boxinfo[] = {
+	24, 3, 24, 18, 0, 0, 
+	24, 3, 24, 18, 0, 0, 
+	24, 3, 24, 18, 0, 0, };

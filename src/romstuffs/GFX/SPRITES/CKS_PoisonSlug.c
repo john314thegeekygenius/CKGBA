@@ -653,3 +653,14 @@ const unsigned char CKS_PoisonSlug_data[] = {
 	0x61, 0x66, 0x1, 0x0, 
 	0x10, 0x11, 0x1, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_PoisonSlug_boxinfo[] = {
+	16, 8, 16, 16, 0, 0, 
+	2, 8, 13, 23, -8, 2, 
+	24, 8, 24, 16, -8, 0, 
+	2, 8, 13, 23, -8, 2, 
+	24, 8, 24, 16, -8, 0, 
+	16, 8, 16, 16, 0, 0, 
+	2, 8, 13, 23, 0, 2, 
+	24, 8, 24, 16, 0, 0, };

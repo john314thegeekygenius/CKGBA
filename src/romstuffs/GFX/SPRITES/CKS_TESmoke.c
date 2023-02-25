@@ -1130,3 +1130,11 @@ const unsigned char CKS_TESmoke_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_TESmoke_boxinfo[] = {
+	0, 0, 39, 39, 0, 4, 
+	0, 0, 40, 40, 0, 0, 
+	0, 0, 39, 31, 0, 0, 
+	0, 0, 39, 15, 0, 0, 
+	0, 0, 32, 7, 0, 1, };

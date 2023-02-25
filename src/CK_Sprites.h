@@ -21,10 +21,15 @@ void CK_UpdateObjGraphics(objtype *obj);
 
 void CK_UpdateObjects();
 
+unsigned short *CK_GetSprShape(objtype *obj);
+
 void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy);
 
 void CK_SetupSprites();
 
 void CK_RemoveSprites();
+
+// DEBUG FUNCTION
+void CK_PrintObjInfo();
 
 #endif

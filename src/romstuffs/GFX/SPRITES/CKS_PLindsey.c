@@ -437,3 +437,10 @@ const unsigned char CKS_PLindsey_data[] = {
 	0x11, 0x1, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_PLindsey_boxinfo[] = {
+	24, 2, 24, 28, 0, 0, 
+	24, 2, 24, 28, 0, 0, 
+	24, 2, 24, 28, 0, 0, 
+	24, 2, 24, 28, 0, 0, };

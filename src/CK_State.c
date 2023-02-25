@@ -385,12 +385,11 @@ void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 */
 
 void ClipToWalls(objtype *ob)
-{/*
+{
 	Uint16 oldx, oldy;
 #ifdef KEEN6
 	Uint16 y;
 #endif
-	spritetabletype far *shape;
 	boolean pushed;
 
 	oldx = ob->x;
@@ -445,12 +444,11 @@ void ClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	if (ob->shapenum == -1)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
 
-	shape = &spritetable[ob->shapenum-STARTSPRITES];
 
 	oldtileright = ob->tileright;
 	oldtiletop = ob->tiletop;
@@ -464,10 +462,12 @@ void ClipToWalls(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	ob->left = ob->x + shape->xl;
-	ob->right = ob->x + shape->xh;
-	ob->top = ob->y + shape->yl;
-	ob->bottom = ob->y + shape->yh;
+	unsigned short *shape = CK_GetSprShape(ob);
+
+	ob->left = ob->x + shape[0];
+	ob->right = ob->x + shape[2];
+	ob->top = ob->y + shape[1];
+	ob->bottom = ob->y + shape[3];
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -536,10 +536,10 @@ void ClipToWalls(objtype *ob)
 		ob->y = oldy;
 		ob->x = oldx + xtry;
 
-		ob->left = ob->x + shape->xl;
-		ob->right = ob->x + shape->xh;
-		ob->top = ob->y + shape->yl;
-		ob->bottom = ob->y + shape->yh;
+		ob->left = ob->x + shape[0];
+		ob->right = ob->x + shape[2];
+		ob->top = ob->y + shape[1];
+		ob->bottom = ob->y + shape[3];
 		ob->midx = ob->left + (ob->right-ob->left)/2;
 
 		ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -551,7 +551,7 @@ void ClipToWalls(objtype *ob)
 
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
-	*/
+	
 }
 
 /*

@@ -119,6 +119,8 @@ const unsigned int CK_LevelAudio[] = {
 	};
 */
 
-// TODO:
-// Include all the sounds :E
+// Include all the sounds
+
+#include "CK4_AdlibDefs.h"
+#include "CK4_PCDefs.h"
 

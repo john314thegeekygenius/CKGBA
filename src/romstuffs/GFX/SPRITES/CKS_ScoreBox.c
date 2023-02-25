@@ -401,3 +401,7 @@ const unsigned char CKS_ScoreBox_data[] = {
 	0x77, 0xf7, 0xf, 0x0, 
 	0x11, 0x11, 0xf, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_ScoreBox_boxinfo[] = {
+	0, 0, 88, 32, 0, 0, };

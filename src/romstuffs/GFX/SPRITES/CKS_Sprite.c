@@ -410,3 +410,11 @@ const unsigned char CKS_Sprite_data[] = {
 	0x1, 0x0, 0x0, 0x0, 
 	0x1, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Sprite_boxinfo[] = {
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 21, 0, 0, 
+	24, 3, 24, 21, 0, 0, 
+	24, 3, 24, 21, 0, 0, 
+	24, 3, 24, 21, 0, 0, };

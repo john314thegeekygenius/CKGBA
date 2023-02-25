@@ -491,3 +491,8 @@ const unsigned char CKS_LightningBolt_data[] = {
 	0x10, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_LightningBolt_boxinfo[] = {
+	8, 0, 15, 71, 0, 2, 
+	8, 0, 16, 71, 0, 1, };

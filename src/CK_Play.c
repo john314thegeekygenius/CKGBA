@@ -102,35 +102,35 @@ void CenterActor(objtype *ob)
 {
 	Uint16 orgx, orgy;
 
-	centerlevel = 140;
-	if (ob->x < 152*PIXGLOBAL)
+	centerlevel = 0; //140
+	if (ob->x < 144*PIXGLOBAL) // 152
 	{
 		orgx = 0;
 	}
 	else
 	{
-		orgx = ob->x - 152*PIXGLOBAL;
+		orgx = ob->x - 144*PIXGLOBAL; // 152
 	}
 	if (mapon == 0)
 	{
-		if (ob->y < 80*PIXGLOBAL)
+		if (ob->y < 64*PIXGLOBAL) // 80
 		{
 			orgy = 0;
 		}
 		else
 		{
-			orgy = ob->y - 80*PIXGLOBAL;
+			orgy = ob->y - 64*PIXGLOBAL; // 80
 		}
 	}
 	else
 	{
-		if (ob->bottom < 140*PIXGLOBAL)
+		if (ob->bottom < 112*PIXGLOBAL) // 140
 		{
 			orgy = 0;
 		}
 		else
 		{
-			orgy = ob->bottom - 140*PIXGLOBAL;
+			orgy = ob->bottom - 112*PIXGLOBAL; // 140
 		}
 	}
 	if (!scorescreenkludge)
@@ -286,7 +286,7 @@ void ScrollScreen(objtype *ob)
 //
 // walked off edge of map?
 //
-	if (ob->left < originxmin || ob->right > originxmax + 320*PIXGLOBAL)
+	if (ob->left < originxmin || ob->right > originxmax + GBA_SCREEN_WIDTH*PIXGLOBAL)
 	{
 		playstate = ex_completed;
 		return;
@@ -306,13 +306,13 @@ void ScrollScreen(objtype *ob)
 
 	xscroll=yscroll=0;
 
-	if (ob->x < originxglobal + 9*TILEGLOBAL)
+	if (ob->x < originxglobal + 7*TILEGLOBAL) // 9
 	{
-		xscroll = ob->x - (originxglobal + 9*TILEGLOBAL);
+		xscroll = ob->x - (originxglobal + 7*TILEGLOBAL); // 9
 	}
-	else if (ob->x > originxglobal + 12*TILEGLOBAL)
+	else if (ob->x > originxglobal + 9*TILEGLOBAL) // 12
 	{
-		xscroll = ob->x - (originxglobal + 12*TILEGLOBAL);
+		xscroll = ob->x - (originxglobal + 9*TILEGLOBAL); // 12
 	}
 
 	if (ob->state == &s_keenlookup2)
@@ -345,7 +345,7 @@ void ScrollScreen(objtype *ob)
 #ifdef KEEN6
 	if (groundslam)
 	{
-		static Sint16 shaketable[] = {0,
+		const static Sint16 shaketable[] = {0,
 			 -64,  -64,  -64,  64,  64,  64,
 			-200, -200, -200, 200, 200, 200,
 			-250, -250, -250, 250, 250, 250,
@@ -355,6 +355,7 @@ void ScrollScreen(objtype *ob)
 	}
 	else
 #endif
+	centerlevel = 0;
 	if ( (ob->hitnorth || !ob->needtoclip || ob->state == &s_keenholdon))
 	{
 		if (  ob->state != &s_keenclimbup
@@ -408,15 +409,15 @@ void ScrollScreen(objtype *ob)
 	}
 	else
 	{
-		centerlevel = 140;
+		//centerlevel = 112; // 140
 	}
 
-	pix = (ob->bottom-32*PIXGLOBAL)-(originyglobal+yscroll);
+	pix = (ob->bottom-6*PIXGLOBAL)-(originyglobal+yscroll);
 	if (pix < 0)
 	{
 		yscroll += pix;
 	}
-	pix = (ob->bottom+32*PIXGLOBAL)-(originyglobal+yscroll+200*PIXGLOBAL);
+	pix = (ob->bottom+6*PIXGLOBAL)-(originyglobal+yscroll+160); //200
 	if (pix > 0)
 	{
 		yscroll += pix;
@@ -444,6 +445,7 @@ void ScrollScreen(objtype *ob)
 	{
 		yscroll = -0xFF;
 	}
+
 	CK_ScrollCamera(xscroll, yscroll);
 
 //
@@ -488,6 +490,22 @@ void InitObjArray(void) {
 
     // Remove any old objects
     CK_RemoveSprites();
+/*
+	Sint16 i;
+
+	for (i=0; i<MAXACTORS; i++)
+	{
+		objarray[i].prev = &objarray[i+1];
+		objarray[i].next = NULL;
+	}
+
+	objarray[MAXACTORS-1].prev = NULL;
+
+	objfreelist = &objarray[0];
+	lastobj = NULL;
+
+	objectcount = 0;
+*/
 
 //
 // give the player and score the first free spots
@@ -842,6 +860,8 @@ void PlayLoop(void)
 //
         CK_FixCamera();
         CK_RenderLevel();
+		//CK_MoveCamera(3000,128);
+		CK_PrintObjInfo();
 
         RF_CalcTics();
 

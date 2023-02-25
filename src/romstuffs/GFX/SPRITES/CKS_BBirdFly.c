@@ -1445,3 +1445,11 @@ const unsigned char CKS_BBirdFly_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_BBirdFly_boxinfo[] = {
+	24, 2, 39, 31, 0, 1, 
+	24, 2, 39, 31, 0, 2, 
+	24, 2, 39, 31, 0, 0, 
+	24, 2, 39, 31, 0, 2, 
+	8, 10, 31, 31, 0, 8, };

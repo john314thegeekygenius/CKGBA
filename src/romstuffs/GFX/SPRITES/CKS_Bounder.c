@@ -572,3 +572,13 @@ const unsigned char CKS_Bounder_data[] = {
 	0x11, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Bounder_boxinfo[] = {
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 20, 0, 1, 
+	24, 3, 24, 21, 0, 0, };

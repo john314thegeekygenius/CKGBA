@@ -59,3 +59,12 @@ const unsigned char CKS_EFire_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_EFire_boxinfo[] = {
+	0, 0, 7, 7, 0, 2, 
+	0, 0, 7, 7, 0, 2, 
+	0, 0, 8, 7, 0, 1, 
+	0, 0, 8, 7, 0, 1, 
+	0, 0, 7, 7, 0, 4, 
+	0, 0, 7, 7, 0, 4, };

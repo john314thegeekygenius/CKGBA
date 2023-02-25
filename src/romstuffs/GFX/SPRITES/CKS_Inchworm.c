@@ -221,3 +221,10 @@ const unsigned char CKS_Inchworm_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Inchworm_boxinfo[] = {
+	4, 8, 19, 15, 0, 8, 
+	8, 8, 23, 15, 8, 4, 
+	4, 8, 19, 15, 0, 8, 
+	0, 8, 15, 15, 0, 4, };

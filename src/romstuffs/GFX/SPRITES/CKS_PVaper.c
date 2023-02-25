@@ -149,3 +149,10 @@ const unsigned char CKS_PVaper_data[] = {
 	0x50, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_PVaper_boxinfo[] = {
+	0, 0, 15, 15, 0, 4, 
+	0, 0, 16, 16, 0, 0, 
+	0, 0, 16, 15, 0, 1, 
+	0, 0, 16, 15, 0, 1, };

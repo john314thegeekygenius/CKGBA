@@ -365,3 +365,10 @@ const unsigned char CKS_Flame_data[] = {
 	0x55, 0x55, 0x15, 0x0, 
 	0x55, 0x55, 0x1, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Flame_boxinfo[] = {
+	16, 2, 16, 14, 0, 0, 
+	16, 2, 16, 13, 0, 1, 
+	2, -22, 13, 15, 0, -24, 
+	2, -22, 13, 15, 0, -24, };

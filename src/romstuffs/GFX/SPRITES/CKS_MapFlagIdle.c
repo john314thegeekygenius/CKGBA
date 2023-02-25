@@ -581,3 +581,10 @@ const unsigned char CKS_MapFlagIdle_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_MapFlagIdle_boxinfo[] = {
+	0, 0, 31, 31, 0, 6, 
+	0, 0, 31, 31, 0, 6, 
+	0, 0, 31, 31, 0, 6, 
+	0, 0, 31, 31, 0, 6, };

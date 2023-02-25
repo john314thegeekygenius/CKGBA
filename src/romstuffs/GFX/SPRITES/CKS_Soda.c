@@ -77,3 +77,8 @@ const unsigned char CKS_Soda_data[] = {
 	0x11, 0x55, 0x1, 0x0, 
 	0x11, 0x11, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Soda_boxinfo[] = {
+	0, 0, 16, 16, 0, 0, 
+	0, 0, 16, 16, 0, 0, };

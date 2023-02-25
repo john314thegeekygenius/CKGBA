@@ -77,3 +77,8 @@ const unsigned char CKS_Doughnut_data[] = {
 	0x11, 0x1, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Doughnut_boxinfo[] = {
+	0, 0, 16, 15, 0, 1, 
+	0, 0, 16, 15, 0, 1, };

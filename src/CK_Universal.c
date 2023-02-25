@@ -6,6 +6,36 @@
 
 #include "CK_Heads.h"
 
+// From OG code
+unsigned char fontcolor = CK_EGA_BLACK; // Default to black
+
+// CK Font stuffs
+extern const unsigned char CK_FONT[];
+extern const unsigned int CK_FONT_size;
+
+void CK_BlitChar(char c, uint16_t x, uint16_t y, uint32_t col){
+	uint32_t *vidmem = (uint32_t*)TILESTART_1+(y<<8)+(x<<3);
+	for(int i = 0; i < 8; i++){
+		*vidmem = *((uint32_t*)CK_FONT+i+(c*8)) & col;//(27*16);//(c*8*4)+(y*8);
+		vidmem++;
+	}
+};
+
+void USL_DrawString(char*pstr){
+	unsigned short px,py;
+	px = PrintX>>3;
+	py = PrintY>>3;
+	while(*pstr!='\0'){
+		CK_BlitChar(*pstr,px,py,CK_TXTCOL(fontcolor));
+		++px;
+		++pstr;
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //      Global variables
 boolean ingame,abortgame,loadedgame;
 GameDiff restartgame = gd_Continue;
@@ -16,8 +46,19 @@ word            PrintX,PrintY;
 word            WindowX,WindowY,WindowW,WindowH;
 
 
+void US_Setup(){
+	WindowX = 0;
+	WindowY = 0;
+};
 
-
+void USL_MeasureString(char *str, word *w, word *h){
+	*h = 8;
+	*w=0;
+	while(*str){
+		str++;
+		*w+=8;
+	}
+};
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -27,7 +68,7 @@ word            WindowX,WindowY,WindowW,WindowH;
 ///////////////////////////////////////////////////////////////////////////
 void
 US_Print(char *s)
-{/*
+{
 	char    c,*se;
 	word    w,h;
 
@@ -39,8 +80,6 @@ US_Print(char *s)
 		*se = '\0';
 
 		USL_MeasureString(s,&w,&h);
-		px = PrintX;
-		py = PrintY;
 		USL_DrawString(s);
 
 		s = se;
@@ -54,8 +93,90 @@ US_Print(char *s)
 		}
 		else
 			PrintX += w;
-	}*/
+	}
 }
+
+
+char _ck_hex_lookup[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+char *_ck_ultoa(unsigned int n, char*buff, int mode){
+	char *dbuff = buff;
+	char cbuff[32]; // Assumes only 32 characters can be generated!
+	int i = 0;
+	if(n==0){
+		*dbuff++ = '0';
+		*dbuff = 0;
+		return buff;
+	}
+	// Function will crash if more than 31 characters are made (because of null char)
+	if(mode == 10){
+		while(n){
+			cbuff[i] = _ck_hex_lookup[n%10];
+			++i; // move the pointer
+			n/=10; // Next nibble
+		}
+	}else if(mode == 16){
+		while(n){
+			cbuff[i] = _ck_hex_lookup[n&0xF];
+			++i; // move the pointer
+			n>>4; // Next nibble
+		}
+	}
+	// Reverse the cbuffer into the buffer
+	for(int e = i-1; e >= 0; --e){
+		*dbuff = cbuff[e];
+		++dbuff;
+	}
+	*dbuff = 0;
+	return buff;
+};
+
+
+char *_ck_ltoa(int n, char*buff, int mode){
+	char *dbuff = buff;
+	char cbuff[32]; // Assumes only 32 characters can be generated!
+	int i = 0;
+	char neg = 0;
+	if(n==0){
+		*dbuff++ = '0';
+		*dbuff = 0;
+		return buff;
+	}
+	// Function will crash if more than 31 characters are made (because of null char)
+	if(mode == 10){
+		// Handle if negitive
+		if(n<0){
+			n = -n;
+			neg = 1;
+			++i;
+		}
+		while(n){
+			cbuff[i] = _ck_hex_lookup[n%10];
+			++i; // move the pointer
+			n/=10; // Next nibble
+		}
+	}else if(mode == 16){
+		while(n){
+			cbuff[i] = _ck_hex_lookup[n&0xF];
+			++i; // move the pointer
+			n>>4; // Next nibble
+		}
+	}
+	// If negitive
+	if(neg){
+	    *dbuff = '-';
+	    ++dbuff;
+	}
+	// Reverse the cbuffer into the buffer
+	for(int e = i-1; e >= 0; --e){
+		*dbuff = cbuff[e];
+		++dbuff;
+	}
+	*dbuff = 0;
+	return buff;
+};
+
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -65,9 +186,9 @@ US_Print(char *s)
 void
 US_PrintUnsigned(longword n)
 {
-	//char    buffer[32];
+	char    buffer[32];
 
-	//US_Print(ultoa(n,buffer,10));
+	US_Print(_ck_ultoa(n,buffer,10));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -78,9 +199,9 @@ US_PrintUnsigned(longword n)
 void
 US_PrintSigned(long n)
 {
-	//char    buffer[32];
+	char    buffer[32];
 
-	//US_Print(ltoa(n,buffer,10));
+	US_Print(_ck_ltoa(n,buffer,10));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -280,6 +401,7 @@ USL_SetUpCtlPanel(void)
 		GameIsDirty = true;
 */
 	IN_ClearKeysDown();
+	restartgame = gd_Easy;
 }
 
 

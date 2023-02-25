@@ -77,3 +77,8 @@ const unsigned char CKS_Icecream_data[] = {
 	0x1, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Icecream_boxinfo[] = {
+	0, 0, 12, 16, 0, 0, 
+	0, 0, 12, 16, 0, 0, };

@@ -243,12 +243,13 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 	player->active = ac_allways;
 	player->priority = 1;
 	player->x = CONVERT_TILE_TO_GLOBAL(x) ;
-	player->y = CONVERT_TILE_TO_GLOBAL(y) -16;//- 0xF1;	//TODO: weird
+	player->y = CONVERT_TILE_TO_GLOBAL(y) ;//- 0xF1;	//TODO: weird
 
 	player->xdir = dir;
 	player->ydir = 1;
 	NewState(player, &s_keenstand);
     CK_SetSprite(player, CKS_KEEN);
+
 }
 
 //==========================================================================

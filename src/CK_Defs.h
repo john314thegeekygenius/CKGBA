@@ -330,6 +330,7 @@ typedef struct objstruct
     ///////////////////////////////////////////////////
     // Added for GBA port
     unsigned char isFree;
+	unsigned int uuid;
     GBA_SpriteIndex_t gbaSprites[MAX_GBA_SPRITES];
     unsigned int sprtype[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
@@ -711,6 +712,7 @@ void CardDoorOpen(objtype *ob);
 
 =============================================================================
 */
+
 
 void HelpScreens(void);
 void FinaleLayout(void);

@@ -653,3 +653,9 @@ const unsigned char CKS_ThunderCloud_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_ThunderCloud_boxinfo[] = {
+	0, 0, 64, 24, 0, 0, 
+	0, 0, 64, 24, 0, 0, 
+	0, 0, 64, 24, 0, 0, };

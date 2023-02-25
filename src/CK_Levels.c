@@ -173,6 +173,9 @@ void CK_FixCamera(){
     CK_CameraBlockX = CK_GlobalCameraX>>4;
     CK_CameraBlockY = CK_GlobalCameraY>>4;
 
+    originxglobal = CK_GlobalCameraX;
+    originyglobal = CK_GlobalCameraY;
+
 };
 
 void CK_ScrollCamera(signed short x, signed short y ){
@@ -331,6 +334,9 @@ void CK_UpdateLevel(){
         voff_s += CK_CurLevelSize;
         voff_e += CK_CurLevelSize;
     }
+
+    PrintX = 0;
+    PrintY = 0;
 
 };
 

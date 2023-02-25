@@ -221,3 +221,7 @@ const unsigned char CKS_Demo_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Demo_boxinfo[] = {
+	0, 0, 63, 23, 0, 3, };

@@ -26,8 +26,9 @@ void InitGame(void)
 	CK_SetupSprites();
 
 	US_InitRndT(true);              // Initialize the random number generator
-
 	US_TextScreen();
+
+	US_Setup();
 
 	VW_ClearVideo(BLACK);
 };

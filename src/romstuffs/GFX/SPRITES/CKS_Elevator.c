@@ -131,3 +131,7 @@ const unsigned char CKS_Elevator_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const unsigned short CKS_Elevator_boxinfo[] = {
+	56, 6, 56, 10, 0, 0, };

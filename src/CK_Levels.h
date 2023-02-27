@@ -18,6 +18,9 @@ extern unsigned short CK_CurLevelIndex;
 
 extern GBA_IN_EWRAM uint16_t CK_CurLevelData[32768];
 extern const unsigned short* CK_LevelInfo[];
+extern const char *CK_TileInfo[2];
+extern const uint16_t CK_TileInfo_BGTiles ;
+extern const uint16_t CK_TileInfo_FGTiles ;
 
 extern signed int CK_GlobalCameraX ;
 extern signed int CK_GlobalCameraY ;
@@ -28,6 +31,8 @@ extern signed int CK_GlobalCameraLY ;
 // Functions
 
 void CK_SetupLevelGBAMaps();
+
+void CK_ForceLevelRedraw();
 
 void CK_LoadLevel(unsigned short lvlNumber);
 

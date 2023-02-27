@@ -91,18 +91,18 @@ void MoveObjHoriz(objtype *ob, Sint16 xmove)
 */
 
 void PlayerBottomKludge(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 	Uint16 wall, clip, xpix;
 	Sint16 xmove, ymove;
 
-	map = (Uint16 far *)mapsegs[1] + mapbwidthtable[ob->tilebottom-1]/2;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tilebottom-1)*CK_CurLevelWidth);
 	if (ob->xdir == 1)
 	{
 		xpix = 0;
 		map += ob->tileright;
 		xmove = ob->right - ob->midx;
-		if (tinf[*(map-mapwidth)+WESTWALL] || tinf[*map+WESTWALL])
+		if (CK_TileInfo[1][*(map-CK_CurLevelWidth)+WESTWALL] || CK_TileInfo[1][*map+WESTWALL])
 		{
 			return;
 		}
@@ -112,17 +112,13 @@ void PlayerBottomKludge(objtype *ob)
 		xpix = 15;
 		map += ob->tileleft;
 		xmove = ob->left - ob->midx;
-		if (tinf[*(map-mapwidth)+EASTWALL] || tinf[*map+EASTWALL])
+		if (CK_TileInfo[1][*(map-CK_CurLevelWidth)+EASTWALL] || CK_TileInfo[1][*map+EASTWALL])
 		{
 			return;
 		}
 	}
-	if ((_AX = tinf[*map+NORTHWALL]) != 0)	// the _AX = ... part is just to recreate the original code's quirks, feel free to delete this
-	{
-		return;
-	}
-	map += mapwidth;
-	if ((wall = tinf[*map+NORTHWALL]) != 1)
+	map += CK_CurLevelWidth;
+	if ((wall = CK_TileInfo[1][*map+NORTHWALL]) != 1)
 	{
 		return;
 	}
@@ -133,7 +129,7 @@ void PlayerBottomKludge(objtype *ob)
 		ob->hitnorth = wall;
 		MoveObjVert(ob, ymove);
 		MoveObjHoriz(ob, xmove);
-	}*/
+	}
 }
 
 /*
@@ -145,17 +141,17 @@ void PlayerBottomKludge(objtype *ob)
 */
 
 void PlayerTopKludge(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 	Uint16 xpix, wall, clip;
 	Sint16 move;
 
-	map = (Uint16 far *)mapsegs[1] + mapbwidthtable[ob->tiletop+1]/2;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop+1)*CK_CurLevelWidth);
 	if (ob->xdir == 1)
 	{
 		xpix = 0;
 		map += ob->tileright;
-		if (tinf[*(map+mapwidth)+WESTWALL] || tinf[*(map+2*mapwidth)+WESTWALL])
+		if (CK_TileInfo[1][*(map+CK_CurLevelWidth)+WESTWALL] || CK_TileInfo[1][*(map+2*CK_CurLevelWidth)+WESTWALL])
 		{
 			return;
 		}
@@ -164,17 +160,13 @@ void PlayerTopKludge(objtype *ob)
 	{
 		xpix = 15;
 		map += ob->tileleft;
-		if (tinf[*(map+mapwidth)+EASTWALL] || tinf[*(map+2*mapwidth)+EASTWALL])
+		if (CK_TileInfo[1][*(map+CK_CurLevelWidth)+EASTWALL] || CK_TileInfo[1][*(map+2*CK_CurLevelWidth)+EASTWALL])
 		{
 			return;
 		}
 	}
-	if ((_AX = tinf[*map+SOUTHWALL]) != 0)	// the _AX = ... part is just to recreate the original code's quirks, feel free to delete this
-	{
-		return;
-	}
-	map -= mapwidth;
-	if ((wall = tinf[*map+SOUTHWALL]) != 0)
+	map -= CK_CurLevelWidth;
+	if ((wall = CK_TileInfo[1][*map+SOUTHWALL]) != 0)
 	{
 		clip = wallclip[wall&7][xpix];
 		move = CONVERT_TILE_TO_GLOBAL(ob->tiletop+1) - clip - ob->top;
@@ -183,7 +175,7 @@ void PlayerTopKludge(objtype *ob)
 			ob->hitsouth = wall;
 			MoveObjVert(ob, move);
 		}
-	}*/
+	}
 }
 
 /*
@@ -195,18 +187,22 @@ void PlayerTopKludge(objtype *ob)
 */
 
 void ClipToEnds(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 	Uint16 wall, y, clip;
 	Sint16 totalmove, maxmove, move;
 	Uint16 midxpix;
-	
+
 	midxpix = CONVERT_GLOBAL_TO_PIXEL(ob->midx & 0xF0);
 	maxmove = -abs(midxmoved)-bottommoved-16;
-	map = (Uint16 far *)mapsegs[1] + (mapbwidthtable-1)[oldtilebottom]/2 + ob->tilemidx;
-	for (y=oldtilebottom-1; y <= ob->tilebottom; y++,map+=mapwidth)
+	//                                     WUT?!?!?
+	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable-1)[oldtilebottom]/2 + ob->tilemidx;
+	// My best guess is that they wanted it offset by 2 bytes (i.e. the next line)
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtilebottom+1)*CK_CurLevelWidth) + ob->tilemidx;
+
+	for (y=oldtilebottom-1; y <= ob->tilebottom; y++,map+=CK_CurLevelWidth)
 	{
-		if ((wall = tinf[*map + NORTHWALL]) != 0)
+		if ((wall = CK_TileInfo[1][*map + NORTHWALL]) != 0)
 		{
 			clip = wallclip[wall&7][midxpix];
 			move = (CONVERT_TILE_TO_GLOBAL(y) + clip)-1-ob->bottom;
@@ -219,10 +215,12 @@ void ClipToEnds(objtype *ob)
 		}
 	}
 	maxmove = abs(midxmoved)-topmoved+16;
-	map = (Uint16 far *)mapsegs[1] + (mapbwidthtable+1)[oldtiletop]/2 + ob->tilemidx;
-	for (y=oldtiletop+1; y >= ob->tiletop; y--,map-=mapwidth)	// BUG: unsigned comparison - loop never ends if ob->tiletop is 0
+	//                                     WUT?!?!?
+	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable+1)[oldtiletop]/2 + ob->tilemidx;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtiletop+1)*CK_CurLevelWidth) + ob->tilemidx;
+	for (y=oldtiletop+1; y >= ob->tiletop; y--,map-=CK_CurLevelWidth)	// BUG: unsigned comparison - loop never ends if ob->tiletop is 0
 	{
-		if ((wall = tinf[*map + SOUTHWALL]) != 0)
+		if ((wall = CK_TileInfo[1][*map + SOUTHWALL]) != 0)
 		{
 			clip = wallclip[wall&7][midxpix];
 			move = CONVERT_TILE_TO_GLOBAL(y+1) - clip - ob->top;
@@ -237,7 +235,7 @@ void ClipToEnds(objtype *ob)
 				}
 			}
 		}
-	}*/
+	}
 }
 
 /*
@@ -249,9 +247,9 @@ void ClipToEnds(objtype *ob)
 */
 
 void ClipToSides(objtype *ob)
-{/*
+{
 	Sint16 move, y, top, bottom;
-	Uint16 far *map;
+	Uint16 *map;
 	
 	top = ob->tiletop;
 	if (ob->hitsouth > 1)
@@ -265,8 +263,8 @@ void ClipToSides(objtype *ob)
 	}
 	for (y=top; y<=bottom; y++)
 	{
-		map = (Uint16 far *)mapsegs[1] + mapbwidthtable[y]/2 + ob->tileleft;
-		if ((ob->hiteast = tinf[*map+EASTWALL]) != 0)
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + ob->tileleft;
+		if ((ob->hiteast = CK_TileInfo[1][*map+EASTWALL]) != 0)
 		{
 			move = CONVERT_TILE_TO_GLOBAL(ob->tileleft+1) - ob->left;
 			MoveObjHoriz(ob, move);
@@ -275,14 +273,14 @@ void ClipToSides(objtype *ob)
 	}
 	for (y=top; y<=bottom; y++)
 	{
-		map = (Uint16 far *)mapsegs[1] + mapbwidthtable[y]/2 + ob->tileright;
-		if ((ob->hitwest = tinf[*map+WESTWALL]) != 0)
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + ob->tileright;
+		if ((ob->hitwest = CK_TileInfo[1][*map+WESTWALL]) != 0)
 		{
 			move = (CONVERT_TILE_TO_GLOBAL(ob->tileright)-1)-ob->right;
 			MoveObjHoriz(ob, move);
 			return;
 		}
-	}*/
+	}
 }
 
 /*
@@ -294,26 +292,26 @@ void ClipToSides(objtype *ob)
 */
 
 boolean CheckPosition(objtype *ob)
-{/*
+{
 	Uint16 tile, x, y;
-	Uint16 far *map;
+	Uint16 *map;
 	Uint16 rowdiff;
 	
-	map = (Uint16 far *)mapsegs[1] + mapbwidthtable[ob->tiletop]/2 + ob->tileleft;
-	rowdiff = mapwidth-(ob->tileright-ob->tileleft+1);
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tiletop*CK_CurLevelWidth) + ob->tileleft;
+	rowdiff = CK_CurLevelWidth-(ob->tileright-ob->tileleft+1);
 	for (y=ob->tiletop; y<=ob->tilebottom; y++,map+=rowdiff)
 	{
 		for (x=ob->tileleft; x<=ob->tileright; x++)
 		{
 			tile = *(map++);
-			if (tinf[tile+NORTHWALL] || tinf[tile+EASTWALL] || tinf[tile+SOUTHWALL] || tinf[tile+WESTWALL])
+			if (CK_TileInfo[1][tile+NORTHWALL] || CK_TileInfo[1][tile+EASTWALL] || 
+			CK_TileInfo[1][tile+SOUTHWALL] || CK_TileInfo[1][tile+WESTWALL])
 			{
 				return false;
 			}
 		}
 	}
 	return true;
-*/
 }
 
 /*
@@ -325,8 +323,7 @@ boolean CheckPosition(objtype *ob)
 */
 
 boolean StatePositionOk(objtype *ob, statetype *state)
-{/*
-	spritetabletype far *shape;
+{
 
 	if (ob->xdir > 0)
 	{
@@ -336,18 +333,18 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	{
 		ob->shapenum = state->leftshapenum;
 	}
-	shape = &spritetable[ob->shapenum-STARTSPRITES];
-	ob->left = ob->x + shape->xl;
-	ob->right = ob->x + shape->xh;
-	ob->top = ob->y + shape->yl;
-	ob->bottom = ob->y + shape->yh;
+	unsigned short *shape = CK_GetSprShape(ob);
+	ob->left = ob->x + shape[0];
+	ob->right = ob->x + shape[2];
+	ob->top = ob->y + shape[1];
+	ob->bottom = ob->y + shape[3];
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
 	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
 	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
 	ob->tilemidx = CONVERT_GLOBAL_TO_TILE(ob->midx);
-	return CheckPosition(ob);*/
+	return CheckPosition(ob);
 }
 
 #ifdef KEEN5
@@ -360,15 +357,13 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 */
 
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
-{/*
-	spritetabletype far *shape;
-
-	shape = &spritetable[ob->shapenum-STARTSPRITES];
-	ob->left = ob->x + shape->xl;
-	ob->right = ob->x + shape->xh;
-	ob->top = ob->y + shape->yl;
-	ob->bottom = ob->y + shape->yh;
-	ob->midx = ob->left + (ob->right-ob->left)/2;*/
+{
+	unsigned short *shape = CK_GetSprShape(ob);
+	ob->left = ob->x + shape[0];
+	ob->right = ob->x + shape[2];
+	ob->top = ob->y + shape[1];
+	ob->bottom = ob->y + shape[3];
+	ob->midx = ob->left + (ob->right-ob->left)/2;
 }
 #endif
 
@@ -551,7 +546,6 @@ void ClipToWalls(objtype *ob)
 
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
-	
 }
 
 /*
@@ -565,9 +559,8 @@ void ClipToWalls(objtype *ob)
 */
 
 void FullClipToWalls(objtype *ob)
-{/*
+{
 	Uint16 oldx, oldy, w, h;
-	spritetabletype far *shape;
 
 	oldx = ob->x;
 	oldy = ob->y;
@@ -597,7 +590,8 @@ void FullClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-	shape = &spritetable[ob->shapenum-STARTSPRITES];
+
+	unsigned short *shape = CK_GetSprShape(ob);
 
 	switch (ob->obclass)
 	{
@@ -693,12 +687,12 @@ void FullClipToWalls(objtype *ob)
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
 
-	ob->left = ob->x + shape->xl;
-	ob->right = ob->x + shape->xh;
-	ob->top = ob->y + shape->yl;
-	ob->bottom = ob->y + shape->yh;
+	ob->left = ob->x + shape[0];
+	ob->right = ob->x + shape[2];
+	ob->top = ob->y + shape[1];
+	ob->bottom = ob->y + shape[3];
 	ob->midx = ob->left + (ob->right-ob->left)/2;
-	*/
+	
 }
 
 /*
@@ -712,9 +706,8 @@ void FullClipToWalls(objtype *ob)
 */
 
 void PushObj(objtype *ob)
-{/*
+{
 	Uint16 oldx, oldy;
-	spritetabletype far *shape;
 	
 	oldx = ob->x;
 	oldy = ob->y;
@@ -732,7 +725,7 @@ void PushObj(objtype *ob)
 		return;
 	}
 
-	shape = &spritetable[ob->shapenum-STARTSPRITES];
+	unsigned short *shape = CK_GetSprShape(ob);
 
 	oldtileright = ob->tileright;
 	oldtiletop = ob->tiletop;
@@ -746,10 +739,10 @@ void PushObj(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	ob->left = ob->x + shape->xl;
-	ob->right = ob->x + shape->xh;
-	ob->top = ob->y + shape->yl;
-	ob->bottom = ob->y + shape->yh;
+	ob->left = ob->x + shape[0];
+	ob->right = ob->x + shape[2];
+	ob->top = ob->y + shape[1];
+	ob->bottom = ob->y + shape[3];
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -772,7 +765,7 @@ void PushObj(objtype *ob)
 
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
-	*/
+
 }
 
 //==========================================================================
@@ -1261,6 +1254,8 @@ void ChangeState(objtype *ob, statetype *state)
 	{
 		ClipToWalls(ob);
 	}
+	// Probably need to update the graphics???
+	CK_UpdateObjGraphics(ob);
 }
 
 //==========================================================================
@@ -1275,12 +1270,12 @@ void ChangeState(objtype *ob, statetype *state)
 */
 
 boolean OnScreen(objtype *ob)
-{/*
+{
 	if (ob->tileright < originxtile || ob->tilebottom < originytile
 		|| ob->tileleft > originxtilemax || ob->tiletop > originytilemax)
 	{
 		return false;
-	}*/
+	}
 	return true;
 }
 

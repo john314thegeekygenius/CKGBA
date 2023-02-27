@@ -110,6 +110,8 @@ void DemoLoop(void)
 	state = 0;
 	while (1)
 	{
+		playstate = ex_resetgame;
+		DemoMode = demo_Off;
 		switch (state++)
 		{
 		case 0:

@@ -67,9 +67,9 @@ void ClearGameState(){
 	gamestate.sandwichstate = gamestate.hookstate = gamestate.passcardstate = gamestate.rocketstate;
 #endif
 	gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
-	gamestate.mapon;
-	gamestate.lives;
-	gamestate.difficulty;
+	gamestate.mapon = -1;
+	gamestate.lives = 0;
+	gamestate.difficulty = 0;
 	gamestate.riding = NULL;
 };
 
@@ -709,6 +709,8 @@ void HandleDeath(void)
 			}
 		}
 	}*/
+	gamestate.mapon = 0;		// exit to world map
+	IN_ClearKeysDown();
 }
 
 //==========================================================================
@@ -779,14 +781,14 @@ loaded:
 			goto loaded;
 
 		case ex_died:
-			//HandleDeath();
+			HandleDeath();
 			break;
 
 #if defined KEEN4
 		case ex_rescued:
 			if (mapon != 0)
 			{
-				//SD_PlaySound(SND_LEVELDONE);
+				SD_PlaySound(SND_LEVELDONE);
 			}
 			levelcompleted = mapon;
 			gamestate.leveldone[mapon] = true;
@@ -850,7 +852,7 @@ loaded:
 completed:
 			if (mapon != 0)
 			{
-				//SD_PlaySound(SND_LEVELDONE);
+				SD_PlaySound(SND_LEVELDONE);
 				gamestate.mapon = 0;
 				levelcompleted = mapon;
 				gamestate.leveldone[mapon] = true;

@@ -77,6 +77,11 @@ uint32_t CK_UpdateTick = 0;
 
 #include "romstuffs/CK4_Spectators.c"
 
+void CK_ForceLevelRedraw(){
+    CK_UpdateRendering = true;
+    CK_RenderLevel();
+};
+
 void CK_LoadLevel(unsigned short lvlNumber){
 	int lvloff = lvlNumber*3;
 	CK_CurLevelIndex = lvlNumber;

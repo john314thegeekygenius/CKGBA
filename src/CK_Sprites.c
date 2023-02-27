@@ -21,26 +21,7 @@ unsigned short GetNewObj(boolean dummy){
     ck_newobj->gbaSpriteCount = 0;
     ck_newobj->ck_sprType = 0;
     ck_newobj->uuid = CK_NumOfObjects;
-
-/*
-if (!objfreelist)
-	{
-		if (usedummy)
-		{
-			new = &dummyobj;
-			return -1;
-		}
-		Quit("GetNewObj: No free spots in objarray!");
-	}
-	new = objfreelist;
-	objfreelist = new->prev;
-	memset(new, 0, sizeof(*new));
-	if (lastobj)
-	{
-		lastobj->next = new;
-	}
-	new->prev = lastobj;	// new->next is allready NULL from memset
-*/
+    
 	ck_newobj->active = ac_yes;
 	ck_newobj->needtoclip = cl_midclip;
 /*
@@ -154,6 +135,9 @@ void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
         if(sprx > -64 && sprx < (240+64) && spry > -64 && spry < (160+64)){
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)
             GBA_UPDATE_SPRITE(obj->gbaSprites[i])
+        }else{
+            GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], GBA_SPR_OFFX, GBA_SPR_OFFY)
+            GBA_UPDATE_SPRITE(obj->gbaSprites[i])
         }
     }
 };
@@ -196,12 +180,12 @@ void CK_PrintObjInfo(){
         US_PrintUnsigned(shape[3]);
     }
     // Camera stuff
-    PrintX = 0;
-    PrintY = 0;
+    PrintX = 12;
+    PrintY = 2;
     VW_Bar(PrintX,PrintY,240,8, CK_EGA_CLEAR);
-    US_PrintUnsigned(CK_GlobalCameraX);
+    US_PrintUnsigned(jumpbutton);
     PrintX += 8;
-    US_PrintUnsigned(CK_GlobalCameraY);
+    US_PrintUnsigned(firebutton);
     
     PrintX = 0;
     PrintY = 8;

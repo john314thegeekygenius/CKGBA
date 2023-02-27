@@ -7,24 +7,6 @@
 #ifndef __CK_DEF__
 #define __CK_DEF__
 
-// #define CK_DISABLE_MUSIC
-#define CK4
-
-
-#ifdef CK4
-#define KEEN4
-#include "romstuffs/CK4_Defs.h"
-#endif
-#ifdef CK5
-#define KEEN5
-#include "romstuffs/CK5_Defs.h"
-#endif
-#ifdef CK6
-#define KEEN6
-#include "romstuffs/CK6_Defs.h"
-#endif
-
-
 
 // Pulled from ID_RF.H
 /*
@@ -111,12 +93,12 @@ typedef enum {spritedraw,maskdraw} drawtype;
 */
 
 //SDL-style integer types - just to make future SDL ports easier
-typedef unsigned int Uint16;
-typedef signed int Sint16;
+typedef unsigned short Uint16; // Fixed from int
+typedef signed short Sint16; // Fixed from int
 typedef unsigned char Uint8;
 typedef signed char Sint8;
-typedef unsigned long Uint32;
-typedef signed long Sint32;
+typedef unsigned int Uint32; // Fixed from long
+typedef signed int Sint32; // Fixed from long
 //Note: only the game code (CK_*.C, K?_*.C) uses these!
 
 typedef enum {
@@ -130,6 +112,7 @@ typedef enum {
 	arrow_NorthWest, // 7
 	arrow_None       // 8
 } arrowdirtype;
+
 
 typedef enum {
 	ex_stillplaying, //  0
@@ -191,6 +174,8 @@ typedef enum
 
 	INTILE_FOREGROUND = 0x80
 } intiletype;
+
+#define INTILE_TYPEMASK (INTILE_FOREGROUND-1)
 
 typedef enum
 {
@@ -305,7 +290,6 @@ typedef struct statestruct
 	struct statestruct *nextstate;
 } statetype;
 
-
 typedef struct objstruct
 {
 	classtype obclass;
@@ -326,7 +310,7 @@ typedef struct objstruct
 	Sint16 hitnorth, hiteast, hitsouth, hitwest;
 	Sint16 temp1, temp2, temp3, temp4;
 	void *sprite;
-	struct objstruct *next, *prev;
+	//struct objstruct *next, *prev; // Originally used for saveing / loading
     ///////////////////////////////////////////////////
     // Added for GBA port
     unsigned char isFree;
@@ -362,6 +346,8 @@ typedef struct
 	Sint16 difficulty;
 	objtype *riding;
 } gametype;
+
+
 
 // Found in CK_Sprites.c
 extern statetype sc_deadstate;
@@ -724,6 +710,16 @@ void FinaleLayout(void);
 
 =============================================================================
 */
+
+
+#define NORTHWALL (CK_TileInfo_FGTiles)
+#define EASTWALL (CK_TileInfo_FGTiles*2)
+#define SOUTHWALL (CK_TileInfo_FGTiles*3)
+#define WESTWALL (CK_TileInfo_FGTiles*4)
+#define MANIM	(CK_TileInfo_FGTiles*5)
+#define INTILE	(CK_TileInfo_FGTiles*6)
+#define MSPEED	(CK_TileInfo_FGTiles*7)
+
 extern const Sint16 wallclip[8][16];
 
 extern Sint16 xtry;

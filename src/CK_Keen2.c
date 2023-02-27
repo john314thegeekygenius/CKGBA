@@ -231,8 +231,7 @@ leading to up to three shifts in one frame.
 		changed = true;
 	}
 	if (changed){
-		CK_UpdateObjGraphics(ob);
-		CK_DrawObject(ob, ob->x + 4, ob->y + 4);
+		RF_PlaceSprite(&ob->sprite, ob->x+4, ob->y+4, SCOREBOXSPR, spritedraw, 3);
 	}
 };
 
@@ -245,13 +244,13 @@ leading to up to three shifts in one frame.
 */
 
 void DrawDemoPlaque(objtype *ob){
-	if (ob->x != CK_GlobalCameraX || ob->y != CK_GlobalCameraY)
+	if (ob->x != originxglobal || ob->y != originyglobal)
 	{
-		ob->x = CK_GlobalCameraX;
-		ob->y = CK_GlobalCameraY;
-		CK_UpdateObjGraphics(ob);
-		CK_DrawObject(ob, ob->x + 120 - 32, ob->y + 4);
+		ob->x = originxglobal;
+		ob->y = originyglobal;
+		RF_PlaceSprite(&ob->sprite, ob->x + 120 - 32, ob->y + 4, DEMOPLAQUESPR, spritedraw, 3);
 	}
+
 }
 
 
@@ -412,7 +411,7 @@ void CheckEnterLevel(objtype *ob)
 				gamestate.worldy = ob->y;
 				gamestate.mapon = info - 0xC000;
 				playstate = ex_completed;
-				//SD_PlaySound(SND_ENTERLEVEL);
+				SD_PlaySound(SND_ENTERLEVEL);
 			}
 		}
 	}
@@ -915,15 +914,17 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 */
 
 void CheckWorldInTiles(objtype *ob)
-{/*
+{
 	Uint16 tx, ty, intile;
+	Uint16 *map;
 
 	if (ob->temp3)
 		return;
 
 	tx = ob->tilemidx;
 	ty = CONVERT_GLOBAL_TO_TILE(ob->top + (ob->bottom-ob->top)/2);
-	intile = tinf[INTILE + *(mapsegs[1]+mapbwidthtable[ty]/2+tx)];
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ty*CK_CurLevelWidth) + tx;
+	intile = CK_TileInfo[1][INTILE + (*map)];
 #if defined KEEN4
 	if (intile == INTILE_SHORESOUTH || intile == INTILE_SHORENORTH
 		|| intile == INTILE_SHOREEAST || intile == INTILE_SHOREWEST)
@@ -996,7 +997,7 @@ void CheckWorldInTiles(objtype *ob)
 		Teleport(tx, ty);
 		break;
 	}
-#endif*/
+#endif
 }
 
 /*
@@ -1318,8 +1319,10 @@ void T_Shot(objtype *ob)
 	}
 
 	//check for collisions with INACTIVE objects
-	for (ob2 = player->next; ob2; ob2 = ob2->next)
-	{
+    for(int i = player->uuid; i < CK_NumOfObjects; i++){
+        ob2 = &CK_ObjectList[i];
+		if(!ob2) break;
+		
 		if (!ob2->active && ob->right > ob2->left && ob->left < ob2->right
 			&& ob->top < ob2->bottom && ob->bottom > ob2->top)
 		{

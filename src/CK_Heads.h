@@ -6,6 +6,11 @@
 #ifndef __CK_HEADS__
 #define __CK_HEADS__
 
+
+// #define CK_DISABLE_MUSIC
+#define CK4
+
+
 //
 //	ID Engine
 //	Types.h - Generic types, #defines, etc.
@@ -17,8 +22,8 @@
 
 typedef	enum	{false,true}	boolean;
 typedef	unsigned	char		byte;
-typedef	unsigned	int			word;
-typedef	unsigned	long		longword;
+typedef	unsigned	short		word; // Fixed from int
+typedef	unsigned	int		longword; // Fixed from long
 typedef	byte *					Ptr;
 
 typedef	struct
@@ -42,7 +47,34 @@ typedef boolean bool; // For sanity
 
 #include "CK_Input.h"
 
+#ifdef CK4
+#define KEEN4
+#include "romstuffs/CK4_Spectors.h"
+#endif
+#ifdef CK5
+#define KEEN5
+#include "romstuffs/CK5_Spectors.h"
+#endif
+#ifdef CK6
+#define KEEN6
+#include "romstuffs/CK6_Spectors.h"
+#endif
+
+
 #include "CK_Defs.h"
+
+
+#ifdef CK4
+#include "romstuffs/CK4_Defs.h"
+#endif
+#ifdef CK5
+#include "romstuffs/CK5_Defs.h"
+#endif
+#ifdef CK6
+#include "romstuffs/CK6_Defs.h"
+#endif
+
+
 
 #include "CK_Graphics.h"
 #include "CK_Sprites.h"

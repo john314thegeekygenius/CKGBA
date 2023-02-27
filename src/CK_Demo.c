@@ -278,6 +278,9 @@ void Terminator(void)
 
 	pagefinished = false;
 
+	// Remove any old sprites (???)
+	CK_RemoveSprites();
+
 	VW_ClearVideo(BLACK);
 
 	//
@@ -565,11 +568,13 @@ void RunDemo(Sint16 num)
 	
 	NewGame();
 
-	demodata = CK_DemoPtrs[num];
+	demodata = (Uint16 *)CK_DemoPtrs[num];
 	gamestate.mapon = demodata[0];
 	DemoSize = demodata[1];
 
-    DemoBuffer = CK_DemoPtrs[num]+4;
+
+    DemoBuffer = &CK_DemoPtrs[num];
+	DemoBuffer += 4;
 	IN_StartDemoPlayback(DemoBuffer, DemoSize);
 	SetupGameLevel(true);
 	if (scorescreenkludge)

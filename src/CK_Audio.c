@@ -33,31 +33,26 @@ void SD_InitAudio(){
 void
 SD_PlaySound(soundnames sound)
 {
-//	SoundCommon	far *s;
+	unsigned short s_priority = 0;
 
-//	if ((SoundMode == sdm_Off) /*|| (sound == -1)*/)
-//		return;
-/*
-	s = MK_FP(SoundTable[sound],0);
-	if (!s)
-		Quit("SD_PlaySound() - Uncached sound");
-	if (!s->length)
-		Quit("SD_PlaySound() - Zero length sound");
-	if (s->priority < SoundPriority)
+	if ((SoundMode == sdm_Off) || (sound == -1))
+		return;
+
+	if (s_priority < SoundPriority)
 		return;
 
 	switch (SoundMode)
 	{
 	case sdm_PC:
-		SDL_PCPlaySound((void far *)s);
+		//SDL_PCPlaySound((void far *)s);
 		break;
 	case sdm_AdLib:
-		SDL_ALPlaySound((void far *)s);
+		GBA_PlaySample(&CKS_GBA_Samples[sound], 0, GBA_CHANNEL_B);
 		break;
 	}
 
 	SoundNumber = sound;
-	SoundPriority = s->priority;*/
+	SoundPriority = s_priority;
 }
 
 ///////////////////////////////////////////////////////////////////////////

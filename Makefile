@@ -6,6 +6,8 @@ ARCH	:=	-mthumb -mthumb-interwork
 
 CFLAGS := -O3 -w -mcpu=arm7tdmi -nostartfiles -Tlnkscript
 
+CC := arm-none-eabi-gcc
+
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
@@ -54,39 +56,39 @@ music: $(OBJ_MUS)
 all: mkdirs clean music src build
 
 build: $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_TXT) $(OBJ_SPR) $(OBJ_DEMO) $(OBJ_ADLIB) $(OBJ_PCS)
-	arm-none-eabi-gcc crt0.s $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_TXT) $(OBJ_DEMO) $(OBJ_SPR) $(OBJ_MUS) $(OBJ_ADLIB) $(OBJ_PCS) $(CFLAGS)
+	$(CC) crt0.s $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_TXT) $(OBJ_DEMO) $(OBJ_SPR) $(OBJ_MUS) $(OBJ_ADLIB) $(OBJ_PCS) $(CFLAGS)
 	arm-none-eabi-objcopy -v -O binary a.out bin/$(GB_GBA).gba
 	gbafix bin/$(GB_GBA).gba -t $(GB_GBA)
 
 obj/%.o: src/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/lvls/%.o: src/romstuffs/LEVELS/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/demos/%.o: src/romstuffs/DEMOS/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/gfx/%.o: src/romstuffs/GFX/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/gfx/%.o: src/romstuffs/GFX/INTR/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/txt/%.o: src/romstuffs/TXT/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/gfx/sprites/%.o: src/romstuffs/GFX/SPRITES/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/audio/music/%.o: src/romstuffs/AUDIO/MUSIC/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/audio/sound/%.o: src/romstuffs/AUDIO/ADLIB/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/audio/sound/%.o: src/romstuffs/AUDIO/PC/%.c
-	arm-none-eabi-gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 mkdirs:
 	mkdir -p bin

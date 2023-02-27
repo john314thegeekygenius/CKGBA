@@ -6,6 +6,9 @@
 
 // K4_DEF.H stuff
 
+// ???
+#define GAMELEVELS 25
+
 // TODO:
 // Make this correct
 #define STARPALETTE {}
@@ -35,71 +38,39 @@
 
 #include "CK4_GFX.h"
 
-typedef enum CK_SpriteType{
-    CKS_PADDLE,
-    CKS_BALL,
-    CKS_DEMO,
-    CKS_KEEN,
-    CKS_STARS,
-    CKS_KSHOT,
-    CKS_DROPLET,
-    CKS_1UP,
-    CKS_SHADOW,
-    CKS_SODA,
-    CKS_TTGUM,
-    CKS_CANDYBAR,
-    CKS_JBREAKER,
-    CKS_DOUGHNUT,
-    CKS_ICECREAM,
-    CKS_LIFEWATER,
-    CKS_DOOR,
-    CKS_RKEY,
-    CKS_YKEY,
-    CKS_BKEY,
-    CKS_GKEY,
-    CKS_KEYSHADOW,
-    CKS_NSTUNNER,
-    CKS_SCOREBOX,
-    CKS_MAPKEEN,
-    CKS_MAPFOOT,
-    CKS_MAPFLAGFLIP,
-    CKS_MAPFLAGIDLE,
-    CKS_KEENSWIM,
-    CKS_POISONSLUG,
-    CKS_POISONPOO,
-    CKS_MADMUSH,
-    CKS_LINDSEY,
-    CKS_INCHWORM,
-    CKS_FOOT,
-    CKS_TEATER,
-    CKS_PVAPER,
-    CKS_TESMOKE,
-    CKS_EGG,
-    CKS_EGGPARTS,
-    CKS_BIRDWALK,
-    CKS_BIRDFLY,
-    CKS_DART,
-    CKS_MIMROCK,
-    CKS_DOPEFISH,
-    CKS_LITTLEBUBBLE,
-    CKS_SMALLBUBBLE,
-    CKS_MEDIUMBUBBLE,
-    CKS_FISHY,
-    CKS_ARACHNUT,
-    CKS_SWIMSUIT,
-    CKS_SPRITE,
-    CKS_EBLAST,
-    CKS_MINE,
-    CKS_SKYPEST,
-    CKS_WORMMOUTH,
-    CKS_LICK,
-    CKS_ELEVATOR,
-    CKS_EFIRE,
-    CKS_BOUNDER,
-    CKS_TCLOUD,
-    CKS_LBOLT,
-    CKS_BERKELOID,
-    CKS_FLAME,
-}CK_SpriteType;
+/*
+=============================================================================
+
+						K4_SPEC DEFINITIONS
+
+=============================================================================
+*/
+
+extern const char *levelnames[GAMELEVELS];
+extern const char *levelenter[GAMELEVELS];
+
+void ScanInfoPlane(void);
+void PrincessLindsey(void);
+void RescueJanitor(void);
+void CantSwim(void);
+void GotScuba(void);
+void RescuedMember(void);
+
+extern statetype s_keenswimslow1;
+extern statetype s_keenswimslow2;
+extern statetype s_keenswim1;
+extern statetype s_keenswim2;
+/*extern statetype s_kbubble1;
+extern statetype s_kbubble2;
+extern statetype s_kbubble3;
+extern statetype s_kbubble4;*/
+void SpawnSwimKeen(Sint16 x, Sint16 y);
+void SpawnKbubble(objtype *ob);
+void T_KeenSwimSlow(objtype *ob);
+void T_KeenSwim(objtype *ob);
+void C_KeenSwim(objtype *ob, objtype *hit);
+void R_KeenSwim(objtype *ob);
+
+
 
 #endif //__CK4_DEFS__

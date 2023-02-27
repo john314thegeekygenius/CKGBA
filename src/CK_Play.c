@@ -490,22 +490,6 @@ void InitObjArray(void) {
 
     // Remove any old objects
     CK_RemoveSprites();
-/*
-	Sint16 i;
-
-	for (i=0; i<MAXACTORS; i++)
-	{
-		objarray[i].prev = &objarray[i+1];
-		objarray[i].next = NULL;
-	}
-
-	objarray[MAXACTORS-1].prev = NULL;
-
-	objfreelist = &objarray[0];
-	lastobj = NULL;
-
-	objectcount = 0;
-*/
 
 //
 // give the player and score the first free spots
@@ -762,8 +746,10 @@ void PlayLoop(void)
             objtype *obj = &CK_ObjectList[i];
 			if (obj->active)
 			{
-				for (check=obj->next; check; check=check->next)
-				{
+				for(int oi = i; oi < CK_NumOfObjects; oi++){
+        			check = &CK_ObjectList[oi];
+					if(!check) break;
+
 					if (!check->active)
 					{
 						continue;
@@ -862,6 +848,7 @@ void PlayLoop(void)
         CK_RenderLevel();
 		//CK_MoveCamera(3000,128);
 		CK_PrintObjInfo();
+		CK_UpdateObjects();
 
         RF_CalcTics();
 

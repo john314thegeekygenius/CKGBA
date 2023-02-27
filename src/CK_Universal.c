@@ -601,7 +601,6 @@ US_ControlPanel(void)
 			}
 		}
 	}*/
-
 	USL_TearDownCtlPanel();
 }
 
@@ -648,7 +647,7 @@ void GBA_UserIRQ(){
 =====================
 */
 
-void RF_CalcTics (void)
+DONT_OPTIMISE void RF_CalcTics (void)
 {
 	long	newtime,oldtimecount;
 
@@ -664,7 +663,7 @@ void RF_CalcTics (void)
 // take DEMOTICS or more tics, and modify Timecount to reflect time taken
 //
 		oldtimecount = lasttimecount;
-//		while (TimeCount<oldtimecount+DEMOTICS*2);
+		while (TimeCount<oldtimecount+DEMOTICS*2);
 		lasttimecount = oldtimecount + DEMOTICS;
 		TimeCount = lasttimecount + DEMOTICS;
 		tics = DEMOTICS;
@@ -676,11 +675,11 @@ void RF_CalcTics (void)
 //
 		// Hmmmm
 		tics = MINTICS;
-/*		do
+		do
 		{
 			newtime = TimeCount;
 			tics = newtime-lasttimecount;
-		} while (tics<MINTICS);*/
+		} while (tics<MINTICS);
 		lasttimecount = newtime;
 
 		if (tics>MAXTICS)
@@ -702,11 +701,11 @@ void US_TextScreen(){
 void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
 	unsigned spritenumber, drawtype draw, int priority)
 {
-	if (!spritenumber || spritenumber == (unsigned)-1)
+/*	if (!spritenumber || spritenumber == (unsigned)-1)
 	{
 		RF_RemoveSprite (user);
 		return;
-	}
+	}*/
     CK_UpdateObjGraphics(user);
     CK_DrawObject((objtype*)user, ((objtype*)user)->x, ((objtype*)user)->y);
 
@@ -727,6 +726,22 @@ void RF_RemoveSprite (void **user){
 };
 
 
+
+/*
+=====================
+=
+= RF_ForceRefresh
+=
+=====================
+*/
+
+void RF_ForceRefresh (void)
+{
+//	RF_NewPosition (originxglobal,originyglobal);
+	CK_FixCamera();
+	CK_UpdateObjects();
+	CK_ForceLevelRedraw();
+}
 
 
 

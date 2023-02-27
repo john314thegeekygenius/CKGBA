@@ -9,7 +9,8 @@
 			"ck_heads.h": "c",
 			"ck_levels.h": "c",
 			"AUDIOCK4.H": "cpp",
-			"ck4_defs.h": "c"
+			"ck4_defs.h": "c",
+			"ck_defs.h": "c"
 		}
 	}
 }

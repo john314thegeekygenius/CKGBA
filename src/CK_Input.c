@@ -46,7 +46,7 @@ IN_ReadControl(int player, ControlInfo *info)
 		mx = ((dbyte >> 2) & 3) - 1;
 		buttons = (dbyte >> 4) & 3;
 
-		if (!(--DemoBuffer[DemoOffset]))
+		if (!(DemoBuffer[DemoOffset]-1))
 		{
 			DemoOffset += 2;
 			if (DemoOffset >= DemoSize)
@@ -87,16 +87,8 @@ IN_ReadControl(int player, ControlInfo *info)
 
 	}
 
-	if (realdelta)
-	{
-		mx = (dx < 0)? motion_Left : ((dx > 0)? motion_Right : motion_None);
-		my = (dy < 0)? motion_Up : ((dy > 0)? motion_Down : motion_None);
-	}
-	else
-	{
-		dx = mx * 127;
-		dy = my * 127;
-	}
+	dx = mx * 127;
+	dy = my * 127;
 
 	info->x = dx;
 	info->xaxis = mx;
@@ -136,6 +128,18 @@ boolean IN_IsUserInput(void) {
 	return result;
 }
 
+///////////////////////////////////////////////////////////////////////////
+//
+//	IN_ClearKeyDown() - Clears the keyboard array
+//
+///////////////////////////////////////////////////////////////////////////
+void
+IN_ClearKeysDown(void)
+{
+	int	i;
+
+	LastScan = 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -229,8 +233,5 @@ IN_StartDemoPlayback(byte *buffer,word bufsize)
 void
 IN_StopDemo(void)
 {
-	if ((DemoMode == demo_Record) && DemoOffset)
-		DemoOffset += 2;
-
 	DemoMode = demo_Off;
 }

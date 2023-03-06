@@ -44,7 +44,11 @@ const unsigned char CKS_Ball_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_Ball_boxinfo[] = {
-	0, 0, 5, 4, 0, 0, 
-	1, 0, 6, 4, 0, 0, 
-	1, 0, 6, 4, 0, 0, 
-	1, 0, 6, 4, 0, 0, };
+	0, 0, 4, 3, 0, 0, //125
+	1, 0, 5, 3, 0, 0, //126
+	1, 0, 5, 3, 0, 0, //127
+	1, 0, 5, 3, 0, 0, //128
+};
+
+const unsigned short CKS_Ball_gbainfo[] = {
+	4, 4, 4, 4, };

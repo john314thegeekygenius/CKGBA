@@ -1448,8 +1448,12 @@ const unsigned char CKS_BBirdFly_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_BBirdFly_boxinfo[] = {
-	24, 2, 39, 31, 0, 1, 
-	24, 2, 39, 31, 0, 2, 
-	24, 2, 39, 31, 0, 0, 
-	24, 2, 39, 31, 0, 2, 
-	8, 10, 31, 31, 0, 8, };
+	24, 2, 39, 31, 0, 1, //375
+	24, 2, 39, 31, 0, 2, //376
+	24, 2, 39, 31, 0, 0, //377
+	24, 2, 39, 31, 0, 2, //378
+	8, 10, 31, 31, 0, 8, //379
+};
+
+const unsigned short CKS_BBirdFly_gbainfo[] = {
+	3, 4, 3, 4, 8, };

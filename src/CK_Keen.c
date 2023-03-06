@@ -242,8 +242,8 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 	player->obclass = keenobj;
 	player->active = ac_allways;
 	player->priority = 1;
-	player->x = 32;//CONVERT_TILE_TO_GLOBAL(x) ;
-	player->y = 32;//CONVERT_TILE_TO_GLOBAL(y) ;//- 0xF1;	//TODO: weird
+	player->x = CONVERT_TILE_TO_GLOBAL(x) ;
+	player->y = CONVERT_TILE_TO_GLOBAL(y) - 0xF1;	//TODO: weird
 
 	player->xdir = dir;
 	player->ydir = 1;
@@ -625,7 +625,7 @@ void KeenReadThink(objtype *ob)
 */
 
 void KeenLookUpThink(objtype *ob)
-{/*
+{
 	if (c.yaxis != -1 || c.xaxis
 		|| (jumpbutton && !jumpheld)
 		|| (pogobutton && !pogoheld)
@@ -633,7 +633,7 @@ void KeenLookUpThink(objtype *ob)
 	{
 		ob->state = &s_keenstand;
 		KeenStandThink(ob);
-	}*/
+	}
 }
 
 //===========================================================================
@@ -647,8 +647,8 @@ void KeenLookUpThink(objtype *ob)
 */
 
 void KeenLookDownThink(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 	Sint16 y, ymove;
 	Uint16 tile;
 
@@ -660,17 +660,17 @@ void KeenLookDownThink(objtype *ob)
 		jumpheld = true;
 
 		y = ob->tilebottom;
-		map = (Uint16 far *)mapsegs[1] + mapbwidthtable[y]/2 + ob->tilemidx;
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((y*CK_CurLevelWidth)) + ob->tilemidx;
 		tile = *map;
-		if (tinf[WESTWALL+tile] || tinf[EASTWALL+tile] || tinf[SOUTHWALL+tile])
+		if (CK_TileInfo[1][WESTWALL+tile] || CK_TileInfo[1][EASTWALL+tile] || CK_TileInfo[1][SOUTHWALL+tile])
 			return;				// wall prevents drop down
 
-		map += mapwidth;
+		map += CK_CurLevelWidth;
 		tile = *map;
-		if (tinf[WESTWALL+tile] || tinf[EASTWALL+tile] || tinf[SOUTHWALL+tile])
+		if (CK_TileInfo[1][WESTWALL+tile] || CK_TileInfo[1][EASTWALL+tile] || CK_TileInfo[1][SOUTHWALL+tile])
 			return;				// wall prevents drop down
 
-		ymove = max(4, tics) * PIXGLOBAL;
+		ymove = _ck_max(4, tics) * PIXGLOBAL;
 		if (gamestate.riding)
 			ymove += gamestate.riding->ymove;
 		ob->bottom += ymove;
@@ -686,7 +686,7 @@ void KeenLookDownThink(objtype *ob)
 		|| (pogobutton && !pogoheld))
 	{
 		ob->state = &s_keenlookdown4;
-	}*/
+	}
 }
 
 //===========================================================================
@@ -1405,7 +1405,7 @@ void KeenDropDownThink(objtype *ob)
 */
 
 void KeenHoldThink(objtype *ob)
-{/*
+{
 	Uint16 tile;
 
 	if (c.yaxis == -1 || ob->xdir == c.xaxis)
@@ -1413,11 +1413,11 @@ void KeenHoldThink(objtype *ob)
 		ob->state = &s_keenclimbup;
 		if (ob->xdir == 1)
 		{
-			tile = *(mapsegs[1]+mapbwidthtable[ob->tiletop-1]/2+ob->tileright);
+			tile = *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop-1)*CK_CurLevelWidth) + ob->tileright);
 		}
 		else
 		{
-			tile = *(mapsegs[1]+mapbwidthtable[ob->tiletop-1]/2+ob->tileleft);
+			tile = *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop-1)*CK_CurLevelWidth) + ob->tileleft);
 		}
 		if (ob->xdir == 1)
 		{
@@ -1427,14 +1427,14 @@ void KeenHoldThink(objtype *ob)
 		{
 			ytry = -8*PIXGLOBAL;
 		}
-		if (!(tinf[INTILE+tile] & INTILE_FOREGROUND))
+		if (!(CK_TileInfo[1][INTILE+tile] & INTILE_FOREGROUND))
 			ob->priority = 3;
 	}
 	else if (c.yaxis == 1 || c.xaxis && ob->xdir != c.xaxis)
 	{
 		ob->state = &s_keenjump3;
 		ob->needtoclip = cl_midclip;
-	}*/
+	}
 }
 
 //===========================================================================
@@ -2078,7 +2078,7 @@ void CheckInTiles(objtype *ob)
 
 void KeenSimpleReact(objtype *ob)
 {
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -2122,7 +2122,7 @@ void KeenStandReact(objtype *ob)
 		ClipToWalls(ob);
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 }
 
@@ -2173,7 +2173,7 @@ void KeenWalkReact(objtype *ob)
 		ob->shapenum = ob->xdir == 1? s_keenstand.rightshapenum : s_keenstand.leftshapenum;
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 }
 
@@ -2323,7 +2323,7 @@ void KeenAirReact(objtype *ob)
 		}
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 #ifdef KEEN5
@@ -2364,7 +2364,7 @@ void BreakFuse(Uint16 tileX, Uint16 tileY)
 */
 
 void KeenPogoReact(objtype *ob)
-{/*
+{
 	if (ob->hiteast && ob->xdir == -1 || ob->hitwest && ob->xdir == 1)
 		ob->xspeed = 0;
 
@@ -2422,7 +2422,7 @@ void KeenPogoReact(objtype *ob)
 				else
 				{
 					BreakFuse(ob->tilemidx, ob->tilebottom);
-					RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+					RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 					return;
 				}
 			}
@@ -2454,7 +2454,7 @@ void KeenPogoReact(objtype *ob)
 		}
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -2481,6 +2481,6 @@ void KeenPoleReact(objtype *ob)
 		ChangeState(ob, &s_keenlookdown);
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
 }
 

@@ -224,5 +224,9 @@ const unsigned char CKS_Egg_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_Egg_boxinfo[] = {
-	3, 2, 20, 23, 0, 2, 
-	-5, 18, 20, 23, -8, 16, };
+	3, 2, 20, 23, 0, 2, //362
+	-5, 18, 20, 23, -8, 16, //363
+};
+
+const unsigned short CKS_Egg_gbainfo[] = {
+	2, 16, };

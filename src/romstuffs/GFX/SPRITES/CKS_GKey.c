@@ -80,5 +80,9 @@ const unsigned char CKS_GKey_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_GKey_boxinfo[] = {
-	4, 4, 11, 11, 0, 3, 
-	16, 4, 16, 8, 0, 2, };
+	4, 4, 11, 11, 0, 3, //248
+	16, 4, 15, 7, 0, 2, //249
+};
+
+const unsigned short CKS_GKey_gbainfo[] = {
+	6, 4, };

@@ -44,7 +44,11 @@ const unsigned char CKS_SBubble_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_SBubble_boxinfo[] = {
-	0, 0, 8, 7, 0, 1, 
-	0, 0, 7, 7, 0, 2, 
-	0, 0, 7, 7, 0, 2, 
-	0, 0, 8, 8, 0, 0, };
+	0, 0, 7, 6, 0, 1, //413
+	0, 0, 7, 7, 0, 2, //414
+	0, 0, 7, 7, 0, 2, //415
+	0, 0, 7, 7, 0, 0, //416
+};
+
+const unsigned short CKS_SBubble_gbainfo[] = {
+	1, 3, 3, 0, };

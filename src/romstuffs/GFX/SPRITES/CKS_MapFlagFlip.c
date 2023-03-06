@@ -1268,10 +1268,14 @@ const unsigned char CKS_MapFlagFlip_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_MapFlagFlip_boxinfo[] = {
-	0, 0, 31, 31, 0, 4, 
-	0, 0, 31, 31, 0, 4, 
-	0, 0, 32, 32, 0, 0, 
-	0, 0, 31, 31, 0, 8, 
-	0, 0, 31, 31, 0, 2, 
-	0, 0, 16, 40, 0, 0, 
-	0, 0, 15, 39, 0, 2, };
+	0, 0, 31, 31, 0, 4, //298
+	0, 0, 31, 31, 0, 4, //299
+	0, 0, 31, 31, 0, 0, //300
+	0, 0, 31, 31, 0, 8, //301
+	0, 0, 31, 31, 0, 2, //302
+	0, 0, 15, 39, 0, 0, //303
+	0, 0, 15, 39, 0, 2, //304
+};
+
+const unsigned short CKS_MapFlagFlip_gbainfo[] = {
+	13, 20, 8, 16, 12, 0, 2, };

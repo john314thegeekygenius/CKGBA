@@ -152,4 +152,8 @@ const unsigned char CKS_Door_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_Door_boxinfo[] = {
-	0, 0, 16, 64, 0, 0, };
+	0, 0, 15, 63, 0, 0, //241
+};
+
+const unsigned short CKS_Door_gbainfo[] = {
+	0, };

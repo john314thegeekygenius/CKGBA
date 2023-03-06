@@ -44,13 +44,16 @@
 #define	PRIORITIES			4
 #define	MASKEDTILEPRIORITY	3		// planes go: 0,1,2,MTILES,3
 
-#define TILEGLOBAL			16 // from 256
+#define TILEGLOBAL			256 // from 256
 #define PIXGLOBAL			16
+#define HITGLOBAL			16
 
-#define	G_T_SHIFT			4		// global >> ?? = tile // from 8
+#define	G_T_SHIFT			8		// global >> ?? = tile 
 #define	G_P_SHIFT			4		// global >> ?? = pixels
 #define P_T_SHIFT			4		// pixels >> ?? = tile
 
+#define G_EGASX_SHIFT	7	// global >> ?? = screen x
+#define G_SY_SHIFT		4	// global >> ?? = screen y
 
 //===========================================================================
 
@@ -412,6 +415,7 @@ void Terminator(void);
 =============================================================================
 */
 
+#define CK_HALF_SCREENY 140
 
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;
@@ -712,13 +716,13 @@ void FinaleLayout(void);
 */
 
 
-#define NORTHWALL (CK_TileInfo_FGTiles)
-#define EASTWALL (CK_TileInfo_FGTiles*2)
-#define SOUTHWALL (CK_TileInfo_FGTiles*3)
-#define WESTWALL (CK_TileInfo_FGTiles*4)
-#define MANIM	(CK_TileInfo_FGTiles*5)
-#define INTILE	(CK_TileInfo_FGTiles*6)
-#define MSPEED	(CK_TileInfo_FGTiles*7)
+#define NORTHWALL (CK_TileInfo_FGTiles*0)
+#define EASTWALL (CK_TileInfo_FGTiles*1)
+#define SOUTHWALL (CK_TileInfo_FGTiles*2)
+#define WESTWALL (CK_TileInfo_FGTiles*3)
+#define MANIM	(CK_TileInfo_FGTiles*4)
+#define INTILE	(CK_TileInfo_FGTiles*5)
+#define MSPEED	(CK_TileInfo_FGTiles*6)
 
 extern const Sint16 wallclip[8][16];
 

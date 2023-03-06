@@ -605,26 +605,13 @@ US_ControlPanel(void)
 }
 
 
+
+
+
+
 // From ID_RF.C
 unsigned	tics = 1;
 long		lasttimecount = 0;
-//
-// Global : Actor coordinates are in this, at 1/16 th of a pixel, to allow
-// for fractional movement and acceleration.
-//
-// Tiles  : Tile offsets from the upper left corner of the current map.
-//
-// Screen : Graphics level offsets from map origin, x in bytes, y in pixels.
-// originxscreen is the same spot as originxtile, just with extra precision
-// so graphics don't need to be done in tile boundaries.
-//
-
-unsigned	originxglobal,originyglobal;
-unsigned	originxtile,originytile;
-unsigned	originxscreen,originyscreen;
-unsigned	originmap;
-unsigned	originxmin,originxmax,originymin,originymax;
-
 
 // From ID_IN.C
 int LastScan;
@@ -636,116 +623,6 @@ void GBA_UserIRQ(){
 	LastScan = GBA_INV_BUTTONS;
 
 };
-
-//===========================================================================
-
-/*
-=====================
-=
-= RF_CalcTics
-=
-=====================
-*/
-
-DONT_OPTIMISE void RF_CalcTics (void)
-{
-	long	newtime,oldtimecount;
-
-//
-// calculate tics since last refresh for adaptive timing
-//
-	if (lasttimecount > TimeCount)
-		TimeCount = lasttimecount;		// if the game was paused a LONG time
-
-	if (DemoMode)					// demo recording and playback needs
-	{								// to be constant
-//
-// take DEMOTICS or more tics, and modify Timecount to reflect time taken
-//
-		oldtimecount = lasttimecount;
-		while (TimeCount<oldtimecount+DEMOTICS*2);
-		lasttimecount = oldtimecount + DEMOTICS;
-		TimeCount = lasttimecount + DEMOTICS;
-		tics = DEMOTICS;
-	}
-	else
-	{
-//
-// non demo, so report actual time
-//
-		// Hmmmm
-		tics = MINTICS;
-		do
-		{
-			newtime = TimeCount;
-			tics = newtime-lasttimecount;
-		} while (tics<MINTICS);
-		lasttimecount = newtime;
-
-		if (tics>MAXTICS)
-		{
-			TimeCount -= (tics-MAXTICS);
-			tics = MAXTICS;
-		}
-	}
-}
-
-
-// Draws the into text screen
-void US_TextScreen(){
-	
-};
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
-	unsigned spritenumber, drawtype draw, int priority)
-{
-/*	if (!spritenumber || spritenumber == (unsigned)-1)
-	{
-		RF_RemoveSprite (user);
-		return;
-	}*/
-    CK_UpdateObjGraphics(user);
-    CK_DrawObject((objtype*)user, ((objtype*)user)->x, ((objtype*)user)->y);
-
-}
-
-//===========================================================================
-
-/*
-=====================
-=
-= RF_RemoveSprite  EGA
-=
-=====================
-*/
-
-void RF_RemoveSprite (void **user){
-	// Ummm....
-};
-
-
-
-/*
-=====================
-=
-= RF_ForceRefresh
-=
-=====================
-*/
-
-void RF_ForceRefresh (void)
-{
-//	RF_NewPosition (originxglobal,originyglobal);
-	CK_FixCamera();
-	CK_UpdateObjects();
-	CK_ForceLevelRedraw();
-}
-
-
-
-
 
 
 /*

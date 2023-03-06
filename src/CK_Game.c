@@ -461,6 +461,7 @@ void SetupGameLevel(boolean loadnow)
 {
 	CK_SetupLevelGBAMaps();
 
+
 //
 // randomize if not a demo
 //

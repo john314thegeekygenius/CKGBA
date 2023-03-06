@@ -1088,9 +1088,13 @@ const unsigned char CKS_KeenSwim_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_KeenSwim_boxinfo[] = {
-	2, 2, 31, 21, 0, 2, 
-	2, 2, 31, 21, 0, 2, 
-	8, 2, 37, 21, 0, 2, 
-	8, 2, 37, 21, 0, 2, 
-	0, 0, 32, 24, 0, 0, 
-	0, 0, 24, 31, 0, 1, };
+	2, 2, 31, 21, 0, 2, //309
+	2, 2, 31, 21, 0, 2, //310
+	8, 2, 37, 21, 0, 2, //311
+	8, 2, 37, 21, 0, 2, //312
+	0, 0, 31, 23, 0, 0, //313
+	0, 0, 23, 30, 0, 1, //314
+};
+
+const unsigned short CKS_KeenSwim_gbainfo[] = {
+	13, 14, 13, 14, 8, 1, };

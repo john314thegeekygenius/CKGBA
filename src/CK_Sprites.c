@@ -129,8 +129,8 @@ void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
 
     for(int i = 0; i < obj->gbaSpriteCount; i++){
         // Make the object work in global map space
-        signed int sprx = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+1] + dx - CK_GlobalCameraX + obj->state->xmove;
-        signed int spry = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+2] + dy - CK_GlobalCameraY + obj->state->ymove;
+        signed int sprx = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+1] + (dx) ;// + obj->state->xmove;
+        signed int spry = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+2] + (dy) ;//+ *CK_SpriteOffsets[obj->ck_sprType];// + obj->state->ymove;
         // Make sure we can even see the sprite
         if(sprx > -64 && sprx < (240+64) && spry > -64 && spry < (160+64)){
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)
@@ -151,6 +151,10 @@ void CK_PrintObjInfo(){
         PrintY = (i+1)*24;
         VW_Bar(PrintX,PrintY,240,8, CK_EGA_WHITE);
         US_PrintUnsigned(obj->obclass);
+        PrintX += 16;
+        US_PrintUnsigned(obj->x>>G_T_SHIFT);
+        PrintX += 16;
+        US_PrintUnsigned(obj->y>>G_T_SHIFT);
         PrintX += 16;
         US_PrintUnsigned(obj->x);
         PrintX += 16;
@@ -180,18 +184,25 @@ void CK_PrintObjInfo(){
         US_PrintUnsigned(shape[3]);
     }
     // Camera stuff
+    PrintX = 0;
+    PrintY = 0;
+    US_PrintSigned(originxmax);
+    PrintX += 8;
+    US_PrintSigned(originymax);
+    PrintX = 0;
+    PrintY = 8;
+    US_PrintSigned(originxglobal);
+    PrintX += 8;
+    US_PrintSigned(originyglobal);
+    
+    // Controls
     PrintX = 12;
-    PrintY = 2;
+    PrintY = 16;
     VW_Bar(PrintX,PrintY,240,8, CK_EGA_CLEAR);
     US_PrintUnsigned(jumpbutton);
     PrintX += 8;
     US_PrintUnsigned(firebutton);
-    
-    PrintX = 0;
-    PrintY = 8;
-    US_PrintUnsigned(originxglobal);
-    PrintX += 8;
-    US_PrintUnsigned(originyglobal);
+
 
 };
 
@@ -226,6 +237,125 @@ void CK_RemoveSprites(){
     CK_NumOfObjects = 0;
     CK_SprTileOffset = 0;
 };
+
+
+
+
+//===========================================================================
+
+/*
+=====================
+=
+= RF_CalcTics
+=
+=====================
+*/
+
+DONT_OPTIMISE void RF_CalcTics (void)
+{
+	long	newtime,oldtimecount;
+
+//
+// calculate tics since last refresh for adaptive timing
+//
+	if (lasttimecount > TimeCount)
+		TimeCount = lasttimecount;		// if the game was paused a LONG time
+
+	if (DemoMode)					// demo recording and playback needs
+	{								// to be constant
+//
+// take DEMOTICS or more tics, and modify Timecount to reflect time taken
+//
+		oldtimecount = lasttimecount;
+		while (TimeCount<oldtimecount+DEMOTICS*2);
+		lasttimecount = oldtimecount + DEMOTICS;
+		TimeCount = lasttimecount + DEMOTICS;
+		tics = DEMOTICS;
+	}
+	else
+	{
+//
+// non demo, so report actual time
+//
+		// Hmmmm
+		tics = MINTICS;
+		do
+		{
+			newtime = TimeCount;
+			tics = newtime-lasttimecount;
+		} while (tics<MINTICS);
+		lasttimecount = newtime;
+
+		if (tics>MAXTICS)
+		{
+			TimeCount -= (tics-MAXTICS);
+			tics = MAXTICS;
+		}
+	}
+}
+
+
+// Draws the into text screen
+void US_TextScreen(){
+	
+};
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
+	unsigned spritenumber, drawtype draw, int priority)
+{
+    /*
+	if (!spritenumber || spritenumber == (unsigned)-1)
+	{
+		RF_RemoveSprite (user);
+		return;
+	}*/
+    CK_UpdateObjGraphics((objtype*)user);
+
+    unsigned short *shape = CK_GetSprShape((objtype*)user);
+	globalx += shape[4]<<G_P_SHIFT;
+	globaly += shape[5]<<G_P_SHIFT;
+
+    globalx -= originxglobal;
+    globaly -= originyglobal;
+
+    CK_DrawObject((objtype*)user, CONVERT_GLOBAL_TO_PIXEL(globalx), CONVERT_GLOBAL_TO_PIXEL(globaly));
+
+}
+
+//===========================================================================
+
+/*
+=====================
+=
+= RF_RemoveSprite  EGA
+=
+=====================
+*/
+
+void RF_RemoveSprite (void **user){
+	// Ummm....
+};
+
+
+
+/*
+=====================
+=
+= RF_ForceRefresh
+=
+=====================
+*/
+
+void RF_ForceRefresh (void)
+{
+	CK_MoveCamera (originxglobal,originyglobal);
+	CK_FixCamera();
+	CK_UpdateObjects();
+	CK_ForceLevelRedraw();
+}
+
 
 
 

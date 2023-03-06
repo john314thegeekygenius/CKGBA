@@ -19,6 +19,13 @@ extern const unsigned char CK_TILESET_MASKED[];
 extern const unsigned char CK_TILESET_UNMASKED[];
 
 
+void RFL_ClearScrollBlocks (void);
+void RF_SetScrollBlock (int x, int y, boolean horizontal);
+
+int		hscrollblocks,vscrollblocks;
+int		hscrolledge[MAXSCROLLEDGES],vscrolledge[MAXSCROLLEDGES];
+
+
 void CK_SetupLevelGBAMaps(){
 	// Set the map to a constant 
 	for(int i = 0; i < 32*32; i++){
@@ -97,6 +104,8 @@ void CK_LoadLevel(unsigned short lvlNumber){
 //    GBA_DMA_MemSet16((uint16_t*)CK_UpdatePOI, 0, sizeof(CK_UpdatePOI));
 //    CK_POICount = 0;
 
+
+
     for(int p = 0; p < 2; p++){
         for(int y = 0; y < CK_CurLevelHeight; y++){
             for(int x = 0; x < CK_CurLevelWidth; x++){
@@ -132,31 +141,70 @@ void CK_LoadLevel(unsigned short lvlNumber){
     // Tell the engine to render the level
     CK_UpdateRendering = true;
 
+
+
+//
+// the y max value clips off the bottom half of a tile so a map that is
+// 13 + MAPBORDER*2 tile high will not scroll at all vertically
+//
+	originxmax = (CK_CurLevelWidth-MAPBORDER-SCREENTILESWIDE)*TILEGLOBAL;
+	originymax = (CK_CurLevelHeight-MAPBORDER-SCREENTILESHIGH)*TILEGLOBAL;
+	if (originxmax<originxmin)		// for very small maps
+		originxmax=originxmin;
+	if (originymax<originymin)
+		originymax=originymin;
+
+//
+// clear out the lists
+//
+	RFL_ClearScrollBlocks ();
+	RF_SetScrollBlock (0,MAPBORDER-1,true);
+	RF_SetScrollBlock (0,CK_CurLevelHeight-MAPBORDER,true);
+	RF_SetScrollBlock (MAPBORDER-1,0,false);
+	RF_SetScrollBlock (CK_CurLevelWidth-MAPBORDER,0,false);
+
+
     tics = 1;
+
 };
 
-void CK_MoveCamera(int x,int y){
-    CK_GlobalCameraX = x;
-    CK_GlobalCameraY = y;
+void CK_MoveCamera(signed int x, signed int y){
+    originxglobal = 0;
+    originyglobal = 0;
+    // Move the camera in chunks so it "clips" correctly
+    if(x > 0){
+        while(x > 0xFF){
+            RFL_BoundScroll(0xFF,0);
+            x -= 0xFF;
+        }
+    }else{
+        while(x < -0xFF){
+            RFL_BoundScroll(-0xFF,0);
+            x += 0xFF;
+        }
+    }
+    if(y > 0){
+        while(y > 0xFF){
+            RFL_BoundScroll(0,0xFF);
+            y -= 0xFF;
+        }
+    }else{
+        while(y < -0xFF){
+            RFL_BoundScroll(0,-0xFF);
+            y += 0xFF;
+        }
+    }
+    RFL_BoundScroll(x,y);
+    CK_CameraMoved = true;
 };
-
-#define CK_MIN_WIN_X 32
-#define CK_MIN_WIN_Y 32
-#define CK_MAX_WIN_X 32
-#define CK_MAX_WIN_Y 32
 
 void CK_FixCamera(){
+
+    CK_GlobalCameraX = CONVERT_GLOBAL_TO_PIXEL(originxglobal);
+    CK_GlobalCameraY = CONVERT_GLOBAL_TO_PIXEL(originyglobal);
+
     if(CK_GlobalCameraLX != CK_GlobalCameraX || CK_GlobalCameraLY != CK_GlobalCameraY){
         CK_CameraMoved = true;
-    }
-    // Clamp the camera
-    if(CK_GlobalCameraX <= CK_MIN_WIN_X) { CK_GlobalCameraX = CK_MIN_WIN_X; }
-    if(CK_GlobalCameraY <= CK_MIN_WIN_Y) { CK_GlobalCameraY = CK_MIN_WIN_Y; }
-    if(CK_GlobalCameraX >= ((CK_CurLevelWidth - CK_CameraWidth)<<4)-CK_MAX_WIN_X){
-        CK_GlobalCameraX = ((CK_CurLevelWidth - CK_CameraWidth)<<4)-CK_MAX_WIN_X;
-    }
-    if(CK_GlobalCameraY >= ((CK_CurLevelHeight - CK_CameraHeight)<<4)-CK_MAX_WIN_Y){
-        CK_GlobalCameraY = ((CK_CurLevelHeight - CK_CameraHeight)<<4)-CK_MAX_WIN_Y;
     }
 
     CK_GlobalCameraLX = CK_GlobalCameraX;
@@ -175,18 +223,14 @@ void CK_FixCamera(){
     CK_CameraX = CK_NCameraX;
     CK_CameraY = CK_NCameraY;
 
-    CK_CameraBlockX = CK_GlobalCameraX>>4;
-    CK_CameraBlockY = CK_GlobalCameraY>>4;
-
-    originxglobal = CK_GlobalCameraX;
-    originyglobal = CK_GlobalCameraY;
+    CK_CameraBlockX = CONVERT_GLOBAL_TO_TILE(originxglobal);
+    CK_CameraBlockY = CONVERT_GLOBAL_TO_TILE(originyglobal);
 
 };
 
-void CK_ScrollCamera(signed short x, signed short y ){
-    CK_GlobalCameraX += x;
-    CK_GlobalCameraY += y;
-    CK_FixCamera();
+
+void CK_ScrollCamera(signed int x, signed int y ){
+    RFL_BoundScroll(x,y);
 };
 
 #define UMTILESET_WIDTH_VAL (288)
@@ -300,7 +344,8 @@ void CK_RenderLevel(){
 void CK_UpdateLevel(){
     uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
     uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;
-                
+
+
     for(int p = 0; p < 2; p++){
         for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
             struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
@@ -340,9 +385,6 @@ void CK_UpdateLevel(){
         voff_e += CK_CurLevelSize;
     }
 
-    PrintX = 0;
-    PrintY = 0;
-
 };
 
 //==========================================================================
@@ -361,3 +403,158 @@ void ScanInfoPlane(void){
     InitObjArray(); // start spawning things with a clean slate
     CK_LoadSpectators();
 };
+
+
+
+
+//
+// Global : Actor coordinates are in this, at 1/16 th of a pixel, to allow
+// for fractional movement and acceleration.
+//
+// Tiles  : Tile offsets from the upper left corner of the current map.
+//
+// Screen : Graphics level offsets from map origin, x in bytes, y in pixels.
+// originxscreen is the same spot as originxtile, just with extra precision
+// so graphics don't need to be done in tile boundaries.
+//
+
+unsigned	originxglobal,originyglobal;
+unsigned	originxtile,originytile;
+unsigned	originxscreen,originyscreen;
+unsigned	originmap;
+unsigned	originxmin,originxmax,originymin,originymax;
+
+
+/*
+=================
+=
+= RFL_CalcOriginStuff
+=
+= Calculate all the global variables for a new position
+= Long parms so position can be clipped to a maximum near 64k
+=
+=================
+*/
+
+void RFL_CalcOriginStuff (long x, long y)
+{
+	originxglobal = x;
+	originyglobal = y;
+	originxtile = originxglobal>>G_T_SHIFT;
+	originytile = originyglobal>>G_T_SHIFT;
+	originxscreen = originxtile<<SX_T_SHIFT;
+	originyscreen = originytile<<SY_T_SHIFT;
+	originmap = (CK_CurLevelWidth*originytile) + originxtile*2;
+
+    // Calculate pan
+    CK_FixCamera();
+}
+
+
+/*
+=================
+=
+= RFL_ClearScrollBlocks
+=
+=================
+*/
+
+void RFL_ClearScrollBlocks (void)
+{
+	hscrollblocks = vscrollblocks = 0;
+}
+
+
+/*
+=================
+=
+= RF_SetScrollBlock
+=
+= Sets a horizontal or vertical scroll block
+= a horizontal block is ----, meaning it blocks up/down movement
+=
+=================
+*/
+
+void RF_SetScrollBlock (int x, int y, boolean horizontal)
+{
+	if (horizontal)
+	{
+		hscrolledge[hscrollblocks] = y;
+		if (hscrollblocks++ == MAXSCROLLEDGES)
+			Quit ("RF_SetScrollBlock: Too many horizontal scroll blocks");
+	}
+	else
+	{
+		vscrolledge[vscrollblocks] = x;
+		if (vscrollblocks++ == MAXSCROLLEDGES)
+			Quit ("RF_SetScrollBlock: Too many vertical scroll blocks");
+	}
+}
+
+
+/*
+=================
+=
+= RFL_BoundScroll
+=
+= Bound a given x/y movement to scroll blocks
+=
+=================
+*/
+
+void RFL_BoundScroll (int x, int y)
+{
+	int	check,newxtile,newytile;
+
+	originxglobal += x;
+	originyglobal += y;
+
+	newxtile= originxglobal >> G_T_SHIFT;
+	newytile = originyglobal >> G_T_SHIFT;
+
+	if (x>0)
+	{
+		newxtile+=SCREENTILESWIDE;
+		for (check=0;check<vscrollblocks;check++)
+			if (vscrolledge[check] == newxtile)
+			{
+				originxglobal = originxglobal&0xff00;
+				break;
+			}
+	}
+	else if (x<0)
+	{
+		for (check=0;check<vscrollblocks;check++)
+			if (vscrolledge[check] == newxtile)
+			{
+				originxglobal = (originxglobal&0xff00)+0x100;
+				break;
+			}
+	}
+
+
+	if (y>0)
+	{
+		newytile+=SCREENTILESHIGH;
+		for (check=0;check<hscrollblocks;check++)
+			if (hscrolledge[check] == newytile)
+			{
+				originyglobal = originyglobal&0xff00;
+				break;
+			}
+	}
+	else if (y<0)
+	{
+		for (check=0;check<hscrollblocks;check++)
+			if (hscrolledge[check] == newytile)
+			{
+				originyglobal = (originyglobal&0xff00)+0x100;
+				break;
+			}
+	}
+
+
+	RFL_CalcOriginStuff (originxglobal, originyglobal);
+}
+

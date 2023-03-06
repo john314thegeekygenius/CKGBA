@@ -107,6 +107,13 @@ void CK_LoadSpectators(){
                     SpawnWorldKeen(x, y);
     				SpawnScore();
                     break;
+				case 25:
+					RF_SetScrollBlock(x, y, 1);
+					break;
+
+				case 26:
+					RF_SetScrollBlock(x, y, 0);
+					break;
             }
         }
     }
@@ -1119,5 +1126,5 @@ void R_KeenSwim(objtype *ob)
 	if (ob->hitnorth && ob->yspeed > 0 || ob->hitsouth && ob->yspeed < 0)
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
 }

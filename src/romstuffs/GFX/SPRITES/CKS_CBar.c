@@ -80,5 +80,9 @@ const unsigned char CKS_CBar_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_CBar_boxinfo[] = {
-	0, 0, 12, 16, 0, 0, 
-	0, 0, 12, 16, 0, 0, };
+	0, 0, 11, 15, 0, 0, //231
+	0, 0, 11, 15, 0, 0, //232
+};
+
+const unsigned short CKS_CBar_gbainfo[] = {
+	0, 0, };

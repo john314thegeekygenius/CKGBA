@@ -35,6 +35,10 @@ const unsigned char CKS_EggParticles_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_EggParticles_boxinfo[] = {
-	0, 0, 7, 7, 0, 1, 
-	0, 0, 8, 8, 0, 0, 
-	0, 0, 8, 7, 0, 1, };
+	0, 0, 7, 7, 0, 1, //364
+	0, 0, 7, 7, 0, 0, //365
+	0, 0, 7, 6, 0, 1, //366
+};
+
+const unsigned short CKS_EggParticles_gbainfo[] = {
+	3, 0, 1, };

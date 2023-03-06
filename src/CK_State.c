@@ -195,10 +195,11 @@ void ClipToEnds(objtype *ob)
 
 	midxpix = CONVERT_GLOBAL_TO_PIXEL(ob->midx & 0xF0);
 	maxmove = -abs(midxmoved)-bottommoved-16;
+	// TODO:
 	//                                     WUT?!?!?
 	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable-1)[oldtilebottom]/2 + ob->tilemidx;
 	// My best guess is that they wanted it offset by 2 bytes (i.e. the next line)
-	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtilebottom+1)*CK_CurLevelWidth) + ob->tilemidx;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtilebottom-1)*CK_CurLevelWidth) + ob->tilemidx;
 
 	for (y=oldtilebottom-1; y <= ob->tilebottom; y++,map+=CK_CurLevelWidth)
 	{
@@ -215,6 +216,7 @@ void ClipToEnds(objtype *ob)
 		}
 	}
 	maxmove = abs(midxmoved)-topmoved+16;
+	// TODO:
 	//                                     WUT?!?!?
 	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable+1)[oldtiletop]/2 + ob->tilemidx;
 	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtiletop+1)*CK_CurLevelWidth) + ob->tilemidx;
@@ -334,10 +336,10 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 		ob->shapenum = state->leftshapenum;
 	}
 	unsigned short *shape = CK_GetSprShape(ob);
-	ob->left = ob->x + shape[0];
-	ob->right = ob->x + shape[2];
-	ob->top = ob->y + shape[1];
-	ob->bottom = ob->y + shape[3];
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
@@ -359,10 +361,10 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 {
 	unsigned short *shape = CK_GetSprShape(ob);
-	ob->left = ob->x + shape[0];
-	ob->right = ob->x + shape[2];
-	ob->top = ob->y + shape[1];
-	ob->bottom = ob->y + shape[3];
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 }
 #endif
@@ -459,10 +461,10 @@ void ClipToWalls(objtype *ob)
 
 	unsigned short *shape = CK_GetSprShape(ob);
 
-	ob->left = ob->x + shape[0];
-	ob->right = ob->x + shape[2];
-	ob->top = ob->y + shape[1];
-	ob->bottom = ob->y + shape[3];
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -531,10 +533,10 @@ void ClipToWalls(objtype *ob)
 		ob->y = oldy;
 		ob->x = oldx + xtry;
 
-		ob->left = ob->x + shape[0];
-		ob->right = ob->x + shape[2];
-		ob->top = ob->y + shape[1];
-		ob->bottom = ob->y + shape[3];
+		ob->left = ob->x + shape[0]*HITGLOBAL;
+		ob->right = ob->x + shape[2]*HITGLOBAL;
+		ob->top = ob->y + shape[1]*HITGLOBAL;
+		ob->bottom = ob->y + shape[3]*HITGLOBAL;
 		ob->midx = ob->left + (ob->right-ob->left)/2;
 
 		ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -597,29 +599,29 @@ void FullClipToWalls(objtype *ob)
 	{
 #if defined KEEN4
 	case keenobj:
-		w = 40*PIXGLOBAL;
-		h = 24*PIXGLOBAL;
+		w = 40*HITGLOBAL;
+		h = 24*HITGLOBAL;
 		break;
 	case eggbirdobj:
-		w = 64*PIXGLOBAL;
-		h = 32*PIXGLOBAL;
+		w = 64*HITGLOBAL;
+		h = 32*HITGLOBAL;
 		break;
 	case dopefishobj:
-		w = 88*PIXGLOBAL;
-		h = 64*PIXGLOBAL;
+		w = 88*HITGLOBAL;
+		h = 64*HITGLOBAL;
 		break;
 	case schoolfishobj:
-		w = 16*PIXGLOBAL;
-		h = 8*PIXGLOBAL;
+		w = 16*HITGLOBAL;
+		h = 8*HITGLOBAL;
 		break;
 #elif defined KEEN5
 	case slicestarobj:
 	case spherefulobj:
-		w = h = 32*PIXGLOBAL;
+		w = h = 32*HITGLOBAL;
 		break;
 #elif defined KEEN6
 	case blorbobj:
-		w = h = 32*PIXGLOBAL;
+		w = h = 32*HITGLOBAL;
 		break;
 #endif
 
@@ -687,10 +689,10 @@ void FullClipToWalls(objtype *ob)
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
 
-	ob->left = ob->x + shape[0];
-	ob->right = ob->x + shape[2];
-	ob->top = ob->y + shape[1];
-	ob->bottom = ob->y + shape[3];
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 	
 }
@@ -720,7 +722,8 @@ void PushObj(objtype *ob)
 
 	ob->needtoreact = true;
 
-	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	// Changed so sprites can have shape num of 0
+	if (ob->shapenum == -1)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
@@ -739,10 +742,10 @@ void PushObj(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	ob->left = ob->x + shape[0];
-	ob->right = ob->x + shape[2];
-	ob->top = ob->y + shape[1];
-	ob->bottom = ob->y + shape[3];
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
@@ -1129,7 +1132,8 @@ void StateMachine(objtype *ob)
 	// if state->rightshapenum == NULL, the state does not have a standard
 	// shape (the think routine should have set it)
 	//
-	if (state->rightshapenum)
+	// Fixed so shapenum can be 0
+	if (state->rightshapenum >= 0)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1142,7 +1146,7 @@ void StateMachine(objtype *ob)
 	}
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = 0;		// make it invisable this time
+		ob->shapenum = -2;		// make it invisable this time
 	}
 
 	if (xtry || ytry || ob->shapenum != oldshapenum || ob->hitnorth == 25)
@@ -1178,8 +1182,8 @@ void NewState(objtype *ob, statetype *state)
 	Sint16 temp;
 	
 	ob->state = state;
-
-	if (state->rightshapenum)
+	// Fixed so shapenum can be 0
+	if (state->rightshapenum >= 0)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1193,7 +1197,7 @@ void NewState(objtype *ob, statetype *state)
 
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = 0;
+		ob->shapenum = -2;
 	}
 
 	temp = ob->needtoclip;
@@ -1229,7 +1233,8 @@ void ChangeState(objtype *ob, statetype *state)
 {
 	ob->state = state;
 	ob->ticcount = 0;
-	if (state->rightshapenum)
+	// Fixed so shapenum can be 0
+	if (state->rightshapenum >= 0)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1243,7 +1248,7 @@ void ChangeState(objtype *ob, statetype *state)
 
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = 0;
+		ob->shapenum = -2;
 	}
 
 	ob->needtoreact = true;			// it will need to be redrawn this frame
@@ -1709,7 +1714,8 @@ void C_Lethal(objtype *ob, objtype *hit)
 
 void R_Draw(objtype *ob)
 {
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	CK_UpdateObjGraphics(ob);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -1744,7 +1750,7 @@ void R_Walk(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -1781,7 +1787,7 @@ void R_WalkNormal(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -1809,7 +1815,7 @@ void R_Stunned(objtype *ob)
 			ChangeState(ob, ob->state->nextstate);
 	}
 
-	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 	starx = stary = 0;
 	switch (ob->temp4)
@@ -1892,7 +1898,8 @@ done:
 		if (++ob->temp2 == 3)
 			ob->temp2 = 0;
 	}
-
+	/// TODO:
+	// Hmmm
 	RF_PlaceSprite((void **)&ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
 }
 

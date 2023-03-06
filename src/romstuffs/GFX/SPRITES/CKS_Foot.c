@@ -575,4 +575,8 @@ const unsigned char CKS_Foot_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_Foot_boxinfo[] = {
-	4, 36, 67, 55, 0, 4, };
+	4, 36, 67, 55, 0, 4, //337
+};
+
+const unsigned short CKS_Foot_gbainfo[] = {
+	4, };

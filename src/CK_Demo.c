@@ -102,6 +102,11 @@ void SlideLetters(){
 	int CK_TextCount = 0;
 	int CK_TextShowCount = 0;
 	int CK_TermPic = 0;
+	int CK_TextScroll = 16*8;
+	char CK_DrawSplash = 1;
+	#define CK_TXTMINTICS 16
+	#define CK_TXTWAITTICS 24
+	#define CK_TXTMAXTICS (CK_TXTWAITTICS+CK_TXTMINTICS)
 
 	const int termwidth = ((CK_TERM_0_width>>2))+34;
 
@@ -147,27 +152,40 @@ void SlideLetters(){
 		++terminatorX;
 
 
+		
 		// Draw the popup texts
 		if(CK_TermPic < 4){
-			++CK_TextCount;
-			if(CK_TextCount > 10){
+			if(CK_DrawSplash){	
+				// Clear the second layer
+				GBA_DMA_MemSet32((uint32_t*) GBA_VRAM+0x2000, 0, 32*20*8);
 				// Draw the picture
 				uint32_t *intwidth = CK_INT_PICS[(CK_TermPic*3)];
 				gbaVRam = (uint32_t*) GBA_VRAM+0x2000 + CK_TERMPICOFF[CK_TermPic] + (5<<8);
 				for(int i = 0; i < (*CK_INT_PICS[(CK_TermPic*3)+1])>>3; i++){
 					GBA_DMA_Copy32(gbaVRam+(i<<8), CK_INT_PICS[(CK_TermPic*3)+2]+(i*((*intwidth)<<1)), (*intwidth)<<1 );
 				}
-				CK_TextCount = 10;
-				++CK_TextShowCount;
-				if(CK_TextShowCount > 30){
-					CK_TextShowCount = 0;
-					CK_TextCount = 0;
-					CK_TermPic++;
-					// Clear the second layer
-					GBA_DMA_MemSet32((uint32_t*) GBA_VRAM+0x2000, 0, 32*20*8);
-				}
 			}
+			CK_DrawSplash = 0;
+			++CK_TextShowCount;
+
+			uint32_t INTTICS = (*CK_INT_PICS[(CK_TermPic*3)+1])>>3;
+
+			if(CK_TextShowCount > CK_TXTMINTICS && CK_TextShowCount < CK_TXTWAITTICS){
+			} else {
+				CK_TextScroll += 8;
+			}
+			if(CK_TextShowCount > CK_TXTMAXTICS){
+				CK_TextShowCount = 0;
+				CK_TextCount = 0;
+				CK_TermPic++;
+				CK_DrawSplash = 1;
+				CK_TextScroll = 16*8;
+				CK_TextShowCount = 0;
+			}
+
+			*(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_TextScroll&0x1FF;
 		}
+
 		GBA_WAIT_VBLANK
 		GBA_Delay(150);
 
@@ -178,10 +196,12 @@ void SlideLetters(){
 		{
 			LastScan = GBA_BUTTON_B;
 		}
-		if (LastScan)
+		if (LastScan){
+			 *(volatile uint16_t*)GBA_REG_BG1VOFS = 0;
 			return;
+		}
 	}
-
+	 *(volatile uint16_t*)GBA_REG_BG1VOFS = 0;
 };
 
 /*
@@ -289,10 +309,15 @@ void Terminator(void)
 	GBA_DMA_MemSet16(GBA_PAL_BG_START,0,256); // all black
 
 	// Set the map to a constant 
-	for(int i = 0; i < 32*32; i++){
+	for(int i = 0; i < 32*20; i++){
 		*(uint16_t*)(TILEMAP_0+i) = i;
 		*(uint16_t*)(TILEMAP_1+i) = i;
 	}
+	for(int i = 32*20; i < 32*32; i++){
+		*(uint16_t*)(TILEMAP_0+i) = 0;
+		*(uint16_t*)(TILEMAP_1+i) = 0;
+	}
+	
 	
 	// Finish the render of the background
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | TILEMAP_MAP_0 | TILEMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
@@ -376,6 +401,7 @@ void Terminator(void)
 	{
 		playstate = ex_loadedgame;
 	}
+
 }
 
 

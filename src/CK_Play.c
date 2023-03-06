@@ -90,6 +90,7 @@ void CheckKeys(void)
 
 //===========================================================================
 
+		
 /*
 ==================
 =
@@ -102,35 +103,35 @@ void CenterActor(objtype *ob)
 {
 	Uint16 orgx, orgy;
 
-	centerlevel = 0; //140
-	if (ob->x < 144*PIXGLOBAL) // 152
+	centerlevel = CK_HALF_SCREENY;
+	if (ob->x < 152*PIXGLOBAL)
 	{
 		orgx = 0;
 	}
 	else
 	{
-		orgx = ob->x - 144*PIXGLOBAL; // 152
+		orgx = ob->x - 152*PIXGLOBAL;
 	}
 	if (mapon == 0)
 	{
-		if (ob->y < 64*PIXGLOBAL) // 80
+		if (ob->y < 80*PIXGLOBAL)
 		{
 			orgy = 0;
 		}
 		else
 		{
-			orgy = ob->y - 64*PIXGLOBAL; // 80
+			orgy = ob->y - 80*PIXGLOBAL;
 		}
 	}
 	else
 	{
-		if (ob->bottom < 112*PIXGLOBAL) // 140
+		if (ob->bottom < CK_HALF_SCREENY*PIXGLOBAL)
 		{
 			orgy = 0;
 		}
 		else
 		{
-			orgy = ob->bottom - 112*PIXGLOBAL; // 140
+			orgy = ob->bottom - CK_HALF_SCREENY*PIXGLOBAL;
 		}
 	}
 	if (!scorescreenkludge)
@@ -164,6 +165,7 @@ void CenterActor(objtype *ob)
 		inactivatebottom = 0;
 	}
 }
+
 
 //===========================================================================
 
@@ -260,6 +262,7 @@ void WorldScrollScreen(objtype *ob)
 	{
 		inactivatebottom = 0;
 	}
+
 }
 
 //===========================================================================
@@ -409,15 +412,15 @@ void ScrollScreen(objtype *ob)
 	}
 	else
 	{
-		//centerlevel = 112; // 140
+		centerlevel = CK_HALF_SCREENY;
 	}
 
-	pix = (ob->bottom-6*PIXGLOBAL)-(originyglobal+yscroll);
+	pix = (ob->bottom-64*PIXGLOBAL)-(originyglobal+yscroll);
 	if (pix < 0)
 	{
 		yscroll += pix;
 	}
-	pix = (ob->bottom+6*PIXGLOBAL)-(originyglobal+yscroll+160); //200
+	pix = (ob->bottom+64*PIXGLOBAL)-(originyglobal+yscroll+160*PIXGLOBAL);
 	if (pix > 0)
 	{
 		yscroll += pix;
@@ -671,8 +674,7 @@ void PlayLoop(void)
 	playstate = ex_stillplaying;
 	invincible = keenkilled = oldfirecount = 0;
 
-//TODO: Find out what this does
-//	CenterActor(player);
+	CenterActor(player);
 
 	if (DemoMode)
 	{
@@ -846,9 +848,8 @@ void PlayLoop(void)
 //
         CK_FixCamera();
         CK_RenderLevel();
-		//CK_MoveCamera(3000,128);
-		CK_PrintObjInfo();
-		CK_UpdateObjects();
+		//CK_PrintObjInfo();
+//		CK_UpdateObjects();
 
         RF_CalcTics();
 

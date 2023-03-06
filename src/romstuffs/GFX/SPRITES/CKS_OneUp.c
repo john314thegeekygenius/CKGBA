@@ -62,4 +62,8 @@ const unsigned char CKS_OneUp_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_OneUp_boxinfo[] = {
-	0, 0, 23, 15, 0, 2, };
+	0, 0, 23, 15, 0, 2, //218
+};
+
+const unsigned short CKS_OneUp_gbainfo[] = {
+	4, };

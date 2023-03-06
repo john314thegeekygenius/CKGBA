@@ -296,5 +296,9 @@ const unsigned char CKS_MadMushroom_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_MadMushroom_boxinfo[] = {
-	4, 0, 28, 31, 0, 1, 
-	4, 0, 28, 31, 0, 0, };
+	4, 0, 27, 30, 0, 1, //325
+	4, 0, 27, 30, 0, 0, //328
+};
+
+const unsigned short CKS_MadMushroom_gbainfo[] = {
+	1, 1, };

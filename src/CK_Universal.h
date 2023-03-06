@@ -7,23 +7,14 @@
 #ifndef __CK_UNIVERSAL__
 #define __CK_UNIVERSAL__
 
-
-// From ID_RF.C
-extern	unsigned	tics;
-extern	long		lasttimecount;
-
-#define	PORTTILESWIDE		30      // all drawing takes place inside a
-#define	PORTTILESHIGH		20		// non displayed port of this size
-
-extern	unsigned	originxglobal,originyglobal;
-extern	unsigned	originxtile,originytile;
-extern	unsigned	originxscreen,originyscreen;
-extern	unsigned	originxmin,originxmax,originymin,originymax;
-
 // From ID_IN.C
 extern int LastScan;
 
 // From ID_US.H
+
+
+#define _ck_max(a, b) ((a)>(b))?(a):(b)
+
 
 #define	MaxX	GBA_SCREEN_WIDTH
 #define	MaxY	GBA_SCREEN_HEIGHT
@@ -113,6 +104,8 @@ extern void US_TextScreen(),
 				US_CheckHighScore(long score, word other);
 //				US_DisplayHighScores(int which);
 
+void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
+	unsigned spritenumber, drawtype draw, int priority);
 
 // From Assembly Code
 unsigned int US_InitRndT();

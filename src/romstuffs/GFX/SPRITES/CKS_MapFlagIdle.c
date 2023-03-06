@@ -584,7 +584,11 @@ const unsigned char CKS_MapFlagIdle_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_MapFlagIdle_boxinfo[] = {
-	0, 0, 31, 31, 0, 6, 
-	0, 0, 31, 31, 0, 6, 
-	0, 0, 31, 31, 0, 6, 
-	0, 0, 31, 31, 0, 6, };
+	0, 0, 31, 31, 0, 6, //305
+	0, 0, 31, 31, 0, 6, //306
+	0, 0, 31, 31, 0, 6, //307
+	0, 0, 31, 31, 0, 6, //308
+};
+
+const unsigned short CKS_MapFlagIdle_gbainfo[] = {
+	6, 6, 6, 6, };

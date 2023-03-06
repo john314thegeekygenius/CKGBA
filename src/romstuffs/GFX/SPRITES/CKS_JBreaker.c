@@ -80,5 +80,9 @@ const unsigned char CKS_JBreaker_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_JBreaker_boxinfo[] = {
-	0, 0, 16, 15, 0, 1, 
-	0, 0, 16, 15, 0, 1, };
+	0, 0, 15, 14, 0, 1, //233
+	0, 0, 15, 14, 0, 1, //234
+};
+
+const unsigned short CKS_JBreaker_gbainfo[] = {
+	1, 1, };

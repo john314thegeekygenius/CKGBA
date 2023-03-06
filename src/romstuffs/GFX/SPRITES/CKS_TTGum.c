@@ -80,5 +80,9 @@ const unsigned char CKS_TTGum_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_TTGum_boxinfo[] = {
-	0, 0, 12, 16, 0, 0, 
-	0, 0, 12, 16, 0, 0, };
+	0, 0, 11, 15, 0, 0, //229
+	0, 0, 11, 15, 0, 0, //230
+};
+
+const unsigned short CKS_TTGum_gbainfo[] = {
+	0, 0, };

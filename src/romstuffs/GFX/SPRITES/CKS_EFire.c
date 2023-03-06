@@ -62,9 +62,13 @@ const unsigned char CKS_EFire_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const unsigned short CKS_EFire_boxinfo[] = {
-	0, 0, 7, 7, 0, 2, 
-	0, 0, 7, 7, 0, 2, 
-	0, 0, 8, 7, 0, 1, 
-	0, 0, 8, 7, 0, 1, 
-	0, 0, 7, 7, 0, 4, 
-	0, 0, 7, 7, 0, 4, };
+	0, 0, 7, 7, 0, 2, //485
+	0, 0, 7, 7, 0, 2, //486
+	0, 0, 7, 6, 0, 1, //487
+	0, 0, 7, 6, 0, 1, //488
+	0, 0, 7, 7, 0, 4, //489
+	0, 0, 7, 7, 0, 4, //490
+};
+
+const unsigned short CKS_EFire_gbainfo[] = {
+	4, 4, 1, 1, 4, 4, };

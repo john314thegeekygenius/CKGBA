@@ -3247,7 +3247,7 @@ const unsigned char CKS_Berkeloid_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Berkeloid_boxinfo[] = {
+const signed short CKS_Berkeloid_boxinfo[] = {
 	8, 8, 23, 47, 0, 0, //503
 	8, 8, 23, 47, 0, 2, //504
 	8, 8, 23, 47, 0, 0, //505
@@ -3262,5 +3262,5 @@ const unsigned short CKS_Berkeloid_boxinfo[] = {
 	8, 8, 23, 47, 0, 0, //514
 };
 
-const unsigned short CKS_Berkeloid_gbainfo[] = {
+const signed short CKS_Berkeloid_gbainfo[] = {
 	5, 5, 4, 6, 5, 5, 4, 6, 4, 4, 4, 4, };

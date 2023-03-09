@@ -1735,7 +1735,7 @@ const unsigned char CKS_Mimrock_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Mimrock_boxinfo[] = {
+const signed short CKS_Mimrock_boxinfo[] = {
 	2, 10, 21, 28, 0, 12, //388
 	2, 10, 21, 28, 0, 5, //389
 	2, 10, 21, 28, 0, 7, //390
@@ -1754,5 +1754,5 @@ const unsigned short CKS_Mimrock_boxinfo[] = {
 	0, 8, 23, 28, 0, 12, //403
 };
 
-const unsigned short CKS_Mimrock_gbainfo[] = {
+const signed short CKS_Mimrock_gbainfo[] = {
 	12, 5, 9, 7, 8, 5, 9, 7, 8, 9, 6, 7, 9, 6, 7, 12, };

@@ -322,6 +322,7 @@ typedef struct objstruct
     unsigned int sprtype[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
+	Uint16 deltax, deltay;
     CK_SpriteType ck_sprType;
 } objtype;
 

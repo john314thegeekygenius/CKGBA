@@ -367,10 +367,10 @@ const unsigned char CKS_MapFoot_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_MapFoot_boxinfo[] = {
+const signed short CKS_MapFoot_boxinfo[] = {
 	3, 5, 34, 28, 0, 4, //296
 	3, 5, 34, 28, 0, 4, //297
 };
 
-const unsigned short CKS_MapFoot_gbainfo[] = {
+const signed short CKS_MapFoot_gbainfo[] = {
 	5, 5, };

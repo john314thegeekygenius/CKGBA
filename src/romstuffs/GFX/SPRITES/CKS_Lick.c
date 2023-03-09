@@ -1357,7 +1357,7 @@ const unsigned char CKS_Lick_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Lick_boxinfo[] = {
+const signed short CKS_Lick_boxinfo[] = {
 	4, 0, 19, 15, 0, 0, //469
 	4, 0, 19, 15, 0, 0, //470
 	4, 0, 19, 15, 0, 0, //471
@@ -1375,5 +1375,5 @@ const unsigned short CKS_Lick_boxinfo[] = {
 	0, 0, 23, 15, 0, 0, //483
 };
 
-const unsigned short CKS_Lick_gbainfo[] = {
+const signed short CKS_Lick_gbainfo[] = {
 	0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, };

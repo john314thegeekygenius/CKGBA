@@ -115,11 +115,11 @@ const unsigned char CKS_Droplets_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Droplets_boxinfo[] = {
+const signed short CKS_Droplets_boxinfo[] = {
 	0, 0, 15, 15, 0, 1, //215
 	0, 0, 15, 15, 0, 2, //216
 	0, 0, 15, 15, 0, 6, //217
 };
 
-const unsigned short CKS_Droplets_gbainfo[] = {
+const signed short CKS_Droplets_gbainfo[] = {
 	5, 4, 6, };

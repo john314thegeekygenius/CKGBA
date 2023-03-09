@@ -1519,7 +1519,7 @@ const unsigned char CKS_MapKeen_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_MapKeen_boxinfo[] = {
+const signed short CKS_MapKeen_boxinfo[] = {
 	0, 0, 15, 14, 0, 0, //254
 	0, 0, 15, 14, 0, 0, //255
 	0, 0, 15, 14, 0, 0, //256
@@ -1564,6 +1564,6 @@ const unsigned short CKS_MapKeen_boxinfo[] = {
 	16, 2, 15, 11, 0, 0, //295
 };
 
-const unsigned short CKS_MapKeen_gbainfo[] = {
+const signed short CKS_MapKeen_gbainfo[] = {
 	1, 1, 1, 1, 2, 1, 0, 0, 2, 0, 0, 2, 2, 0, 1, 0, 0, 1, 2, 0, 1, 0, 0, 1, 2, 2, 0, 0, 0, 0, 0, 1, 
 	0, 0, 0, 1, 1, 1, 0, 0, 1, 0, };

@@ -295,7 +295,7 @@ const unsigned char CKS_Dart_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Dart_boxinfo[] = {
+const signed short CKS_Dart_boxinfo[] = {
 	2, 0, 4, 15, 0, 0, //380
 	2, 0, 4, 15, 0, 0, //381
 	2, 0, 4, 15, 0, 0, //382
@@ -306,5 +306,5 @@ const unsigned short CKS_Dart_boxinfo[] = {
 	0, 2, 15, 4, 0, 2, //387
 };
 
-const unsigned short CKS_Dart_gbainfo[] = {
+const signed short CKS_Dart_gbainfo[] = {
 	0, 0, 0, 0, 11, 13, 11, 13, };

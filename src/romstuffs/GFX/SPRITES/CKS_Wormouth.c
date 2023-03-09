@@ -1627,7 +1627,7 @@ const unsigned char CKS_Wormouth_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Wormouth_boxinfo[] = {
+const signed short CKS_Wormouth_boxinfo[] = {
 	0, 0, 7, 7, 0, 3, //457
 	4, 0, 11, 7, 0, 0, //458
 	4, 0, 11, 7, 0, 0, //459
@@ -1642,5 +1642,5 @@ const unsigned short CKS_Wormouth_boxinfo[] = {
 	0, -16, 31, 7, 0, -16, //468
 };
 
-const unsigned short CKS_Wormouth_gbainfo[] = {
+const signed short CKS_Wormouth_gbainfo[] = {
 	19, 16, 16, 16, 16, 7, 0, 3, 7, 0, 3, 0, };

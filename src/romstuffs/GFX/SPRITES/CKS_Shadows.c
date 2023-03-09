@@ -439,7 +439,7 @@ const unsigned char CKS_Shadows_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Shadows_boxinfo[] = {
+const signed short CKS_Shadows_boxinfo[] = {
 	0, 0, 15, 7, 0, 0, //219
 	0, 0, 15, 7, 0, 0, //220
 	0, 0, 15, 7, 0, 0, //221
@@ -450,5 +450,5 @@ const unsigned short CKS_Shadows_boxinfo[] = {
 	0, 0, 15, 15, 0, 2, //226
 };
 
-const unsigned short CKS_Shadows_gbainfo[] = {
+const signed short CKS_Shadows_gbainfo[] = {
 	8, 8, 8, 8, 8, 8, 4, 6, };

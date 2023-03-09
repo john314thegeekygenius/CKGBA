@@ -169,11 +169,11 @@ const unsigned char CKS_Stars_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Stars_boxinfo[] = {
+const signed short CKS_Stars_boxinfo[] = {
 	0, 0, 23, 15, 0, 2, //164
 	0, 0, 23, 15, 0, 2, //165
 	0, 0, 23, 15, 0, 2, //166
 };
 
-const unsigned short CKS_Stars_gbainfo[] = {
+const signed short CKS_Stars_gbainfo[] = {
 	3, 3, 3, };

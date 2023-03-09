@@ -118,7 +118,7 @@ void CK_UpdateObjects(){
     // Fix every object position
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
-        CK_DrawObject(obj,obj->x,obj->y);
+        CK_DrawObject(obj,obj->deltax,obj->deltay);
     }
     // Update the sprite list
     GBA_UPDATE_SPRITES()
@@ -171,17 +171,21 @@ void CK_PrintObjInfo(){
         PrintX += 8;
         US_PrintUnsigned(obj->bottom);
 
-    	unsigned short *shape = CK_GetSprShape(obj);
+    	signed short *shape = CK_GetSprShape(obj);
         PrintX = 0;
         PrintY = 16+((i+1)*24);
         VW_Bar(PrintX,PrintY,240,8, CK_EGA_BROWN);
-        US_PrintUnsigned(shape[0]);
+        US_PrintSigned(shape[0]);
         PrintX += 8;
-        US_PrintUnsigned(shape[1]);
+        US_PrintSigned(shape[1]);
         PrintX += 8;
-        US_PrintUnsigned(shape[2]);
+        US_PrintSigned(shape[2]);
         PrintX += 8;
-        US_PrintUnsigned(shape[3]);
+        US_PrintSigned(shape[3]);
+        PrintX += 8;
+        US_PrintSigned(shape[4]);
+        PrintX += 8;
+        US_PrintSigned(shape[5]);
     }
     // Camera stuff
     PrintX = 0;
@@ -206,8 +210,12 @@ void CK_PrintObjInfo(){
 
 };
 
-unsigned short *CK_GetSprShape(objtype *obj){
-    return (unsigned short*)&CK_SpritePtrs[(obj->ck_sprType*5)+4][obj->shapenum*6];
+signed short *CK_GetSprShape(objtype *obj){
+    return (signed short*)(CK_SpritePtrs[(obj->ck_sprType*5)+4]) + (obj->shapenum*6);
+};
+
+signed short *CK_GetShape(unsigned int sprtype, unsigned short shapenumber){
+    return (signed short*)(CK_SpritePtrs[(sprtype*5)+4]) + (shapenumber*6);
 };
 
 void CK_SetupSprites(){
@@ -313,14 +321,20 @@ void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
 	}*/
     CK_UpdateObjGraphics((objtype*)user);
 
-    unsigned short *shape = CK_GetSprShape((objtype*)user);
-	globalx += shape[4]<<G_P_SHIFT;
-	globaly += shape[5]<<G_P_SHIFT;
-
     globalx -= originxglobal;
     globaly -= originyglobal;
 
-    CK_DrawObject((objtype*)user, CONVERT_GLOBAL_TO_PIXEL(globalx), CONVERT_GLOBAL_TO_PIXEL(globaly));
+    unsigned short *shape = CK_GetShape(((objtype*)user)->ck_sprType, spritenumber);
+	globalx += shape[4];
+	globaly += shape[5];
+
+    int dx = CONVERT_GLOBAL_TO_PIXEL(globalx);
+    int dy = CONVERT_GLOBAL_TO_PIXEL(globaly);
+
+    ((objtype*)user)->deltax = dx;
+    ((objtype*)user)->deltay = dy;
+
+    CK_DrawObject((objtype*)user, dx, dy);
 
 }
 

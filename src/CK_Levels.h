@@ -55,6 +55,11 @@ extern uint32_t CK_CameraX;
 extern uint32_t CK_CameraY;
 
 
+#define CHECK_LX 10
+#define CHECK_RX 20
+#define CHECK_TY 6
+#define CHECK_BY 16 //13
+
 // Functions
 
 void CK_SetupLevelGBAMaps();

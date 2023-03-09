@@ -1807,7 +1807,7 @@ const unsigned char CKS_Arachnut_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Arachnut_boxinfo[] = {
+const signed short CKS_Arachnut_boxinfo[] = {
 	40, 4, 39, 35, 0, 0, //425
 	40, 4, 39, 34, 0, 1, //426
 	40, 4, 39, 34, 0, 1, //427
@@ -1815,5 +1815,5 @@ const unsigned short CKS_Arachnut_boxinfo[] = {
 	8, 12, 39, 39, -8, 11, //429
 };
 
-const unsigned short CKS_Arachnut_gbainfo[] = {
+const signed short CKS_Arachnut_gbainfo[] = {
 	0, 1, 1, 0, 11, };

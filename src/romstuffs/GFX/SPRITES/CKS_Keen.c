@@ -14047,7 +14047,7 @@ const unsigned char CKS_Keen_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Keen_boxinfo[] = {
+const signed short CKS_Keen_boxinfo[] = {
 	4, 0, 19, 31, 0, 0, //130
 	4, 0, 19, 31, 0, 1, //131
 	4, 3, 19, 31, 0, 2, //132
@@ -14128,7 +14128,7 @@ const unsigned short CKS_Keen_boxinfo[] = {
 	4, 0, 19, 31, 0, 10, //520
 };
 
-const unsigned short CKS_Keen_gbainfo[] = {
+const signed short CKS_Keen_gbainfo[] = {
 	8, 10, 10, 8, 11, 9, 9, 9, 8, 10, 10, 8, 11, 9, 10, 9, 10, 8, 8, 9, 9, 9, 12, 17, 20, 18, 18, 21, 16, 10, 13, 19, 
 	16, 15, 10, 9, 11, 0, 0, 10, 9, 9, 13, 9, 13, 14, 13, 13, 9, 12, 9, 3, 3, 8, 10, 11, 9, 8, 8, 8, 8, 8, 3, 3, 
 	22, 24, 19, 13, 22, 24, 19, 13, 11, 13, 11, 13, 8, 18, };

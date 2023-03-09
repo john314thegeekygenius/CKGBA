@@ -415,12 +415,12 @@ void ScrollScreen(objtype *ob)
 		centerlevel = CK_HALF_SCREENY;
 	}
 
-	pix = (ob->bottom-64*PIXGLOBAL)-(originyglobal+yscroll);
+	pix = (ob->bottom-32*PIXGLOBAL)-(originyglobal+yscroll+64*PIXGLOBAL);
 	if (pix < 0)
 	{
 		yscroll += pix;
 	}
-	pix = (ob->bottom+64*PIXGLOBAL)-(originyglobal+yscroll+160*PIXGLOBAL);
+	pix = (ob->bottom)-(originyglobal+yscroll+120*PIXGLOBAL);
 	if (pix > 0)
 	{
 		yscroll += pix;
@@ -848,8 +848,8 @@ void PlayLoop(void)
 //
         CK_FixCamera();
         CK_RenderLevel();
-		//CK_PrintObjInfo();
-//		CK_UpdateObjects();
+		CK_PrintObjInfo();
+		CK_UpdateObjects();
 
         RF_CalcTics();
 

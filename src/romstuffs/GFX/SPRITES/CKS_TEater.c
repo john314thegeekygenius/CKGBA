@@ -2437,7 +2437,7 @@ const unsigned char CKS_TEater_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_TEater_boxinfo[] = {
+const signed short CKS_TEater_boxinfo[] = {
 	0, 10, 39, 39, 0, 10, //338
 	0, 10, 39, 39, 0, 10, //339
 	0, 8, 47, 37, 0, 10, //340
@@ -2449,5 +2449,5 @@ const unsigned short CKS_TEater_boxinfo[] = {
 	0, 16, 39, 37, 0, 16, //355
 };
 
-const unsigned short CKS_TEater_gbainfo[] = {
+const signed short CKS_TEater_gbainfo[] = {
 	10, 10, 4, 2, 3, 4, 2, 3, 16, };

@@ -79,10 +79,10 @@ const unsigned char CKS_Doughnut_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Doughnut_boxinfo[] = {
+const signed short CKS_Doughnut_boxinfo[] = {
 	0, 0, 15, 14, 0, 1, //235
 	0, 0, 15, 14, 0, 1, //236
 };
 
-const unsigned short CKS_Doughnut_gbainfo[] = {
+const signed short CKS_Doughnut_gbainfo[] = {
 	1, 1, };

@@ -263,8 +263,8 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 */
 
 boolean CheckGrabPole(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 
 //
 // kludgy bit to not let you grab a pole the instant you jump off it
@@ -280,16 +280,16 @@ boolean CheckGrabPole(objtype *ob)
 
 	if (c.yaxis == -1)
 	{
-		map = mapsegs[1] + mapbwidthtable[(ob->top+6*PIXGLOBAL)/TILEGLOBAL]/2;
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->top+6*PIXGLOBAL)/TILEGLOBAL)*CK_CurLevelWidth;
 	}
 	else
 	{
-		map = mapsegs[1] + mapbwidthtable[ob->tilebottom+1]/2;
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tilebottom+1)*CK_CurLevelWidth;
 	}
 
 	map += ob->tilemidx;
 
-	if ((tinf[INTILE + *map] & 0x7F) == INTILE_POLE)
+	if ((CK_TileInfo[1][INTILE + *map] & 0x7F) == INTILE_POLE)
 	{
 		ob->x = CONVERT_TILE_TO_GLOBAL(ob->tilemidx-1) + 8*PIXGLOBAL;
 		xtry = 0;
@@ -297,7 +297,7 @@ boolean CheckGrabPole(objtype *ob)
 		ob->needtoclip = cl_noclip;		// can climb through pole holes
 		ob->state = &s_keenpole;
 		return true;
-	}*/
+	}
 	return false;
 }
 
@@ -314,14 +314,14 @@ boolean CheckGrabPole(objtype *ob)
 */
 
 boolean CheckEnterHouse(objtype *ob)
-{/*
+{
 	Uint16 temp;
 #ifdef KEEN5
 	Uint16 infoval;
 #endif
 	Uint16 intile, intile2;
 
-	intile = tinf[INTILE + *(mapsegs[1]+mapbwidthtable[ob->tiletop]/2+ob->tilemidx)];
+	intile = CK_TileInfo[1][INTILE + *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop*CK_CurLevelWidth)) + ob->tilemidx)];
 	if (intile == INTILE_SWITCH0 || intile == INTILE_SWITCH1 || intile == INTILE_BRIDGESWITCH)
 	{
 		temp = CONVERT_TILE_TO_GLOBAL(ob->tilemidx) - 4*PIXGLOBAL;
@@ -340,7 +340,7 @@ boolean CheckEnterHouse(objtype *ob)
 	else if (intile == INTILE_DOOR || intile == INTILE_KEYCARDDOOR)
 	{
 		temp = CONVERT_TILE_TO_GLOBAL(ob->tilemidx) + 6*PIXGLOBAL;
-		intile2 = tinf[INTILE + *(mapsegs[1]+mapbwidthtable[ob->tiletop]/2+ob->tilemidx-1)];
+		intile2 = CK_TileInfo[1][INTILE + *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop*CK_CurLevelWidth)) + ob->tilemidx-1)];
 		if (intile2 == 2 || intile2 == 32)
 			temp -= TILEGLOBAL;
 
@@ -406,7 +406,7 @@ boolean CheckEnterHouse(objtype *ob)
 		}
 		upheld = true;
 		return true;
-	}*/
+	}
 	return false;
 }
 
@@ -816,7 +816,7 @@ void KeenWalkThink(objtype *ob)
 */
 
 void T_LineUp(objtype *ob)
-{/*
+{
 	Sint16 xmove;
 
 	xmove = ob->temp1 - ob->x;
@@ -835,7 +835,7 @@ void T_LineUp(objtype *ob)
 	xtry = xmove;
 	ob->temp1 = 0;
 	if (!CheckEnterHouse(ob))
-		ob->state = &s_keenstand;*/
+		ob->state = &s_keenstand;
 }
 
 //===========================================================================
@@ -849,11 +849,11 @@ void T_LineUp(objtype *ob)
 */
 
 void KeenEnterThink(objtype *ob)
-{/*
+{
 	Uint16 info;
-	Uint16 far *map;
+	Uint16 *map;
 
-	map = mapsegs[2] + mapbwidthtable[ob->tilebottom]/2 + ob->tileleft;
+	map = CK_LevelInfo[(CK_CurLevelIndex*3)+2] + (CK_CurLevelSize*2) + (ob->tilebottom*CK_CurLevelWidth) + ob->tileleft;
 	info = *map;
 #ifdef KEEN5
 	if (!info)
@@ -875,7 +875,7 @@ void KeenEnterThink(objtype *ob)
 	ob->needtoclip = cl_noclip;
 	ChangeState(ob, ob->state->nextstate);
 	ob->needtoclip = cl_midclip;
-	CenterActor(ob);*/
+	CenterActor(ob);
 }
 
 //===========================================================================
@@ -1213,7 +1213,7 @@ void KeenPogoThink(objtype *ob)
 */
 
 void PoleActions(objtype *ob)
-{/*
+{
 	if (c.xaxis)
 		ob->xdir = c.xaxis;
 
@@ -1245,7 +1245,7 @@ void PoleActions(objtype *ob)
 		ob->state = &s_keenjump1;
 		ob->ydir = 1;
 		leavepoletime = lasttimecount;
-	}*/
+	}
 }
 
 /*
@@ -1257,9 +1257,9 @@ void PoleActions(objtype *ob)
 */
 
 void KeenPoleThink(objtype *ob)
-{/*
+{
 	Uint16 tile;
-	Uint16 far *map;
+	Uint16 *map;
 
 	switch (c.yaxis)
 	{
@@ -1279,9 +1279,9 @@ void KeenPoleThink(objtype *ob)
 	//
 	// walk off pole if right next to ground
 	//
-		map = mapsegs[1] + (mapbwidthtable[ob->tilebottom+1]/2 + ob->tilemidx);
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tilebottom+1)*CK_CurLevelWidth) + ob->tilemidx;
 		tile = *map;
-		if (tinf[NORTHWALL+tile])
+		if (CK_TileInfo[1][NORTHWALL+tile])
 		{
 			ob->xspeed = 0;
 			ob->yspeed = 0;
@@ -1293,7 +1293,7 @@ void KeenPoleThink(objtype *ob)
 			return;
 		}
 	}
-	PoleActions(ob);*/
+	PoleActions(ob);
 }
 
 /*
@@ -1305,12 +1305,12 @@ void KeenPoleThink(objtype *ob)
 */
 
 void KeenClimbThink(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 
-	map = mapsegs[1] + mapbwidthtable[ob->tiletop]/2 + ob->tilemidx;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tiletop*CK_CurLevelWidth) + ob->tilemidx;
 	
-	if ((tinf[INTILE+*map] & 0x7F) != INTILE_POLE)
+	if ((CK_TileInfo[1][INTILE+*map] & 0x7F) != INTILE_POLE)
 	{
 		ytry = 0;
 		ob->state = &s_keenpole;		// ran out of pole
@@ -1332,7 +1332,7 @@ void KeenClimbThink(objtype *ob)
 		break;
 	}
 
-	PoleActions(ob);*/
+	PoleActions(ob);
 }
 
 /*

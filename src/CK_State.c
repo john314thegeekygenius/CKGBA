@@ -335,7 +335,7 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	{
 		ob->shapenum = state->leftshapenum;
 	}
-	unsigned short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
 	ob->top = ob->y + shape[1]* HITGLOBAL;
@@ -360,7 +360,7 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 {
-	unsigned short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
 	ob->top = ob->y + shape[1]* HITGLOBAL;
@@ -459,7 +459,7 @@ void ClipToWalls(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	unsigned short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob);
 
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
@@ -593,7 +593,7 @@ void FullClipToWalls(objtype *ob)
 	ob->needtoreact = true;
 
 
-	unsigned short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob);
 
 	switch (ob->obclass)
 	{
@@ -728,7 +728,7 @@ void PushObj(objtype *ob)
 		return;
 	}
 
-	unsigned short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob);
 
 	oldtileright = ob->tileright;
 	oldtiletop = ob->tiletop;
@@ -1714,7 +1714,6 @@ void C_Lethal(objtype *ob, objtype *hit)
 
 void R_Draw(objtype *ob)
 {
-	CK_UpdateObjGraphics(ob);
 	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 

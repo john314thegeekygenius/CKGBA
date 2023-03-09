@@ -142,6 +142,7 @@ void CK_LoadLevel(unsigned short lvlNumber){
     CK_UpdateRendering = true;
 
 
+	originxmin = originymin = MAPBORDER*TILEGLOBAL;
 
 //
 // the y max value clips off the bottom half of a tile so a map that is
@@ -169,33 +170,9 @@ void CK_LoadLevel(unsigned short lvlNumber){
 };
 
 void CK_MoveCamera(signed int x, signed int y){
-    originxglobal = 0;
-    originyglobal = 0;
-    // Move the camera in chunks so it "clips" correctly
-    if(x > 0){
-        while(x > 0xFF){
-            RFL_BoundScroll(0xFF,0);
-            x -= 0xFF;
-        }
-    }else{
-        while(x < -0xFF){
-            RFL_BoundScroll(-0xFF,0);
-            x += 0xFF;
-        }
-    }
-    if(y > 0){
-        while(y > 0xFF){
-            RFL_BoundScroll(0,0xFF);
-            y -= 0xFF;
-        }
-    }else{
-        while(y < -0xFF){
-            RFL_BoundScroll(0,-0xFF);
-            y += 0xFF;
-        }
-    }
-    RFL_BoundScroll(x,y);
+    RFL_BoundNewOrigin(x,y);
     CK_CameraMoved = true;
+    CK_UpdateRendering = true;
 };
 
 void CK_FixCamera(){
@@ -210,21 +187,21 @@ void CK_FixCamera(){
     CK_GlobalCameraLX = CK_GlobalCameraX;
     CK_GlobalCameraLY = CK_GlobalCameraY;
 
-    uint32_t CK_NCameraX = CK_GlobalCameraX%16;
-    uint32_t CK_NCameraY = CK_GlobalCameraY%16;
+    uint32_t CK_NCameraX = CONVERT_GLOBAL_TO_TILE(originxglobal);
+    uint32_t CK_NCameraY = CONVERT_GLOBAL_TO_TILE(originyglobal);
 
     if(CK_CameraX != CK_NCameraX){
-        if((CK_NCameraX==0|| CK_NCameraX==15)) CK_UpdateRendering = true;
+        CK_UpdateRendering = true;
     }
     if(CK_CameraY != CK_NCameraY){
-        if((CK_NCameraY==0 || CK_NCameraY==15)) CK_UpdateRendering = true;
+        CK_UpdateRendering = true;
     }
 
-    CK_CameraX = CK_NCameraX;
-    CK_CameraY = CK_NCameraY;
+    CK_CameraX = CK_GlobalCameraX%16;
+    CK_CameraY = CK_GlobalCameraY%16;
 
-    CK_CameraBlockX = CONVERT_GLOBAL_TO_TILE(originxglobal);
-    CK_CameraBlockY = CONVERT_GLOBAL_TO_TILE(originyglobal);
+    CK_CameraBlockX = CK_NCameraX;
+    CK_CameraBlockY = CK_NCameraY;
 
 };
 
@@ -558,3 +535,68 @@ void RFL_BoundScroll (int x, int y)
 	RFL_CalcOriginStuff (originxglobal, originyglobal);
 }
 
+
+/*
+=====================
+=
+= RFL_BoundNewOrigin
+=
+= Copies a string of tiles from main memory to the map,
+= accounting for animating tiles
+=
+=====================
+*/
+
+void RFL_BoundNewOrigin (unsigned orgx,unsigned orgy)
+{
+	int	check,edge;
+
+//
+// calculate new origin related globals
+//
+	if (orgx<originxmin)
+	  orgx=originxmin;
+	else if (orgx>originxmax)
+	  orgx=originxmax;
+
+	if (orgy<originymin)
+	  orgy=originymin;
+	else if (orgy>originymax)
+	  orgy=originymax;
+
+	originxtile = orgx>>G_T_SHIFT;
+	originytile = orgy>>G_T_SHIFT;
+
+	for (check=0;check<vscrollblocks;check++)
+	{
+		edge = vscrolledge[check];
+		if (edge>=originxtile && edge <=originxtile+CHECK_LX)
+		{
+			orgx = (edge+1)*TILEGLOBAL;
+			break;
+		}
+		if (edge>=originxtile+CHECK_LX+1 && edge <=originxtile+CHECK_RX)
+		{
+			orgx = (edge-CHECK_RX)*TILEGLOBAL;
+			break;
+		}
+	}
+
+	for (check=0;check<hscrollblocks;check++)
+	{
+		edge = hscrolledge[check];
+		if (edge>=originytile && edge <=originytile+CHECK_TY)
+		{
+			orgy = (edge+1)*TILEGLOBAL;
+			break;
+		}
+		if (edge>=originytile+CHECK_TY+1 && edge <=originytile+CHECK_BY)
+		{
+			orgy = (edge-CHECK_BY)*TILEGLOBAL;
+			break;
+		}
+	}
+
+
+	RFL_CalcOriginStuff (orgx,orgy);
+}

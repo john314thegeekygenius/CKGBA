@@ -79,10 +79,10 @@ const unsigned char CKS_RKey_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_RKey_boxinfo[] = {
+const signed short CKS_RKey_boxinfo[] = {
 	4, 4, 11, 11, 0, 3, //242
 	16, 4, 15, 7, 0, 2, //243
 };
 
-const unsigned short CKS_RKey_gbainfo[] = {
+const signed short CKS_RKey_gbainfo[] = {
 	6, 4, };

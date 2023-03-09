@@ -79,10 +79,10 @@ const unsigned char CKS_Soda_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Soda_boxinfo[] = {
+const signed short CKS_Soda_boxinfo[] = {
 	0, 0, 15, 15, 0, 0, //227
 	0, 0, 15, 15, 0, 0, //228
 };
 
-const unsigned short CKS_Soda_gbainfo[] = {
+const signed short CKS_Soda_gbainfo[] = {
 	0, 0, };

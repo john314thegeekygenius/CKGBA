@@ -223,9 +223,9 @@ const unsigned char CKS_Demo_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Demo_boxinfo[] = {
+const signed short CKS_Demo_boxinfo[] = {
 	0, 0, 63, 23, 0, 3, //129
 };
 
-const unsigned short CKS_Demo_gbainfo[] = {
+const signed short CKS_Demo_gbainfo[] = {
 	3, };

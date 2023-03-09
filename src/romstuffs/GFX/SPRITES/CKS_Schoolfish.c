@@ -79,12 +79,12 @@ const unsigned char CKS_Schoolfish_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Schoolfish_boxinfo[] = {
+const signed short CKS_Schoolfish_boxinfo[] = {
 	3, 0, 12, 7, 0, 0, //421
 	3, 0, 12, 7, 0, 0, //422
 	3, 0, 12, 7, 0, 0, //423
 	3, 0, 12, 7, 0, 0, //424
 };
 
-const unsigned short CKS_Schoolfish_gbainfo[] = {
+const signed short CKS_Schoolfish_gbainfo[] = {
 	0, 0, 0, 0, };

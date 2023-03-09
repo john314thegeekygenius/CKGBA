@@ -79,10 +79,10 @@ const unsigned char CKS_LWFlask_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_LWFlask_boxinfo[] = {
+const signed short CKS_LWFlask_boxinfo[] = {
 	0, 0, 15, 15, 0, 0, //239
 	0, 0, 15, 15, 0, 0, //240
 };
 
-const unsigned short CKS_LWFlask_gbainfo[] = {
+const signed short CKS_LWFlask_gbainfo[] = {
 	0, 0, };

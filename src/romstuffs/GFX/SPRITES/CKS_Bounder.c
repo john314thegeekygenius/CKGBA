@@ -574,7 +574,7 @@ const unsigned char CKS_Bounder_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Bounder_boxinfo[] = {
+const signed short CKS_Bounder_boxinfo[] = {
 	24, 3, 23, 19, 0, 1, //491
 	24, 3, 23, 19, 0, 1, //492
 	24, 3, 23, 19, 0, 1, //493
@@ -584,5 +584,5 @@ const unsigned short CKS_Bounder_boxinfo[] = {
 	24, 3, 23, 20, 0, 0, //497
 };
 
-const unsigned short CKS_Bounder_gbainfo[] = {
+const signed short CKS_Bounder_gbainfo[] = {
 	1, 1, 1, 1, 1, 1, 0, };

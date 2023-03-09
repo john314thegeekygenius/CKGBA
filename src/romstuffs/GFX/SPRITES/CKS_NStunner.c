@@ -79,10 +79,10 @@ const unsigned char CKS_NStunner_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_NStunner_boxinfo[] = {
+const signed short CKS_NStunner_boxinfo[] = {
 	2, 0, 11, 15, 0, 3, //251
 	2, 0, 11, 15, 0, 3, //252
 };
 
-const unsigned short CKS_NStunner_gbainfo[] = {
+const signed short CKS_NStunner_gbainfo[] = {
 	5, 5, };

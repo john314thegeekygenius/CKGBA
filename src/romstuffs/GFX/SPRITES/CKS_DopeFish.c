@@ -7927,7 +7927,7 @@ const unsigned char CKS_DopeFish_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_DopeFish_boxinfo[] = {
+const signed short CKS_DopeFish_boxinfo[] = {
 	88, 8, 87, 47, 0, 0, //404
 	88, 8, 87, 47, 0, 0, //405
 	88, 8, 87, 47, 0, -6, //406
@@ -7938,5 +7938,5 @@ const unsigned short CKS_DopeFish_boxinfo[] = {
 	88, 8, 87, 47, 0, -6, //420
 };
 
-const unsigned short CKS_DopeFish_gbainfo[] = {
+const signed short CKS_DopeFish_gbainfo[] = {
 	16, 16, 2, 8, 8, 16, 16, 2, };

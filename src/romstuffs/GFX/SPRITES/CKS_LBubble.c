@@ -151,12 +151,12 @@ const unsigned char CKS_LBubble_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_LBubble_boxinfo[] = {
+const signed short CKS_LBubble_boxinfo[] = {
 	0, 0, 15, 14, 0, 0, //409
 	0, 0, 15, 15, 0, 1, //410
 	0, 0, 15, 15, 0, 1, //411
 	0, 0, 15, 15, 0, 1, //412
 };
 
-const unsigned short CKS_LBubble_gbainfo[] = {
+const signed short CKS_LBubble_gbainfo[] = {
 	1, 3, 2, 2, };

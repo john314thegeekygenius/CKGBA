@@ -763,7 +763,7 @@ const unsigned char CKS_Skypest_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_Skypest_boxinfo[] = {
+const signed short CKS_Skypest_boxinfo[] = {
 	24, 4, 23, 7, 0, 0, //443
 	24, 4, 23, 7, 0, 0, //444
 	24, 4, 23, 7, 0, 0, //445
@@ -780,5 +780,5 @@ const unsigned short CKS_Skypest_boxinfo[] = {
 	0, 0, 23, 6, 0, 1, //456
 };
 
-const unsigned short CKS_Skypest_gbainfo[] = {
+const signed short CKS_Skypest_gbainfo[] = {
 	0, 0, 0, 0, 9, 8, 8, 9, 9, 9, 9, 9, 9, 9, };

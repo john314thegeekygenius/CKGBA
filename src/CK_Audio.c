@@ -72,12 +72,12 @@ SD_SoundPlaying(void)
 		//result = pcSound? true : false;
 		break;
 	case sdm_AdLib:
-		//result = alSound? true : false;
+		result = GBA_SamplePlaying(GBA_CHANNEL_B)? true : false;
 		break;
 	}
 
 	if (result)
-		return (SoundNumber);
+		return (SoundNumber+1);
 	else
 		return(false);
 }

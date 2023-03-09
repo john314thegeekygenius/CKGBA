@@ -21,7 +21,7 @@ void CK_UpdateObjGraphics(objtype *obj);
 
 void CK_UpdateObjects();
 
-unsigned short *CK_GetSprShape(objtype *obj);
+signed short *CK_GetSprShape(objtype *obj);
 
 void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy);
 

@@ -655,11 +655,11 @@ const unsigned char CKS_ThunderCloud_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_ThunderCloud_boxinfo[] = {
+const signed short CKS_ThunderCloud_boxinfo[] = {
 	0, 0, 63, 23, 0, 0, //498
 	0, 0, 63, 23, 0, 0, //499
 	0, 0, 63, 23, 0, 0, //500
 };
 
-const unsigned short CKS_ThunderCloud_gbainfo[] = {
+const signed short CKS_ThunderCloud_gbainfo[] = {
 	0, 0, 0, };

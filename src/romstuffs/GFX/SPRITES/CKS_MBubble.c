@@ -43,9 +43,9 @@ const unsigned char CKS_MBubble_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const unsigned short CKS_MBubble_boxinfo[] = {
+const signed short CKS_MBubble_boxinfo[] = {
 	0, 0, 15, 15, 0, 2, //417
 };
 
-const unsigned short CKS_MBubble_gbainfo[] = {
+const signed short CKS_MBubble_gbainfo[] = {
 	5, };

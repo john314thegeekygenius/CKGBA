@@ -75,7 +75,6 @@ typedef boolean bool; // For sanity
 #endif
 
 
-
 #include "CK_Graphics.h"
 #include "CK_Sprites.h"
 #include "CK_Audio.h"

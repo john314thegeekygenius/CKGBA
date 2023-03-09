@@ -15,12 +15,13 @@ unsigned int CK_SprTileOffset = 0;
 
 unsigned short GetNewObj(boolean dummy){
     // Ummm... Will break if more than MAX_OBJS are spawned... :S
-    ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
+    ck_newobj = &CK_ObjectList[CK_NumOfObjects];
     ck_newobj->gfxoffset = 0xFFFFFFFF;
     ck_newobj->isFree = false;
     ck_newobj->gbaSpriteCount = 0;
     ck_newobj->ck_sprType = 0;
-    ck_newobj->uuid = CK_NumOfObjects;
+    ck_newobj->uuid = CK_NumOfObjects+1;
+    ++CK_NumOfObjects;
     
 	ck_newobj->active = ac_yes;
 	ck_newobj->needtoclip = cl_midclip;
@@ -118,7 +119,16 @@ void CK_UpdateObjects(){
     // Fix every object position
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
-        CK_DrawObject(obj,obj->deltax,obj->deltay);
+        signed short *shape = CK_GetShape(obj->ck_sprType, obj->shapenum);
+
+        int dx = CONVERT_GLOBAL_TO_PIXEL(obj->deltax-originxglobal);
+        int dy = CONVERT_GLOBAL_TO_PIXEL(obj->deltay-originyglobal);
+
+        dx += shape[4];
+        dy += shape[5];
+
+
+        CK_DrawObject(obj,dx,dy);
     }
     // Update the sprite list
     GBA_UPDATE_SPRITES()
@@ -130,9 +140,16 @@ void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
     for(int i = 0; i < obj->gbaSpriteCount; i++){
         // Make the object work in global map space
         signed int sprx = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+1] + (dx) ;// + obj->state->xmove;
-        signed int spry = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+2] + (dy) ;//+ *CK_SpriteOffsets[obj->ck_sprType];// + obj->state->ymove;
+        signed int spry = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+2] + (dy) ;// + obj->state->ymove;
+        //*((signed short*)CK_SpriteOffsets[obj->ck_sprType]+obj->shapenum)
+
         // Make sure we can even see the sprite
         if(sprx > -64 && sprx < (240+64) && spry > -64 && spry < (160+64)){
+            if(obj->drawtype != spritedraw){
+                GBA_SET_SPRITE_PAL(obj->gbaSprites[i], 15)
+            }else{
+                GBA_SET_SPRITE_PAL(obj->gbaSprites[i], 0)
+            }
             GBA_SET_SPRITE_POSITION(obj->gbaSprites[i], sprx, spry)
             GBA_UPDATE_SPRITE(obj->gbaSprites[i])
         }else{
@@ -143,6 +160,7 @@ void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy){
 };
 
 void CK_PrintObjInfo(){
+       
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
         if(obj->isFree) continue;
@@ -236,7 +254,10 @@ void CK_SetupSprites(){
 };
 
 void CK_RemoveSprites(){
-
+    // Remove all objects
+    for(int i = 0; i < CK_NumOfObjects; i++){
+        RemoveObj(&CK_ObjectList[i]);
+    }
     // Clear any software sprites
     GBA_ResetSprites();
 
@@ -321,18 +342,20 @@ void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
 	}*/
     CK_UpdateObjGraphics((objtype*)user);
 
+    ((objtype*)user)->deltax = globalx;
+    ((objtype*)user)->deltay = globaly;
+    ((objtype*)user)->drawtype = draw;
+
     globalx -= originxglobal;
     globaly -= originyglobal;
 
-    unsigned short *shape = CK_GetShape(((objtype*)user)->ck_sprType, spritenumber);
-	globalx += shape[4];
-	globaly += shape[5];
+    signed short *shape = CK_GetShape(((objtype*)user)->ck_sprType, spritenumber);
 
     int dx = CONVERT_GLOBAL_TO_PIXEL(globalx);
     int dy = CONVERT_GLOBAL_TO_PIXEL(globaly);
 
-    ((objtype*)user)->deltax = dx;
-    ((objtype*)user)->deltay = dy;
+	dx += shape[4];
+	dy += shape[5];
 
     CK_DrawObject((objtype*)user, dx, dy);
 
@@ -366,7 +389,6 @@ void RF_ForceRefresh (void)
 {
 	CK_MoveCamera (originxglobal,originyglobal);
 	CK_FixCamera();
-	CK_UpdateObjects();
 	CK_ForceLevelRedraw();
 }
 

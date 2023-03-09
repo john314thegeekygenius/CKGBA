@@ -87,19 +87,21 @@ void CK_LoadSpectators(){
     // Load all the sprites
     for(int y = 0; y < CK_CurLevelHeight; y++){
         for(int x = 0; x < CK_CurLevelWidth; x++){
-            const uint32_t offset = (y*CK_CurLevelWidth)+x+(CK_CurLevelSize*2);
+            const uint32_t offset = (y*CK_CurLevelWidth)+x;//+(CK_CurLevelSize*2);
             // Copy the level data over
-            uint32_t tileid = CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
+            uint16_t tileid = CK_GetInfo(offset);//CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
             if(tileid == 0) continue; 
             switch(tileid){
                 case 1:
                     // Commander Keen (Right)
                     SpawnKeen(x, y, 1);
+					SpawnBounder(x, y);
 		    		SpawnScore();
                     break;
                 case 2:
                     // Commander Keen (Left)
                     SpawnKeen(x, y, -1);
+					SpawnBounder(x, y);
 	    			SpawnScore();
                     break;
                 case 3:
@@ -107,12 +109,19 @@ void CK_LoadSpectators(){
                     SpawnWorldKeen(x, y);
     				SpawnScore();
                     break;
+
+				case 12:
+//					SpawnBounder(x, y);
+					break;
 				case 25:
 					RF_SetScrollBlock(x, y, 1);
 					break;
 
 				case 26:
 					RF_SetScrollBlock(x, y, 0);
+					break;
+				case 33:
+					SpawnMiragia(x, y);
 					break;
             }
         }

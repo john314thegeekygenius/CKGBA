@@ -7,7 +7,6 @@
 #ifndef __CK_SPRITES__
 #define __CK_SPRITES__
 
-extern objtype *ck_newobj;
 
 extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS];
 extern unsigned int CK_NumOfObjects;
@@ -22,6 +21,8 @@ void CK_UpdateObjGraphics(objtype *obj);
 void CK_UpdateObjects();
 
 signed short *CK_GetSprShape(objtype *obj);
+
+signed short *CK_GetShape(unsigned int sprtype, unsigned short shapenumber);
 
 void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy);
 

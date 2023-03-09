@@ -56,6 +56,8 @@ extern volatile uint16_t* TILESTART_1;
 
 extern const unsigned short COMMANDER_KEEN_PALETTE[];
 
+extern unsigned short CK_PaletteSet;
+
 void CK_InitVideo();
 void CK_FixPalette();
 

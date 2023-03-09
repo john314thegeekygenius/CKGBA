@@ -11,3 +11,8 @@ So, if the code is:
 ```RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);```
 The code should be changed to:
 ```RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);```
+All cases where a new object is created via GetNewObj(), 
+if the object name 'new' it must be changed to 'ck_newobj'
+
+Also, the function CK_SetSprite() must be called after the object is created in order
+to set the sprite type.

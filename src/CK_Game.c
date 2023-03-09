@@ -355,21 +355,19 @@ void PatchWorldMap(void)
     // Make this fix the world map
 
 	Uint16 x, y, planeoff, info, level, tag;
-	Uint16 *infoptr;
 
 	planeoff = 0;
 
-	infoptr = CK_LevelInfo[(CK_CurLevelIndex*3)+2]+(CK_CurLevelSize*2);
 	for (y = 0; y < CK_CurLevelHeight; y++)
 	{
-		for (x = 0; x < CK_CurLevelWidth; x++, infoptr++, planeoff++)
+		for (x = 0; x < CK_CurLevelWidth; x++, planeoff++)
 		{
-			info = *infoptr;
+			info = CK_GetInfo((y*CK_CurLevelWidth)+x);
 			level = info & 0xFF;
 			if (level >= MINDONELEVEL && level <= MAXDONELEVEL && gamestate.leveldone[level])
 			{
 				tag = info >> 8;
-				*infoptr = 0;	// BUG: infoplane value should only be set to 0 if tag == 0xC0
+				CK_SetInfo((y*CK_CurLevelWidth)+x,0);	// BUG: infoplane value should only be set to 0 if tag == 0xC0
 				if (tag == 0xD0)
 				{
 					CK_CurLevelData[CK_CurLevelSize + planeoff] = 0;

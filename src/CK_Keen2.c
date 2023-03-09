@@ -403,9 +403,9 @@ void CheckEnterLevel(objtype *ob)
 	{
 		for (x = ob->x>>G_T_SHIFT; x <= (ob->x+16)>>G_T_SHIFT; x++)
 		{
-            const uint32_t offset = (y*CK_CurLevelWidth)+x+(CK_CurLevelSize*2);
+            const uint32_t offset = (y*CK_CurLevelWidth)+x;
             // Copy the level data over
-            const uint32_t info = CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
+            const uint32_t info = CK_GetInfo(offset);
 
 			if (info > 0xC000 && info <= (0xC000 + CK_MAX_LEVELS))
 			{

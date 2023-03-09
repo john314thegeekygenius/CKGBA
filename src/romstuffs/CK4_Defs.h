@@ -71,6 +71,52 @@ void T_KeenSwim(objtype *ob);
 void C_KeenSwim(objtype *ob, objtype *hit);
 void R_KeenSwim(objtype *ob);
 
+/*
+=============================================================================
+
+						K4_ACT1 DEFINITIONS
+
+=============================================================================
+*/
+
+extern const statetype s_miragia0;
+extern const statetype s_miragia1;
+extern const statetype s_miragia2;
+extern const statetype s_miragia3;
+extern const statetype s_miragia4;
+extern const statetype s_miragia5;
+extern const statetype s_miragia6;
+extern const statetype s_miragia7;
+void SpawnMiragia(Sint16 x, Sint16 y);
+void T_Miragia0(objtype *ob);
+void T_Miragia1(objtype *ob);
+void T_Miragia2(objtype *ob);
+void T_Miragia3(objtype *ob);
+void T_Miragia4(objtype *ob);
+void T_Miragia5(objtype *ob);
+void T_Miragia6(objtype *ob);
+void T_Miragia7(objtype *ob);
+
+
+/*
+=============================================================================
+
+						K4_ACT2 DEFINITIONS
+
+=============================================================================
+*/
+
+
+extern const statetype s_bounderup1;
+extern const statetype s_bounderup2;
+extern const statetype s_bounderside1;
+extern const statetype s_bounderside2;
+extern const statetype s_bounderstun;
+extern const statetype s_bounderstun2;
+void SpawnBounder(Sint16 x, Sint16 y);
+void C_Bounder(objtype *ob, objtype *hit);
+void R_Bounder(objtype *ob);
+
 
 
 #endif //__CK4_DEFS__

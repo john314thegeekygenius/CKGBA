@@ -49,6 +49,12 @@ struct CK_TileAnimation {
     uint16_t map_offset;
     uint16_t tile_to;
     signed short ani_time;
+    bool active;
+};
+
+struct CK_InfoBlock {
+    uint16_t map_offset;
+    uint16_t new_tile;
 };
 
 // Must be in External Work Ram or else it's too much for the 32K on board
@@ -56,6 +62,9 @@ GBA_IN_EWRAM uint16_t CK_CurLevelData[32768]; // Use 64K of memory for the level
 GBA_IN_EWRAM struct CK_TileAnimation CK_CurLevelAnimations[2048][2]; // Use 6K or memory for level animations [offset, newtile, time]
 //GBA_IN_EWRAM uint16_t CK_UpdatePOI[32*20][2]; // Tiles to update on the screen
 //unsigned int CK_POICount = 0; // How many POI points are there?
+
+GBA_IN_EWRAM struct CK_InfoBlock CK_InfoPlaneBlocks[512]; // Use 1K of memory for the info plane updation
+unsigned int CK_InfoPlaneBlockCount = 0;
 
 const char *CK_TileInfo[2] = { CK_TileInfoBG, CK_TileInfoFG };
 
@@ -84,9 +93,33 @@ uint32_t CK_UpdateTick = 0;
 
 #include "romstuffs/CK4_Spectators.c"
 
+
+unsigned short CK_GetInfo(unsigned int offset){
+    for(int i = 0; i < CK_InfoPlaneBlockCount; i++){
+        if(CK_InfoPlaneBlocks[i].map_offset == offset){
+            return CK_InfoPlaneBlocks[i].new_tile;
+        }
+    }
+    return CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset+(CK_CurLevelSize*2)];
+};
+
+void CK_SetInfo(unsigned int offset, unsigned short tile){
+    for(int i = 0; i < CK_InfoPlaneBlockCount; i++){
+        if(CK_InfoPlaneBlocks[i].map_offset == offset){
+            CK_InfoPlaneBlocks[i].new_tile = tile;
+            return;
+        }
+    }
+    CK_InfoPlaneBlocks[CK_InfoPlaneBlockCount].map_offset = offset;
+    CK_InfoPlaneBlocks[CK_InfoPlaneBlockCount].new_tile = tile;
+    ++CK_InfoPlaneBlockCount;
+};
+
+
 void CK_ForceLevelRedraw(){
     CK_UpdateRendering = true;
     CK_RenderLevel();
+    CK_UpdateObjects();
 };
 
 void CK_LoadLevel(unsigned short lvlNumber){
@@ -104,7 +137,7 @@ void CK_LoadLevel(unsigned short lvlNumber){
 //    GBA_DMA_MemSet16((uint16_t*)CK_UpdatePOI, 0, sizeof(CK_UpdatePOI));
 //    CK_POICount = 0;
 
-
+    CK_InfoPlaneBlockCount = 0;
 
     for(int p = 0; p < 2; p++){
         for(int y = 0; y < CK_CurLevelHeight; y++){
@@ -124,6 +157,7 @@ void CK_LoadLevel(unsigned short lvlNumber){
                 if(animation_time){
                     CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].map_offset = offset;
                     CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].ani_time = animation_time;
+                    CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].active = true;
 
                     if(p == 0){
                         CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].tile_to = (signed char)CK_TileInfo[p][tileoff+CK_TileInfo_BGTiles];
@@ -220,6 +254,48 @@ void CK_ScrollCamera(signed int x, signed int y ){
 #define CKTILEFG(x,y) (((y)*(MTILESET_WIDTH_VALD)) + ((x)<<4))
 
 GBA_IN_IWRAM uint32_t *CK_BlitBuffer[16*11][2];
+
+void RFL_RemoveAnimsInBlock(unsigned int x, unsigned int y, unsigned short width, unsigned short height){
+    for(int p = 0; p < 2; p++){
+        unsigned int map_offs = (y*CK_CurLevelWidth) + x + (CK_CurLevelSize*p);
+        for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
+            struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
+            if(!ck_ani->active) continue;
+            for(int ychk = 0; ychk < height*CK_CurLevelWidth; ychk+=CK_CurLevelWidth)
+                if(ck_ani->map_offset >= map_offs+ychk && ck_ani->map_offset < map_offs+width+ychk)
+                    ck_ani->active = false;
+        }
+    }
+};
+
+void CK_SetMapTile(unsigned short x, unsigned short y, unsigned short tile, unsigned short plane){
+    
+    RFL_RemoveAnimsInBlock (x,y,1,1);
+
+    // Assumes that plane is never anything other than 0 and 1
+    uint32_t doffset = (y*CK_CurLevelWidth)+x;
+    CK_CurLevelData[doffset+(CK_CurLevelSize*plane)] = tile;
+};
+
+void RF_MapToMap(unsigned short srcx, unsigned short srcy, 
+                unsigned short dstx, unsigned short dsty, 
+                unsigned short width, unsigned short height){
+    // We could use DMA, but that's kinda overkill for small copies
+    uint32_t soffset = (srcy*CK_CurLevelWidth)+srcx;
+    uint32_t doffset = (dsty*CK_CurLevelWidth)+dstx;
+    uint16_t * smap = CK_CurLevelData + soffset;
+    uint16_t * dmap = CK_CurLevelData + doffset;
+    // Will bug out if map src and dst overlap???
+    for(int y = 0; y < height; ++y){
+        for(int x = 0; x < width; ++x){
+            // Copy all the tiles over
+            dmap[(y*CK_CurLevelWidth) + x] = smap[(y*CK_CurLevelWidth) + x];
+            dmap[(y*CK_CurLevelWidth) + x + CK_CurLevelSize] = smap[(y*CK_CurLevelWidth) + x+ CK_CurLevelSize];
+            CK_SetInfo(doffset+(y*CK_CurLevelWidth) + x, CK_GetInfo(soffset+(y*CK_CurLevelWidth) + x));
+        }
+    }
+
+};
 
 void CK_RenderLevel(){
     // Removed because it's useless
@@ -326,6 +402,7 @@ void CK_UpdateLevel(){
     for(int p = 0; p < 2; p++){
         for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
             struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
+            if(!ck_ani->active) continue; // Don't worry about inactive animations
             ck_ani->ani_time -= tics;
             while(ck_ani->ani_time < 1){
                 // Update the tile

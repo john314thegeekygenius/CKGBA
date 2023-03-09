@@ -18,12 +18,11 @@ static	word SoundNumber,SoundPriority;
 
 void SD_InitAudio(){
     GBA_InitAudio();
+	// Default to adlib sound / music
     SoundMode = sdm_AdLib;
     MusicMode = smm_AdLib;
     SoundNumber = SoundPriority = 0;
 };
-
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -34,6 +33,12 @@ void
 SD_PlaySound(soundnames sound)
 {
 	unsigned short s_priority = 0;
+
+	// Check if a sound is playing
+	if(GBA_SamplePlaying(GBA_CHANNEL_B) == 0){
+		GBA_StopChannel(GBA_CHANNEL_B);
+	    SoundNumber = SoundPriority = 0;
+	}
 
 	if ((SoundMode == sdm_Off) || (sound == -1))
 		return;
@@ -47,6 +52,7 @@ SD_PlaySound(soundnames sound)
 		//SDL_PCPlaySound((void far *)s);
 		break;
 	case sdm_AdLib:
+		GBA_StopChannel(GBA_CHANNEL_B);
 		GBA_PlaySample(&CKS_GBA_Samples[sound], 0, GBA_CHANNEL_B);
 		break;
 	}
@@ -78,8 +84,10 @@ SD_SoundPlaying(void)
 
 	if (result)
 		return (SoundNumber+1);
-	else
+	else{
+		SoundNumber = SoundPriority = 0;
 		return(false);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -93,15 +101,14 @@ SD_StopSound(void)
 	switch (SoundMode)
 	{
 	case sdm_PC:
+    // Handle GBA square wave here???
 //		SDL_PCStopSound();
 		break;
 	case sdm_AdLib:
     	GBA_StopChannel(GBA_CHANNEL_B);
 		break;
 	}
-
-	GBA_StopChannel(GBA_CHANNEL_B);
-    // Handle GBA square wave here???
+    SoundNumber = SoundPriority = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////

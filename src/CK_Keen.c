@@ -851,10 +851,8 @@ void T_LineUp(objtype *ob)
 void KeenEnterThink(objtype *ob)
 {
 	Uint16 info;
-	Uint16 *map;
 
-	map = CK_LevelInfo[(CK_CurLevelIndex*3)+2] + (CK_CurLevelSize*2) + (ob->tilebottom*CK_CurLevelWidth) + ob->tileleft;
-	info = *map;
+	info = CK_GetInfo((ob->tilebottom*CK_CurLevelWidth) + ob->tileleft);
 #ifdef KEEN5
 	if (!info)
 	{
@@ -1448,7 +1446,7 @@ void KeenHoldThink(objtype *ob)
 */
 
 void KeenShootThink(objtype *ob)
-{/*
+{
 // can't use &<var> in a switch statement...
 
 	if (ob->state == &s_keenshoot1)
@@ -1517,7 +1515,7 @@ void KeenShootThink(objtype *ob)
 		{
 			SpawnShot(ob->x + 12*PIXGLOBAL, ob->y + 24*PIXGLOBAL, dir_South);
 		}
-	}*/
+	}
 }
 
 //===========================================================================
@@ -1921,10 +1919,10 @@ void HandleRiding(objtype *ob)
 */
 
 void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
-{/*
-	RF_MemToMap(&zeromap, 1, x, y, 1, 1);
+{
+	CK_SetMapTile(x, y, 0, 1);
 	SD_PlaySound(bonussound[bonus]);
-	GivePoints(bonuspoints[bonus]);
+	//GivePoints(bonuspoints[bonus]);
 	if (bonus < 4)
 	{
 		gamestate.keys[bonus]++;
@@ -1936,7 +1934,7 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	else if (bonus == 11)
 	{
 		gamestate.ammo += shotsinclip[gamestate.difficulty];
-	}
+	}/*
 	GetNewObj(true);
 	new->obclass = inertobj;
 	new->priority = 3;
@@ -1957,25 +1955,25 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 */
 
 void GiveDrop(Uint16 x, Uint16 y)
-{/*
-	RF_MemToMap(&zeromap, 1, x, y, 1, 1);
+{
+	CK_SetMapTile(x, y, 0, 1);
 	SD_PlaySound(SND_GETWATER);
-	SpawnSplash(x, y);
+//	SpawnSplash(x, y);
 	if (++gamestate.drops == 100)
 	{
 		gamestate.drops = 0;
 		SD_PlaySound(SND_EXTRAKEEN);
-		gamestate.lives++;
+		gamestate.lives++;/*
 		GetNewObj(true);
-		new->obclass = inertobj;
-		new->priority = 3;
-		new->x = CONVERT_TILE_TO_GLOBAL(x);
-		new->y = CONVERT_TILE_TO_GLOBAL(y-1);
-		new->ydir = -1;
-		new->temp2 = new->shapenum = BONUS100UPSPR;
-		NewState(new, &s_bonusrise);
-		new->needtoclip = cl_noclip;
-	}*/
+		ck_newobj->obclass = inertobj;
+		ck_newobj->priority = 3;
+		ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
+		ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-1);
+		ck_newobj->ydir = -1;
+		ck_newobj->temp2 = ck_newobj->shapenum = BONUS100UPSPR;
+		NewState(ck_newobj, &s_bonusrise);
+		ck_newobj->needtoclip = cl_noclip;*/
+	}
 }
 
 /*
@@ -2466,12 +2464,12 @@ void KeenPogoReact(objtype *ob)
 */
 
 void KeenPoleReact(objtype *ob)
-{/*
-	Uint16 far *map;
+{
+	Uint16 *map;
 	Uint16 ymove;
 
-	map = mapsegs[1] + mapbwidthtable[ob->tilebottom]/2 + ob->tilemidx;
-	if (tinf[NORTHWALL + *map] == 1)
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tilebottom*CK_CurLevelWidth) + ob->tilemidx;
+	if (CK_TileInfo[1][NORTHWALL + *map] == 1)
 	{
 		ymove = (ob->bottom & 0xFF) + 1;
 		ob->y -= ymove;
@@ -2481,6 +2479,6 @@ void KeenPoleReact(objtype *ob)
 		ChangeState(ob, &s_keenlookdown);
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 

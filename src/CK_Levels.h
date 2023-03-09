@@ -39,7 +39,7 @@ extern unsigned short CK_CurLevelHeight;
 extern unsigned short CK_CurLevelSize;
 extern unsigned short CK_CurLevelIndex;
 
-extern GBA_IN_EWRAM uint16_t CK_CurLevelData[32768];
+extern GBA_IN_EWRAM uint16_t CK_CurLevelData[16384*2];
 extern const unsigned short* CK_LevelInfo[];
 extern const char *CK_TileInfo[2];
 extern const uint16_t CK_TileInfo_BGTiles ;
@@ -65,6 +65,16 @@ extern uint32_t CK_CameraY;
 void CK_SetupLevelGBAMaps();
 
 void CK_ForceLevelRedraw();
+
+unsigned short CK_GetInfo(unsigned int offset);
+
+void CK_SetInfo(unsigned int offset, unsigned short tile);
+
+void CK_SetMapTile(unsigned short x, unsigned short y, unsigned short tile, unsigned short plane);
+
+void RF_MapToMap(unsigned short srcx, unsigned short srcy, 
+                unsigned short dstx, unsigned short dsty, 
+                unsigned short width, unsigned short height);
 
 void CK_LoadLevel(unsigned short lvlNumber);
 

@@ -9,19 +9,35 @@
 #define RGBCONV(x) ((((x)>>16)>>3) | (((((x)>>8)&0xFF)>>3)<<5) | ((((x)&0xFF)>>3)<<10))
 
 const unsigned short COMMANDER_KEEN_PALETTE[] = {
-	RGBCONV(0xccffcc), 0x00, RGBCONV(0x0000a8),RGBCONV(0x00a800),RGBCONV(0x00a8a8),RGBCONV(0xa80054),
-	RGBCONV(0xa85400), RGBCONV(0xa8a8a8), RGBCONV(0x545454), RGBCONV(0x5454fc), RGBCONV(0x54fc54), RGBCONV(0x54fcfc), 
-	RGBCONV(0xfc5454), RGBCONV(0xfc54fc), RGBCONV(0xfcfc54), RGBCONV(0xfcfcfc)
+	// Normal EGA palette (0)
+	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x0000aa), RGBCONV(0x00aa00), RGBCONV(0x00aaaa), RGBCONV(0xaa0055), RGBCONV(0xaa5500), RGBCONV(0xaaaaaa), RGBCONV(0x555555), RGBCONV(0x5555ff), RGBCONV(0x55ff55), RGBCONV(0x55ffff), RGBCONV(0xff5555), RGBCONV(0xff55ff), RGBCONV(0xffff55), RGBCONV(0xffffff), 
+	// Greyscale palette (1)
+	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x393939), RGBCONV(0x393939), RGBCONV(0x717171), RGBCONV(0x555555), RGBCONV(0x555555), RGBCONV(0xaaaaaa), RGBCONV(0x555555), RGBCONV(0x8e8e8e), RGBCONV(0x8e8e8e), RGBCONV(0xc6c6c6), RGBCONV(0x8e8e8e), RGBCONV(0xc6c6c6), RGBCONV(0xc6c6c6), RGBCONV(0xffffff), 
+	// Old Gameboy palette (2)
+	RGBCONV(0xccffcc), RGBCONV(0x0f380f), RGBCONV(0x306230), RGBCONV(0x306230), RGBCONV(0x306230), RGBCONV(0x306230), RGBCONV(0x8bac0f), RGBCONV(0x9bbc0f), RGBCONV(0x306230), RGBCONV(0x306230), RGBCONV(0x9bbc0f), RGBCONV(0x9bbc0f), RGBCONV(0x9bbc0f), RGBCONV(0x9bbc0f), RGBCONV(0x9bbc0f), RGBCONV(0x9bbc0f), 
+	// Vibrent EGA (3)
+	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x0000ff), RGBCONV(0x00ff00), RGBCONV(0x00ffff), RGBCONV(0xbf007f), RGBCONV(0xff7f00), RGBCONV(0xc0c0c0), RGBCONV(0x7f7f7f), RGBCONV(0x007fff), RGBCONV(0x7fff00), RGBCONV(0x85ffff), RGBCONV(0xff007f), RGBCONV(0xffb6c1), RGBCONV(0xffff00), RGBCONV(0xffffff), 
+	// C64 (4)
+	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x5d00ab), RGBCONV(0x44c14e), RGBCONV(0x44c14e), RGBCONV(0x9f4238), RGBCONV(0xa16a1d), RGBCONV(0xb3b3b3), RGBCONV(0x606060), RGBCONV(0x9758df), RGBCONV(0x44c14e), RGBCONV(0x6cc8cf), RGBCONV(0xce7c73), RGBCONV(0x9758df), RGBCONV(0xc9ec7a), RGBCONV(0xffffff), 
+
 };
+
+
+unsigned short CK_PaletteSet = 0;
 
 void CK_FixPalette(){
 	// Copy the palette
 	for(int i = 0; i < 16; i++)
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);
 
-	// Copy the palette (foreground)
+	// Copy the palette (foreground / sprites)
 	for(int i = 0; i < 16; i++)
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE,16);
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);
+
+	// Copy over a completely white palette for sprite flashing
+	for(int i = 0; i < 16; i++){
+		*((uint16_t*)GBA_PAL_SPR_START+(15*16)+i) = COMMANDER_KEEN_PALETTE[(CK_PaletteSet*16)+15];
+	}
 };
 
 

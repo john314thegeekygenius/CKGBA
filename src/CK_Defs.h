@@ -323,6 +323,7 @@ typedef struct objstruct
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
 	Uint16 deltax, deltay;
+	uint8_t drawtype;
     CK_SpriteType ck_sprType;
 } objtype;
 
@@ -731,14 +732,54 @@ extern Sint16 xtry;
 extern Sint16 ytry;
 extern boolean playerkludgeclipcancel;
 
+void MoveObjVert(objtype *ob, Sint16 ymove);
+void MoveObjHoriz(objtype *ob, Sint16 xmove);
+void PlayerBottomKludge(objtype *ob);
+void PlayerTopKludge(objtype *ob);
+void ClipToEnds(objtype *ob);
+void ClipToSides(objtype *ob);
+boolean CheckPosition(objtype *ob);
+boolean StatePositionOk(objtype *ob, statetype *state);
+
+#ifdef KEEN5
+void CalcBounds(objtype *ob);
+#endif
+
+void ClipToWalls(objtype *ob);
+void FullClipToWalls(objtype *ob);
+void PushObj(objtype *ob);
+void ClipToSpriteSide(objtype *push, objtype *solid);
+void ClipToSpriteTop(objtype *push, objtype *solid);
+void ClipToSprite(objtype *push, objtype *solid, boolean squish);
 Sint16 DoActor(objtype *ob, Sint16 numtics);
 void StateMachine(objtype *ob);
 void NewState(objtype *ob, statetype *state);
 void ChangeState(objtype *ob, statetype *state);
-
-
-void R_Draw(objtype *ob);
+boolean OnScreen(objtype *ob);
+void DoGravity(objtype *ob);
+void DoWeakGravity(objtype *ob);
+void DoTinyGravity(objtype *ob);
+void AccelerateX(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void AccelerateXv(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void AccelerateY(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void FrictionX(objtype *ob);
+void FrictionY(objtype *ob);
+void StunObj(objtype *ob, objtype *shot, statetype *stunstate);
 void T_Projectile(objtype *ob);
+void T_WeakProjectile(objtype *ob);
+void ProjectileThink1(objtype *ob);
+void T_Velocity(objtype *ob);
+void SetReactThink(objtype *ob);
+void T_Stunned(objtype *ob);
+void C_Lethal(objtype *ob, objtype *hit);
+void R_Draw(objtype *ob);
+void R_Walk(objtype *ob);
+void R_WalkNormal(objtype *ob);
+void BadState(void);
+void R_Stunned(objtype *ob);
+
+extern statetype sc_deadstate;
+extern statetype sc_badstate;
 
 
 #endif

@@ -25,7 +25,7 @@ Uint16 originytilemax;
 
 ControlInfo c;
 
-// ck_newobj is known as new in OG code
+// ck_newobj is known as 'new' in OG code
 objtype *ck_newobj, *check, *player, *scoreobj;
 
 objtype dummyobj;
@@ -67,7 +67,7 @@ Sint16 inactivatebottom;
 =
 =====================
 */
-
+bool HITBITTON = 0;
 void CheckKeys(void)
 {
 /*	if (screenfaded)			// don't do anything with a faded screen
@@ -86,6 +86,16 @@ void CheckKeys(void)
 		lasttimecount = TimeCount;	// BUG: should be the other way around
 	}
 */
+	if(GBA_TEST_BUTTONS(GBA_BUTTON_SELECT)){
+		HITBITTON = 1;
+	}else{
+		if(HITBITTON){
+			HITBITTON = 0;
+			CK_PaletteSet += 1;
+			if(CK_PaletteSet > 4) CK_PaletteSet = 0;
+			CK_FixPalette();
+		}
+	}
 }
 
 //===========================================================================
@@ -137,6 +147,7 @@ void CenterActor(objtype *ob)
 	if (!scorescreenkludge)
 	{
 		CK_MoveCamera(orgx, orgy);
+		CK_ForceLevelRedraw();
 	}
 
 //
@@ -597,6 +608,14 @@ void PollControls(void)
 		if (!firebutton)
 			fireheld = false;
 	}
+	if(GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER))
+		if (mapon != 0)
+		{
+			SD_PlaySound(SND_LEVELDONE);
+			gamestate.mapon = 0;
+			gamestate.leveldone[mapon] = true;
+			playstate = ex_completed;
+		}
 }
 
 
@@ -848,7 +867,7 @@ void PlayLoop(void)
 //
         CK_FixCamera();
         CK_RenderLevel();
-		CK_PrintObjInfo();
+		//CK_PrintObjInfo();
 		CK_UpdateObjects();
 
         RF_CalcTics();

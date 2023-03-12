@@ -15,22 +15,62 @@ unsigned int CK_SprTileOffset = 0;
 
 objtype dummyobj;
 
-DONT_OPTIMISE objtype *GetNewObj(boolean dummy){
+static void CK_ClearObject(objtype *obj,bool overwrite){
+	obj->obclass = 0;
+	obj->active = 0;
+	obj->needtoreact = 0;
+	obj->needtoclip = 0;
+	obj->nothink = 0;
+	obj->x = obj->y = 0;
+	obj->xdir = obj->ydir = 0;
+	obj->xmove = obj->ymove = 0;
+	obj->xspeed = obj->yspeed = 0;
+	obj->ticcount = 0;
+	obj->state = NULL;
+	obj->shapenum = 0;
+	obj->priority = 0;
+	obj->left = obj->top = obj->right = obj->bottom = obj->midx = 0;
+	obj->tileleft = obj->tiletop = obj->tileright = obj->tilebottom = obj->tilemidx = 0;
+	obj->hitnorth = obj->hiteast = obj->hitsouth = obj->hitwest = 0;
+	obj->temp1 = obj->temp2 = obj->temp3 = obj->temp4 = 0;
+	obj->sprite = NULL;
+	//struct objstruct *next, *prev; // Originally used for saveing / loading
+    ///////////////////////////////////////////////////
+    // Added for GBA port
+    obj->deltax = obj->deltay = 0;
+    obj->drawtype = 0;
+
+    if(overwrite){
+        obj->uuid = 0;
+        obj->gbaSpriteCount = 0;
+        // Hmmm
+        obj->isFree = true;
+        obj->gfxoffset = 0xFFFFFFFF;
+        obj->ck_sprType = CKS_EOL;
+    }
+};
+
+DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     bool foundobj = false;
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
         if(obj->isFree) {
+            CK_ClearObject(obj, false);
             ck_newobj = obj;
             foundobj = true;
             break;
         }
     }
     if(!foundobj){
-        // Ummm... Will break if more than MAX_OBJS are spawned... :S
-        ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
-        if(CK_NumOfObjects > MAXACTORS){
+        // Ummm... Will break if more than MAXACTORS are spawned... :S
+        if(CK_NumOfObjects >= MAXACTORS){
+            if (usedummy){
+                ck_newobj = &dummyobj;
+                return &dummyobj;
+            }
             Quit("GetNewObj: No free spots in objarray!");
         }
+        ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
         ck_newobj->gfxoffset = 0xFFFFFFFF;
         ck_newobj->ck_sprType = CKS_EOL;
         ck_newobj->gbaSpriteCount = 0;
@@ -89,13 +129,7 @@ void CK_SetSprite(objtype *obj, CK_SpriteType type){
     obj->ck_sprType = type;
     obj->isFree = false; // ???
     if(gfxobj != NULL){
-        obj->gbaSpriteCount = *CK_SpritePtrs[(type*5)+1];
-        obj->gfxoffset = gfxobj->gfxoffset;
-        for(int i = 0; i < obj->gbaSpriteCount; i++){
-            obj->sprtype[i] = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)];
-            obj->gbaSprites[i] = GBA_CreateSprite(GBA_SPR_OFFX,GBA_SPR_OFFY,obj->sprtype[i],CK_SprTileOffset,0,0);
-            CK_SprTileOffset += CK_SpriteSizes[obj->sprtype[i]]>>3;
-        }
+        // Should all be taken care of??
         return;
     }
     // Only add new sprites if needed???
@@ -106,6 +140,9 @@ void CK_SetSprite(objtype *obj, CK_SpriteType type){
             obj->sprtype[i] = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)];
             obj->gbaSprites[i] = GBA_CreateSprite(GBA_SPR_OFFX,GBA_SPR_OFFY,obj->sprtype[i],CK_SprTileOffset,0,0);
             CK_SprTileOffset += CK_SpriteSizes[obj->sprtype[i]]>>3;
+            if(GBA_SpriteIndex >= 127){
+                Quit("CK_SetSprite: No free GBA sprites!");
+            }
         }
         CK_SprGfxOffset += (*CK_SpritePtrs[(obj->ck_sprType*5)+3])>>3;
     //}
@@ -113,13 +150,14 @@ void CK_SetSprite(objtype *obj, CK_SpriteType type){
 
 
 void CK_RemakeSprite(objtype *obj, CK_SpriteType type){
+    if(!obj) return;
     // Remove all GBA sprites
      for(int i = 0; i < obj->gbaSpriteCount; i++){
         GBA_RemoveSprite(obj->gbaSprites[i]);
      }
 //    obj->gfxoffset = 0xFFFFFFFF;
     obj->isFree = true;
-    obj->gbaSpriteCount = 0;
+//    obj->gbaSpriteCount = 0;
 //    obj->ck_sprType = CKS_EOL;
     // Create new ones
     CK_SetSprite(obj, type);
@@ -316,9 +354,7 @@ void CK_RemoveSprites(){
     GBA_DMA_MemSet32(GBA_VSRAM,0,32*32*4);
 
     for(int i = 0; i < MAXACTORS; i++){
-        CK_ObjectList[i].isFree = true;
-        CK_ObjectList[i].gfxoffset = 0xFFFFFFFF;
-        CK_ObjectList[i].ck_sprType = CKS_EOL;
+        CK_ClearObject(&CK_ObjectList[i], true);
     }
 
     // We have no sprites yet!
@@ -441,9 +477,10 @@ void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
 
 void RF_RemoveSprite (void *user){
     objtype *ob = (objtype*)user;
-    // Remove the GBA sprites???
+    if(!ob) return;
+    // Hide the GBA sprites so we can use them later??
      for(int i = 0; i < ob->gbaSpriteCount; i++){
-        GBA_RemoveSprite(ob->gbaSprites[i]);
+        GBA_HideSprites(ob->gbaSprites[i]);
      }
 //    ob->gfxoffset = 0xFFFFFFFF;
     ob->isFree = true;

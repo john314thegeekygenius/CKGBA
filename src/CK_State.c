@@ -1596,7 +1596,7 @@ void FrictionY(objtype *ob)
 
 void StunObj(objtype *ob, objtype *shot, statetype *stunstate)
 {
-//	ExplodeShot(shot);
+	ExplodeShot(shot);
 	ob->temp1 = ob->temp2 = ob->temp3 = 0;	// Note: ob->nothink should also be set to 0
 	ob->temp4 = ob->obclass;
 	ChangeState(ob, stunstate);
@@ -1899,7 +1899,7 @@ done:
 	}
 	/// TODO:
 	// Hmmm
-	RF_PlaceSprite((void **)&ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
+//	RF_PlaceSprite((void **)&ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
 }
 
 

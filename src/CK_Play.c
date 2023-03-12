@@ -743,7 +743,6 @@ void PlayLoop(void)
                             // TODO: Make this remove the sprites???
 							RF_RemoveSprite(obj);
 							if (obj->obclass == stunnedobj){
-						        Quit("PlayLoop() : Temp Sprite Removed!");
 								RF_RemoveSprite(obj->temp3);
 							}
 							obj->active = ac_no;

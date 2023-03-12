@@ -76,6 +76,8 @@ void RF_MapToMap(unsigned short srcx, unsigned short srcy,
                 unsigned short dstx, unsigned short dsty, 
                 unsigned short width, unsigned short height);
 
+void RF_MemToMap(uint16_t *data, uint16_t plane, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+
 void CK_LoadLevel(unsigned short lvlNumber);
 
 void CK_RenderLevel();

@@ -47,6 +47,19 @@ typedef boolean bool; // For sanity
 
 #include "CK_Input.h"
 
+
+
+#ifdef CK4
+#define CK_DOS_PROMPT "C:\\KEEN4>"
+#endif
+#ifdef CK5
+#define CK_DOS_PROMPT "C:\\KEEN5>"
+#endif
+#ifdef CK6
+#define CK_DOS_PROMPT "C:\\KEEN6>"
+#endif
+
+
 #ifdef CK4
 #define KEEN4
 #include "romstuffs/CK4_Spectors.h"

@@ -188,7 +188,7 @@ const unsigned char CKS_Swimsuit_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_Swimsuit_boxinfo[] = {
-	40, 2, 39, 27, 0, 0, //430
+	2, 2, 37, 29, 0, 0, //430
 };
 
 const signed short CKS_Swimsuit_gbainfo[] = {

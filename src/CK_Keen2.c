@@ -62,7 +62,14 @@ void SpawnScore(void)
 	else if (!DemoMode)
 	{
 		NewState(scoreobj, &s_score);
-	    CK_SetSprite(scoreobj, CKS_SCOREBOX);
+		switch(gamestate.scoreboxdisp){
+			case CK_DISP_SCORE_DOS:
+			    CK_SetSprite(scoreobj, CKS_SCOREBOXDOS);
+				break;
+			case CK_DISP_SCORE_GBA:
+			    CK_SetSprite(scoreobj, CKS_SCOREBOXGBA);
+				break;
+		}
 	}
 	else
 	{
@@ -82,9 +89,15 @@ void SpawnScore(void)
 ===============
 */
 
+extern const unsigned char CK_HUD[];
+
 void UpdateScore(objtype *ob)
 {
+	char		str[10],*ch;
 	boolean changed;
+	Uint16	i, length, number;
+
+	if(!scoreobj) return;
 
 	if (scorescreenkludge)
 		return;
@@ -100,8 +113,6 @@ void UpdateScore(objtype *ob)
 
 	changed = false;
 
-
-	/*
 //code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
 
 //
@@ -110,27 +121,19 @@ void UpdateScore(objtype *ob)
 	if ((gamestate.score>>16) != ob->temp1
 		|| (Uint16)gamestate.score != ob->temp2 )
 	{
-		block = (spritetype _seg *)grsegs[SCOREBOXSPR];
-		width = block->width[0];
-		planesize = block->planesize[0];
-		dest = (Uint8 far *)grsegs[SCOREBOXSPR]+block->sourceoffset[0]
-			+ planesize + width*4;
-
-		ltoa (gamestate.score,str,10);
+		
+		_ck_ltoa (gamestate.score,str,10);
 
 		// erase leading spaces
 		length = strlen(str);
-		for (i=9;i>length;i--)
-			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
+//		for (i=9;i>length;i--)
+//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
 
 		// draw digits
 		ch = str;
-		while (*ch)
-			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
+//		while (*ch)
+//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
 
-#if GRMODE == EGAGR
-		ShiftScore ();
-#endif
 		ob->needtoreact = true;
 		ob->temp1 = gamestate.score>>16;
 		ob->temp2 = gamestate.score;
@@ -144,30 +147,21 @@ void UpdateScore(objtype *ob)
 	number = gamestate.ammo;
 	if (number != ob->temp3)
 	{
-		block = (spritetype _seg *)grsegs[SCOREBOXSPR];
-		width = block->width[0];
-		planesize = block->planesize[0];
-		dest = (byte far *)grsegs[SCOREBOXSPR]+block->sourceoffset[0]
-			+ planesize + width*20 + 7*CHARWIDTH;
-
 		if (number > 99)
-			strcpy (str,"99");
+			_ck_strcpy (str,"99");
 		else
-			ltoa (number,str,10);
+			_ck_ltoa (number,str,10);
 
 		// erase leading spaces
 		length = strlen(str);
-		for (i=2;i>length;i--)
-			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
+//		for (i=2;i>length;i--)
+//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
 
 		// draw digits
 		ch = str;
-		while (*ch)
-			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
+//		while (*ch)
+//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
 
-#if GRMODE == EGAGR
-		ShiftScore ();
-#endif
 		ob->needtoreact = true;
 		ob->temp3 = number;
 
@@ -179,36 +173,27 @@ void UpdateScore(objtype *ob)
 //
 	if (gamestate.lives != ob->temp4)
 	{
-		block = (spritetype _seg *)grsegs[SCOREBOXSPR];
-		width = block->width[0];
-		planesize = block->planesize[0];
-		dest = (byte far *)grsegs[SCOREBOXSPR]+block->sourceoffset[0]
-			+ planesize + width*20 + 2*CHARWIDTH;
-
 		if (gamestate.lives > 99)
 			strcpy (str,"99");
 		else
-			ltoa (gamestate.lives,str,10);
+			_ck_ltoa (gamestate.lives,str,10);
 
 		// erase leading spaces
 		length = strlen(str);
-		for (i=2;i>length;i--)
-			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
+//		for (i=2;i>length;i--)
+//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
 
 		// draw digits
 		ch = str;
-		while (*ch)
-			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
+//		while (*ch)
+//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
 
-#if GRMODE == EGAGR
-		ShiftScore ();
-#endif
 		ob->needtoreact = true;
 		ob->temp4 = gamestate.lives;
 
 		changed = true;
 	}
-*/
+
 /*
 Note:
 -----
@@ -232,7 +217,14 @@ leading to up to three shifts in one frame.
 		changed = true;
 	}
 	if (changed){
-		RF_PlaceSprite(ob, ob->x+4*PIXGLOBAL, ob->y+4*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
+		switch(gamestate.scoreboxdisp){
+			case CK_DISP_SCORE_DOS:
+				RF_PlaceSprite(ob, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
+			break;
+			case CK_DISP_SCORE_GBA:
+				RF_PlaceSprite(ob, ob->x, ob->y-4*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
+			break;
+		};
 	}
 };
 
@@ -306,6 +298,7 @@ const Sint16 tiledir[4] = {dir_South, dir_West, dir_North, dir_East};
 
 void SpawnWorldKeen(Sint16 x, Sint16 y)
 {
+
 #ifdef KEEN4
 	if (playstate == ex_foot)
 	{
@@ -879,7 +872,7 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 	//
 	// make Keen invisible (and not clipping) and send him to the destination
 	//
-	RF_RemoveSprite(&ob->sprite);
+	RF_RemoveSprite(ob);
 	info = *(mapsegs[2] + mapbwidthtable[tileY]/2 + tileX);
 	ob->temp2 = CONVERT_TILE_TO_GLOBAL(info >> 8);
 	ob->temp1 = CONVERT_TILE_TO_GLOBAL((info & 0x7F) + 1);	// BUG? y coordinate is limited to 1..127
@@ -1069,6 +1062,7 @@ void SpawnFlag(Sint16 x, Sint16 y)
 #endif
 	ck_newobj->ticcount = US_RndT() / 16;
 	NewState(ck_newobj, &s_flagwave1);
+	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
 }
 
 #ifndef KEEN5
@@ -1129,6 +1123,7 @@ void SpawnThrowFlag(Sint16 x, Sint16 y)
 		}
 	}
 	NewState(ck_newobj, &s_throwflag0);
+	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
 }
 
 /*
@@ -1256,6 +1251,7 @@ void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 		break;
 	}
 	NewState(ck_newobj, &s_stunray1);
+	CK_SetSprite(ck_newobj, CKS_SHOT);
 
 #ifdef KEEN6
 	{
@@ -1321,9 +1317,10 @@ void T_Shot(objtype *ob)
 	}
 
 	//check for collisions with INACTIVE objects
+	
     for(int i = player->uuid; i < CK_NumOfObjects; i++){
         ob2 = &CK_ObjectList[i];
-		if(!ob2) break;
+		if(ob2->isFree == true) break;
 		
 		if (!ob2->active && ob->right > ob2->left && ob->left < ob2->right
 			&& ob->top < ob2->bottom && ob->bottom > ob2->top)
@@ -1350,13 +1347,13 @@ void T_Shot(objtype *ob)
 */
 
 void R_Shot(objtype *ob)
-{/*
+{
 	Uint16 tile;
 
 	if (ob->hitnorth == 1 && ob->tileleft != ob->tileright)
 	{
-		tile = *(mapsegs[1]+mapbwidthtable[ob->tiletop-1]/2+ob->tileright);
-		if (tinf[NORTHWALL+tile] == 17)
+		tile = *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop-1)*CK_CurLevelWidth) + ob->tileright);
+		if (CK_TileInfo[1][NORTHWALL+tile] == 17)
 		{
 			ob->hitnorth = 17;
 			ob->x += 0x100 - (ob->x & 0xFF);
@@ -1368,8 +1365,8 @@ void R_Shot(objtype *ob)
 	}
 	if (ob->hitsouth == 1 && ob->tileleft != ob->tileright)
 	{
-		tile = *(mapsegs[1]+mapbwidthtable[ob->tilebottom+1]/2+ob->tileright);
-		if (tinf[SOUTHWALL+tile] == 17)
+		tile = *((Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tilebottom+1)*CK_CurLevelWidth) + ob->tileright);
+		if (CK_TileInfo[1][SOUTHWALL+tile] == 17)
 		{
 			ob->hitsouth = 17;
 			ob->x += 0x100 - (ob->x & 0xFF);
@@ -1391,6 +1388,87 @@ void R_Shot(objtype *ob)
 	else if (ob->hitnorth || ob->hitsouth || ob->hiteast || ob->hitwest)
 	{
 		ExplodeShot(ob);
-	}*/
+	}
 	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
+
+
+/*
+=============================================================================
+
+						 DOOR
+
+temp1 = height of the door's main section (identical tiles!), in tiles
+        DoorOpen changes two more tiles at the bottom end of the door
+		  (total door height in tiles is temp1 + 2)
+
+=============================================================================
+*/
+
+const statetype s_door1    = {0, 0, step, false, false, 10, 0, 0, DoorOpen, NULL, NULL, &s_door2};
+const statetype s_door2    = {0, 0, step, false, false, 10, 0, 0, DoorOpen, NULL, NULL, &s_door3};
+const statetype s_door3    = {0, 0, step, false, false, 10, 0, 0, DoorOpen, NULL, NULL, NULL};
+
+/*
+======================
+=
+= DoorOpen
+=
+======================
+*/
+
+void DoorOpen(objtype *ob)
+{
+	Sint16 i;
+	Uint16 *map;
+	Uint16 tiles[50];
+	map = CK_CurLevelData + CK_CurLevelSize + (ob->y*CK_CurLevelWidth) + ob->x;
+	for (i=0; i < ob->temp1+2; i++, map+=CK_CurLevelWidth)
+	{
+		tiles[i] = *map + 1;
+	}
+	RF_MemToMap(tiles, 1, ob->x, ob->y, 1, ob->temp1+2);
+}
+
+#ifdef KEEN5
+/*
+=============================================================================
+
+						 CARD DOOR
+
+temp1 = frame counter
+
+=============================================================================
+*/
+statetype s_carddoor    = {0, 0, step, false, false, 15, 0, 0, CardDoorOpen, NULL, NULL, &s_carddoor};
+
+/*
+======================
+=
+= CardDoorOpen
+=
+======================
+*/
+
+void CardDoorOpen(objtype *ob)
+{
+	Sint16 x, y;
+	Uint16 far *map;
+	Uint16 tiles[16], *tileptr;
+
+	tileptr = tiles;
+	map = mapsegs[1] + mapbwidthtable[ob->y]/2 + ob->x;
+	for (y=0; y<4; y++, map+=mapwidth)
+	{
+		for (x=0; x<4; x++)
+		{
+			*tileptr++ = map[x]-4;
+		}
+	}
+	RF_MemToMap(tiles, 1, ob->x, ob->y, 4, 4);
+
+	if (++ob->temp1 == 3)
+		ob->state = NULL;
+}
+
+#endif

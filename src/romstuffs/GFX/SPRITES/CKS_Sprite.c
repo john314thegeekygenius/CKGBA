@@ -413,11 +413,11 @@ const unsigned char CKS_Sprite_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_Sprite_boxinfo[] = {
-	24, 3, 23, 19, 0, 1, //431
-	24, 3, 23, 20, 0, 0, //432
-	24, 3, 23, 20, 0, 0, //433
-	24, 3, 23, 20, 0, 0, //434
-	24, 3, 23, 20, 0, 0, //435
+	3, 3, 20, 22, 0, 1, //431
+	3, 3, 20, 23, 0, 0, //432
+	3, 3, 20, 23, 0, 0, //433
+	3, 3, 20, 23, 0, 0, //434
+	3, 3, 20, 23, 0, 0, //435
 };
 
 const signed short CKS_Sprite_gbainfo[] = {

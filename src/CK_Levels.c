@@ -297,6 +297,18 @@ void RF_MapToMap(unsigned short srcx, unsigned short srcy,
 
 };
 
+
+void RF_MemToMap(uint16_t *data, uint16_t plane, uint16_t x, uint16_t y, uint16_t w, uint16_t h){
+    RFL_RemoveAnimsInBlock (x,y,w,h);
+    for(int e = 0; e < h; e++){
+        uint32_t doffset = ((y+e)*CK_CurLevelWidth)+x+(CK_CurLevelSize*plane);
+        for(int i = 0; i < w; i++){
+            CK_CurLevelData[doffset] = data[(e*w)+i];
+            doffset++;
+        }
+    }
+};
+
 void CK_RenderLevel(){
     // Removed because it's useless
 //	if(CK_CurLevelData == NULL) return; // Nothing to do
@@ -559,7 +571,7 @@ void RF_SetScrollBlock (int x, int y, boolean horizontal)
 
 void RFL_BoundScroll (int x, int y)
 {
-	int	check,newxtile,newytile;
+	int	bcheck,newxtile,newytile;
 
 	originxglobal += x;
 	originyglobal += y;
@@ -570,8 +582,8 @@ void RFL_BoundScroll (int x, int y)
 	if (x>0)
 	{
 		newxtile+=SCREENTILESWIDE;
-		for (check=0;check<vscrollblocks;check++)
-			if (vscrolledge[check] == newxtile)
+		for (bcheck=0;bcheck<vscrollblocks;bcheck++)
+			if (vscrolledge[bcheck] == newxtile)
 			{
 				originxglobal = originxglobal&0xff00;
 				break;
@@ -579,8 +591,8 @@ void RFL_BoundScroll (int x, int y)
 	}
 	else if (x<0)
 	{
-		for (check=0;check<vscrollblocks;check++)
-			if (vscrolledge[check] == newxtile)
+		for (bcheck=0;bcheck<vscrollblocks;bcheck++)
+			if (vscrolledge[bcheck] == newxtile)
 			{
 				originxglobal = (originxglobal&0xff00)+0x100;
 				break;
@@ -591,8 +603,8 @@ void RFL_BoundScroll (int x, int y)
 	if (y>0)
 	{
 		newytile+=SCREENTILESHIGH;
-		for (check=0;check<hscrollblocks;check++)
-			if (hscrolledge[check] == newytile)
+		for (bcheck=0;bcheck<hscrollblocks;bcheck++)
+			if (hscrolledge[bcheck] == newytile)
 			{
 				originyglobal = originyglobal&0xff00;
 				break;
@@ -600,8 +612,8 @@ void RFL_BoundScroll (int x, int y)
 	}
 	else if (y<0)
 	{
-		for (check=0;check<hscrollblocks;check++)
-			if (hscrolledge[check] == newytile)
+		for (bcheck=0;bcheck<hscrollblocks;bcheck++)
+			if (hscrolledge[bcheck] == newytile)
 			{
 				originyglobal = (originyglobal&0xff00)+0x100;
 				break;
@@ -677,3 +689,5 @@ void RFL_BoundNewOrigin (unsigned orgx,unsigned orgy)
 
 	RFL_CalcOriginStuff (orgx,orgy);
 }
+
+

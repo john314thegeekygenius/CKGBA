@@ -44,7 +44,7 @@ const unsigned char CKS_PoisonPoo_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_PoisonPoo_boxinfo[] = {
-	16, 2, 15, 4, 0, 1, //323
+	2, 2, 13, 6, 0, 1, //323
 	2, 2, 13, 7, 0, 1, //324
 };
 

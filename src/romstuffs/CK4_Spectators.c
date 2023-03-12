@@ -89,30 +89,148 @@ void CK_LoadSpectators(){
         for(int x = 0; x < CK_CurLevelWidth; x++){
             const uint32_t offset = (y*CK_CurLevelWidth)+x;//+(CK_CurLevelSize*2);
             // Copy the level data over
-            uint16_t tileid = CK_GetInfo(offset);//CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
-            if(tileid == 0) continue; 
-            switch(tileid){
+            uint16_t info = CK_GetInfo(offset);//CK_LevelInfo[(CK_CurLevelIndex*3)+2][offset];
+            if(info == 0) continue; 
+            switch(info){
                 case 1:
-                    // Commander Keen (Right)
-                    SpawnKeen(x, y, 1);
-					SpawnBounder(x, y);
-		    		SpawnScore();
-                    break;
-                case 2:
-                    // Commander Keen (Left)
-                    SpawnKeen(x, y, -1);
-					SpawnBounder(x, y);
-	    			SpawnScore();
-                    break;
-                case 3:
-                    // Commander Keen (Map)
-                    SpawnWorldKeen(x, y);
-    				SpawnScore();
-                    break;
+				SpawnKeen(x, y, 1);
+				SpawnScore();
+				break;
+
+				case 2:
+					SpawnKeen(x, y, -1);
+					SpawnScore();
+					break;
+
+				case 3:
+					SpawnWorldKeen(x, y);
+					SpawnScore();
+					break;
+
+				case 4:
+					SpawnCouncil(x, y);
+					break;
+
+				case 50:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 49:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 5:
+					SpawnBerkeloid(x, y);
+					break;
+
+				case 6:
+					SpawnLindsey(x, y);
+					break;
+
+				case 52:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 51:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 7:
+					SpawnWormMouth(x, y);
+					break;
+
+				case 46:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 45:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 8:
+					SpawnSkypest(x, y);
+					break;
+
+				case 9:
+					SpawnCloudster(x, y);
+					break;
+
+				case 10:
+					SpawnFoot(x, y);
+					break;
+
+				case 11:
+					SpawnInchworm(x, y);
+					break;
 
 				case 12:
-//					SpawnBounder(x, y);
+					SpawnBounder(x, y);
 					break;
+
+				case 13:
+					SpawnEggbird(x, y);
+					break;
+
+				case 48:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 47:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 14:
+					SpawnLick(x, y);
+					break;
+
+				case 88:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 87:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 15:
+					SpawnDopefish(x, y);
+					break;
+
+				case 16:
+					SpawnSchoolfish(x, y);
+					break;
+
+				case 24:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 23:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 17:
+					SpawnPixie(x, y);
+					break;
+
+				case 18:
+					SpawnEater(x, y);
+					break;
+
+				case 19:
+					SpawnMimrock(x, y);
+					break;
+
+				case 74:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 73:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 20:
+					SpawnArachnut(x, y);
+					break;
+
+				case 21:
+					SpawnMadMushroom(x, y);
+					break;
+
+				case 44:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 43:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 22:
+					SpawnSlug(x, y);
+					break;
+
 				case 25:
 					RF_SetScrollBlock(x, y, 1);
 					break;
@@ -120,352 +238,109 @@ void CK_LoadSpectators(){
 				case 26:
 					RF_SetScrollBlock(x, y, 0);
 					break;
+
+				case 27:
+				case 28:
+				case 29:
+				case 30:
+					SpawnPlatform(x, y, info-27);
+					break;
+
+				case 32:
+					SpawnDropPlat(x, y);
+					break;
+
 				case 33:
 					SpawnMiragia(x, y);
+					break;
+
+				case 34:
+					if (gamestate.ammo < 5)
+					{
+						SpawnBonus(x, y, 11);
+					}
+					break;
+
+				case 35:
+					SpawnScuba(x, y);
+					break;
+
+				case 42:
+					SpawnSwimKeen(x, y);
+					SpawnScore();
+					break;
+
+				case 83:
+				case 84:
+				case 85:
+				case 86:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+					SpawnDartShooter(x, y, info-83);
+					break;
+
+				case 79:
+				case 80:
+				case 81:
+				case 82:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+					SpawnDartShooter(x, y, info-79);
+					break;
+
+				case 53:
+				case 54:
+				case 55:
+				case 56:
+					SpawnDartShooter(x, y, info-53);
+					break;
+
+				case 57:
+				case 58:
+				case 59:
+				case 60:
+				case 61:
+				case 62:
+				case 63:
+				case 64:
+				case 65:
+				case 66:
+				case 67:
+				case 68:
+					SpawnBonus(x, y, info-57);
+					break;
+
+				case 69:
+				case 70:
+				case 71:
+				case 72:
+					SpawnMine(x, y, info-69);
+					break;
+
+				case 75:
+					break;
+
+				case 78:
+					if (gamestate.difficulty < gd_Hard)
+						break;
+				case 77:
+					if (gamestate.difficulty < gd_Normal)
+						break;
+				case 76:
+					SpawnEggbirdOut(x, y);
 					break;
             }
         }
     }
     CK_UpdateRendering = true;
 
-};
-/*
-
-void ScanInfoPlane(void)
-{
-	objtype *ob;
-	Uint16 i, x, y, chunk;
-	Sint16 info;
-	Uint16 far *map;
-
-	map = mapsegs[2];
-
-	for (y=0; y<mapheight; y++)
+	for (int i = 0; i < CK_NumOfObjects; i++)
 	{
-		for (x=0; x<mapwidth; x++)
-		{
-			info = *map++;
-
-			if (info == 0)
-				continue;
-
-			switch (info)
-			{
-			case 1:
-				SpawnKeen(x, y, 1);
-				SpawnScore();
-				lumpneeded[KEEN_LUMP] = true;
-				CA_MarkGrChunk(SCOREBOXSPR);
-				break;
-
-			case 2:
-				SpawnKeen(x, y, -1);
-				SpawnScore();
-				lumpneeded[KEEN_LUMP] = true;
-				CA_MarkGrChunk(SCOREBOXSPR);
-				break;
-
-			case 3:
-				SpawnWorldKeen(x, y);
-				SpawnScore();
-				lumpneeded[WOLRDKEEN_LUMP] = true;
-				CA_MarkGrChunk(SCOREBOXSPR);
-				break;
-
-			case 4:
-				SpawnCouncil(x, y);
-				lumpneeded[COUNCIL_LUMP] = true;
-				break;
-
-			case 50:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 49:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 5:
-				SpawnBerkeloid(x, y);
-				lumpneeded[BERKELOID_LUMP] = true;
-				break;
-
-			case 6:
-				SpawnLindsey(x, y);
-				lumpneeded[LINDSEY_LUMP] = true;
-				break;
-
-			case 52:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 51:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 7:
-				SpawnWormMouth(x, y);
-				lumpneeded[WORMOUTH_LUMP] = true;
-				break;
-
-			case 46:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 45:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 8:
-				SpawnSkypest(x, y);
-				lumpneeded[SKYPEST_LUMP] = true;
-				break;
-
-			case 9:
-				SpawnCloudster(x, y);
-				lumpneeded[THUNDERCLOUD_LUMP] = true;
-				break;
-
-			case 10:
-				SpawnFoot(x, y);
-				lumpneeded[INCHWORM_LUMP] = true;	// lump includes the foot sprite
-				// Note: The smoke sprites aren't actually required for the foot!
-				for (i=SMOKE1SPR; i<=SMOKE4SPR; i++)
-				{
-					CA_MarkGrChunk(i);
-				}
-				break;
-
-			case 11:
-				SpawnInchworm(x, y);
-				lumpneeded[INCHWORM_LUMP] = true;
-				for (i=SMOKE1SPR; i<=SMOKE4SPR; i++)
-				{
-					CA_MarkGrChunk(i);
-				}
-				break;
-
-			case 12:
-				SpawnBounder(x, y);
-				lumpneeded[BOUNDER_LUMP] = true;
-				break;
-
-			case 13:
-				SpawnEggbird(x, y);
-				lumpneeded[EGGBIRD_LUMP] = true;
-				lumpneeded[EGG_LUMP] = true;
-				break;
-
-			case 48:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 47:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 14:
-				SpawnLick(x, y);
-				lumpneeded[LICK_LUMP] = true;
-				break;
-
-			case 88:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 87:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 15:
-				SpawnDopefish(x, y);
-				lumpneeded[DOPEFISH_LUMP] = true;
-				break;
-
-			case 16:
-				SpawnSchoolfish(x, y);
-				lumpneeded[SCHOOLFISH_LUMP] = true;
-				break;
-
-			case 24:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 23:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 17:
-				SpawnPixie(x, y);
-				lumpneeded[SPRITE_LUMP] = true;
-				break;
-
-			case 18:
-				SpawnEater(x, y);
-				lumpneeded[EATER_LUMP] = true;
-				break;
-
-			case 19:
-				SpawnMimrock(x, y);
-				lumpneeded[MIMROCK_LUMP] = true;
-				break;
-
-			case 74:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 73:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 20:
-				SpawnArachnut(x, y);
-				lumpneeded[ARACHNUT_LUMP] = true;
-				break;
-
-			case 21:
-				SpawnMadMushroom(x, y);
-				lumpneeded[MADMUSHROOM_LUMP] = true;
-				break;
-
-			case 44:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 43:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 22:
-				SpawnSlug(x, y);
-				lumpneeded[SLUG_LUMP] = true;
-				break;
-
-			case 25:
-				RF_SetScrollBlock(x, y, 1);
-				break;
-
-			case 26:
-				RF_SetScrollBlock(x, y, 0);
-				break;
-
-			case 27:
-			case 28:
-			case 29:
-			case 30:
-				SpawnPlatform(x, y, info-27);
-				lumpneeded[PLATFORM_LUMP] = true;;
-				break;
-
-			case 32:
-				SpawnDropPlat(x, y);
-				lumpneeded[PLATFORM_LUMP] = true;
-				break;
-
-			case 33:
-				SpawnMiragia(x, y);
-				break;
-
-			case 34:
-				if (gamestate.ammo < 5)
-				{
-					SpawnBonus(x, y, 11);
-					lumpneeded[bonuslump[11]] = true;
-				}
-				break;
-
-			case 35:
-				SpawnScuba(x, y);
-				CA_MarkGrChunk(SCUBASPR);
-				break;
-
-			case 42:
-				SpawnSwimKeen(x, y);
-				SpawnScore();
-				lumpneeded[SCUBAKEEN_LUMP] = true;
-				//mark pickup shapes:
-				for (i=BONUS100SPR; i<=BONUSCLIPSPR; i++)
-				{
-					CA_MarkGrChunk(i);
-				}
-				CA_MarkGrChunk(SCOREBOXSPR);
-				break;
-
-			case 83:
-			case 84:
-			case 85:
-			case 86:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-				SpawnDartShooter(x, y, info-83);
-				lumpneeded[DARTS_LUMP] = true;
-				break;
-
-			case 79:
-			case 80:
-			case 81:
-			case 82:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-				SpawnDartShooter(x, y, info-79);
-				lumpneeded[DARTS_LUMP] = true;
-				break;
-
-			case 53:
-			case 54:
-			case 55:
-			case 56:
-				SpawnDartShooter(x, y, info-53);
-				lumpneeded[DARTS_LUMP] = true;
-				break;
-
-			case 57:
-			case 58:
-			case 59:
-			case 60:
-			case 61:
-			case 62:
-			case 63:
-			case 64:
-			case 65:
-			case 66:
-			case 67:
-			case 68:
-				SpawnBonus(x, y, info-57);
-				lumpneeded[bonuslump[info-57]] = true;
-				break;
-
-			case 69:
-			case 70:
-			case 71:
-			case 72:
-				SpawnMine(x, y, info-69);
-				lumpneeded[MINE_LUMP] = true;
-				break;
-
-			case 75:
-				lumpneeded[MOON_LUMP] = true;
-				break;
-
-			case 78:
-				if (gamestate.difficulty < gd_Hard)
-					break;
-			case 77:
-				if (gamestate.difficulty < gd_Normal)
-					break;
-			case 76:
-				SpawnEggbirdOut(x, y);
-				lumpneeded[EGGBIRD_LUMP] = true;
-				break;
-			}
-		}
-	}
-
-	for (ob = player; ob; ob = ob->next)
-	{
+		objtype *ob = &CK_ObjectList[i];
 		if (ob->active != ac_allways)
 			ob->active = ac_no;
 	}
-
-	for (i = 0; i < NUMLUMPS; i++)
-	{
-		if (lumpneeded[i])
-		{
-			for (chunk = lumpstart[i]; chunk <= lumpend[i]; chunk++)
-			{
-				CA_MarkGrChunk(chunk);
-			}
-		}
-	}
-}
-
-*/
-
-
+};
 
 
 //============================================================================
@@ -858,12 +733,12 @@ statetype s_keenswimslow2 = {SCUBAKEENL2SPR, SCUBAKEENR2SPR, stepthink, false, f
 statetype s_keenswim1     = {SCUBAKEENL1SPR, SCUBAKEENR1SPR, stepthink, false, false, 50, 0, 0, T_KeenSwim, C_KeenSwim, R_KeenSwim, &s_keenswimslow2};
 statetype s_keenswim2     = {SCUBAKEENL2SPR, SCUBAKEENR2SPR, stepthink, false, false, 50, 0, 0, T_KeenSwim, C_KeenSwim, R_KeenSwim, &s_keenswimslow1};
 //Note: the die states for swimming Keen are in CK_KEEN.C and K4_ACT3.C (dopefish section)
-/*
+
 statetype s_kbubble1  = {SMALLBUBBLE1SPR, SMALLBUBBLE1SPR, think, false, false, 20, 0, 24, T_Bubble, NULL, R_Draw, &s_kbubble1};
 statetype s_kbubble2  = {SMALLBUBBLE2SPR, SMALLBUBBLE2SPR, think, false, false, 20, 0, 24, T_Bubble, NULL, R_Draw, &s_kbubble2};
 statetype s_kbubble3  = {SMALLBUBBLE3SPR, SMALLBUBBLE3SPR, think, false, false, 20, 0, 24, T_Bubble, NULL, R_Draw, &s_kbubble3};
 statetype s_kbubble4  = {SMALLBUBBLE4SPR, SMALLBUBBLE4SPR, think, false, false, 20, 0, 24, T_Bubble, NULL, R_Draw, &s_kbubble4};
-*/
+
 /*
 ===========================
 =
@@ -873,7 +748,7 @@ statetype s_kbubble4  = {SMALLBUBBLE4SPR, SMALLBUBBLE4SPR, think, false, false, 
 */
 
 void SpawnSwimKeen(Sint16 x, Sint16 y)
-{/*
+{
 	player->obclass = keenobj;
 	player->active = ac_allways;
 	player->priority = 1;
@@ -882,7 +757,8 @@ void SpawnSwimKeen(Sint16 x, Sint16 y)
 	player->xdir = 1;
 	player->ydir = 1;
 	player->needtoclip = cl_fullclip;
-	NewState(player, &s_keenswimslow1);*/
+	NewState(player, &s_keenswimslow1);
+	CK_SetSprite(player, CKS_KEENSWIM);
 }
 
 /*
@@ -894,40 +770,41 @@ void SpawnSwimKeen(Sint16 x, Sint16 y)
 */
 
 void SpawnKbubble(objtype *ob)
-{/*
+{
 	ob->temp4 = 0;
 	GetNewObj(true);
 	if (ob->xdir == -1)
 	{
-		new->x = ob->x;
+		ck_newobj->x = ob->x;
 	}
 	else
 	{
-		new->x = ob->x + 24*PIXGLOBAL;
+		ck_newobj->x = ob->x + 24*PIXGLOBAL;
 	}
-	new->y = ob->y;
-	new->obclass = inertobj;
-	new->priority = 3;
-	new->active = ac_removable;
-	new->needtoclip = cl_noclip;
-	new->yspeed = -24;
-	new->xspeed = 4;
+	ck_newobj->y = ob->y;
+	ck_newobj->obclass = inertobj;
+	ck_newobj->priority = 3;
+	ck_newobj->active = ac_removable;
+	ck_newobj->needtoclip = cl_noclip;
+	ck_newobj->yspeed = -24;
+	ck_newobj->xspeed = 4;
 	switch (US_RndT() / 64)
 	{
 	case 0:
-		NewState(new, &s_kbubble1);
+		NewState(ck_newobj, &s_kbubble1);
 		break;
 	case 1:
-		NewState(new, &s_kbubble2);
+		NewState(ck_newobj, &s_kbubble2);
 		break;
 	case 2:
-		NewState(new, &s_kbubble3);
+		NewState(ck_newobj, &s_kbubble3);
 		break;
 	case 3:
-		NewState(new, &s_kbubble4);
+		NewState(ck_newobj, &s_kbubble4);
 		break;
 	}
-	SD_PlaySound(SND_BLUB);*/
+	CK_SetSprite(ck_newobj, CKS_SBUBBLE);
+	SD_PlaySound(SND_BLUB);
 }
 
 /*
@@ -939,7 +816,7 @@ void SpawnKbubble(objtype *ob)
 */
 
 void T_KeenSwimSlow(objtype *ob)
-{/*
+{
 	Sint32 i;
 	Sint16 vx, vy, xc, yc;
 
@@ -1014,7 +891,7 @@ void T_KeenSwimSlow(objtype *ob)
 		}
 		xtry += ob->xspeed;
 		ytry += ob->yspeed;
-	}*/
+	}
 }
 
 /*
@@ -1026,7 +903,7 @@ void T_KeenSwimSlow(objtype *ob)
 */
 
 void T_KeenSwim(objtype *ob)	//never actually used
-{/*
+{
 	ob->temp4 = ob->temp4 + tics;
 	if (ob->temp4 > 60)
 		SpawnKbubble(ob);
@@ -1059,7 +936,7 @@ void T_KeenSwim(objtype *ob)	//never actually used
 		ob->xdir = -1;
 	}
 
-	ytry = ytry + tics*4;*/
+	ytry = ytry + tics*4;
 }
 
 /*
@@ -1071,7 +948,7 @@ void T_KeenSwim(objtype *ob)	//never actually used
 */
 
 void C_KeenSwim(objtype *ob, objtype *hit)
-{/*
+{
 	switch (hit->obclass)
 	{
 	case bonusobj:
@@ -1107,6 +984,7 @@ void C_KeenSwim(objtype *ob, objtype *hit)
 				gamestate.ammo += shotsinclip[gamestate.difficulty];
 			}
 			ChangeState(hit, &s_bonusrise);
+			CK_RemakeSprite(hit, CK_BonusShadows[hit->temp1]);
 			break;
 		}
 		break;
@@ -1115,8 +993,7 @@ void C_KeenSwim(objtype *ob, objtype *hit)
 		playstate = ex_rescued;
 		break;
 	}
-	ob++;			// shut up compiler
-	*/
+	//ob++;			// shut up compiler
 }
 
 /*
@@ -1128,12 +1005,12 @@ void C_KeenSwim(objtype *ob, objtype *hit)
 */
 
 void R_KeenSwim(objtype *ob)
-{/*
+{
 	if (ob->hiteast && ob->xspeed < 0 || ob->hitwest && ob->xspeed > 0)
 		ob->xspeed = 0;
 
 	if (ob->hitnorth && ob->yspeed > 0 || ob->hitsouth && ob->yspeed < 0)
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);*/
+	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }

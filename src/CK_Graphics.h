@@ -64,6 +64,7 @@ void CK_FixPalette();
 extern boolean	screenfaded;
 
 void VW_ClearVideo(unsigned int color);
+void VW_ClearScroll();
 void VW_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c);
 
 #define VW_SetDefaultColors() CK_FixPalette()

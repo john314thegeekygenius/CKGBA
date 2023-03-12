@@ -1808,10 +1808,10 @@ const unsigned char CKS_Arachnut_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_Arachnut_boxinfo[] = {
-	40, 4, 39, 35, 0, 0, //425
-	40, 4, 39, 34, 0, 1, //426
-	40, 4, 39, 34, 0, 1, //427
-	40, 4, 39, 35, 0, 0, //428
+	4, 4, 35, 39, 0, 0, //425
+	4, 4, 35, 38, 0, 1, //426
+	4, 4, 35, 38, 0, 1, //427
+	4, 4, 35, 39, 0, 0, //428
 	8, 12, 39, 39, -8, 11, //429
 };
 

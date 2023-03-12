@@ -62,8 +62,15 @@ boolean		screenfaded;
 
 
 void VW_ClearVideo(unsigned int color){
-	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM, color, 32*32*8);
-	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM2, 0x00, 32*32*8);
+	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM, color, 32*32*12);
+};
+
+void VW_ClearScroll(){
+	*(volatile uint16_t*)GBA_REG_BG0HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG0VOFS = 0;
+
+	*(volatile uint16_t*)GBA_REG_BG1HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG1VOFS = 0;
 };
 
 void VW_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c){

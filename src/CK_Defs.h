@@ -60,6 +60,10 @@
 typedef enum {spritedraw,maskdraw} drawtype;
 
 
+#define CK_DISP_SCORE_DOS 0
+#define CK_DISP_SCORE_GBA 1
+
+
 // Pulled from CK_DEF.H
 
 
@@ -86,6 +90,10 @@ typedef enum {spritedraw,maskdraw} drawtype;
 
 
 #define MAX_GBA_SPRITES 16 // Theoretical max sprite size is thus 256x256 or 16 64x64 sprites
+
+#define PLATFORMBLOCK 31
+#define DIRARROWSTART 91
+#define DIRARROWEND   (DIRARROWSTART+arrow_None)
 
 /*
 =============================================================================
@@ -350,6 +358,9 @@ typedef struct
 	Sint16 lives;
 	Sint16 difficulty;
 	objtype *riding;
+	// added
+	Sint16 scoreboxdisp; // how to display the scorebox
+
 } gametype;
 
 
@@ -423,13 +434,16 @@ extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;
 extern gametype gamestate;
 extern ControlInfo c;
-extern objtype *ck_newobj, *check, *player, *scoreobj;
+extern objtype *ck_newobj, *player, *scoreobj;
 extern Uint16 originxtilemax, originytilemax;
 extern objtype dummyobj;
 extern Sint16 invincible;
 extern boolean debugok;
 
 extern boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
+
+void Quit(char *error);
+
 
 // From CK_Game.c
 extern int	mapon;

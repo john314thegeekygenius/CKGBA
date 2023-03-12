@@ -12,9 +12,15 @@ extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS];
 extern unsigned int CK_NumOfObjects;
 
 
-unsigned short GetNewObj(boolean dummy);
+DONT_OPTIMISE objtype * GetNewObj(boolean dummy);
+
+objtype * CK_GetObj(int index);
 
 void CK_SetSprite(objtype *obj, CK_SpriteType type);
+
+void CK_RemakeSprite(objtype *obj, CK_SpriteType type);
+
+void CK_SetDummySprite(objtype *obj);
 
 void CK_UpdateObjGraphics(objtype *obj);
 
@@ -24,7 +30,7 @@ signed short *CK_GetSprShape(objtype *obj);
 
 signed short *CK_GetShape(unsigned int sprtype, unsigned short shapenumber);
 
-void CK_DrawObject(objtype *obj, unsigned int dx, unsigned int dy);
+void CK_DrawObject(objtype *obj, signed int dx, signed int dy);
 
 void CK_SetupSprites();
 

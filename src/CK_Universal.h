@@ -98,14 +98,16 @@ extern void US_TextScreen(),
 				US_CPrint(char *s),
 				US_CPrintLine(char *s),
 				US_Print(char *s),
+				US_SafePrint(char *s),
 				US_PrintUnsigned(longword n),
 				US_PrintSigned(long n),
 				US_ControlPanel(void),
 				US_CheckHighScore(long score, word other);
 //				US_DisplayHighScores(int which);
 
-void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
-	unsigned spritenumber, drawtype draw, int priority);
+int _ck_strcpy(char *dest, char *src);
+char *_ck_ultoa(unsigned int n, char*buff, int mode);
+char *_ck_ltoa(int n, char*buff, int mode);
 
 // From Assembly Code
 unsigned int US_InitRndT();

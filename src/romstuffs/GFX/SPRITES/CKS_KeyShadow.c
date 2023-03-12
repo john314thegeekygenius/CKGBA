@@ -44,7 +44,7 @@ const unsigned char CKS_KeyShadow_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_KeyShadow_boxinfo[] = {
-	16, 4, 15, 7, 0, 2, //250
+	4, 4, 11, 11, 0, 2, //250
 };
 
 const signed short CKS_KeyShadow_gbainfo[] = {

@@ -440,10 +440,10 @@ const unsigned char CKS_PLindsey_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_PLindsey_boxinfo[] = {
-	24, 2, 23, 27, 0, 0, //329
-	24, 2, 23, 27, 0, 0, //330
-	24, 2, 23, 27, 0, 0, //331
-	24, 2, 23, 27, 0, 0, //332
+	2, 2, 21, 29, 0, 0, //329
+	2, 2, 21, 29, 0, 0, //330
+	2, 2, 21, 29, 0, 0, //331
+	2, 2, 21, 29, 0, 0, //332
 };
 
 const signed short CKS_PLindsey_gbainfo[] = {

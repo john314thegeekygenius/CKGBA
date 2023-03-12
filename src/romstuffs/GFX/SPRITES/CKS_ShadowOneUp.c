@@ -1,9 +1,9 @@
-// Sprite sheet CKS_OneUp exported by ckspr2sheet by John314
+// Sprite sheet CKS_ShadowOneUp exported by ckspr2sheet by John314
 // 
- const unsigned int CKS_OneUp_width = 24;
-const unsigned int CKS_OneUp_height = 16;
-const unsigned int CKS_OneUp_size = 192;
-const unsigned char CKS_OneUp_data[] = {
+ const unsigned int CKS_ShadowOneUp_width = 24;
+const unsigned int CKS_ShadowOneUp_height = 16;
+const unsigned int CKS_ShadowOneUp_size = 192;
+const unsigned char CKS_ShadowOneUp_data[] = {
 
 	0x0, 0x10, 0x0, 0x0, 
 	0x0, 0xb1, 0x1, 0x10, 
@@ -61,9 +61,9 @@ const unsigned char CKS_OneUp_data[] = {
 	};
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
-const signed short CKS_OneUp_boxinfo[] = {
+const signed short CKS_ShadowOneUp_boxinfo[] = {
 	0, 0, 23, 15, 0, 2, //218
 };
 
-const signed short CKS_OneUp_gbainfo[] = {
+const signed short CKS_ShadowOneUp_gbainfo[] = {
 	4, };

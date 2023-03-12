@@ -887,44 +887,44 @@ void KeenEnterThink(objtype *ob)
 */
 
 void KeenSwitchThink(objtype *ob)
-{/*
+{
 	Uint16 intile, maptile, newtile, info, sx, sy, tileoff;
-	Uint16 far *map;
+	Uint16 *map;
 	Uint16 tile, x, y;
 	Sint8 manim;
 
-	tileoff = mapbwidthtable[ob->tiletop]/2 + ob->tilemidx;
-	maptile = mapsegs[1][tileoff];
-	newtile = maptile + (Sint8)tinf[MANIM + maptile];
-	info = mapsegs[2][tileoff];
+	tileoff = ((ob->tiletop)*CK_CurLevelWidth) + ob->tilemidx;
+	maptile = CK_CurLevelData[tileoff + CK_CurLevelSize];
+	newtile = maptile + (Sint8)CK_TileInfo[1][MANIM + maptile];
+	info = CK_CurLevelData[tileoff + (CK_CurLevelSize*2)];
 	sx = info >> 8;
 	sy = info & 0xFF;
-	intile = tinf[INTILE + maptile];
+	intile = CK_TileInfo[1][INTILE + maptile];
 
-	RF_MemToMap(&newtile, 1, ob->tilemidx, ob->tiletop, 1, 1);
+	CK_SetMapTile(ob->tilemidx, ob->tiletop, newtile, 1);
 	SD_PlaySound(SND_USESWITCH);
 	if (intile == INTILE_BRIDGESWITCH)
 	{
 		//toggle bridge:
 		for (y = sy; sy+2 > y; y++)
 		{
-			map = mapsegs[1] + mapbwidthtable[y]/2 + sx - (y != sy);
-			for (x = sx - (y != sy); x < mapwidth; x++)
+			map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + sx - (y != sy);
+			for (x = sx - (y != sy); x < CK_CurLevelWidth; x++)
 			{
 				tile = *(map++);
-				manim = tinf[MANIM + tile];
+				manim = CK_TileInfo[1][MANIM + tile];
 				if (!manim)
 					break;
 
 				tile += manim;
-				RF_MemToMap(&tile, 1, x, y, 1, 1);
+				CK_SetMapTile(x, y, tile, 1);
 			}
 		}
 	}
 	else
 	{
 		//toggle platform blocker:
-		map = mapsegs[2] + mapbwidthtable[sy]/2 + sx;
+		map = (Uint16 *)CK_CurLevelData + (CK_CurLevelSize*2) + (sy*CK_CurLevelWidth) + sx;
 		tile = *map;
 #ifdef KEEN5
 		if (tile >= DIRARROWSTART && tile < DIRARROWEND)
@@ -934,7 +934,7 @@ void KeenSwitchThink(objtype *ob)
 		}
 #endif
 		*map = tile ^ PLATFORMBLOCK;
-	}*/
+	}
 }
 
 //===========================================================================
@@ -948,39 +948,40 @@ void KeenSwitchThink(objtype *ob)
 */
 
 void KeenKeyThink(objtype *ob)
-{/*
+{
 	Uint16 newtile, info, x, y, tileoff;
-	Uint16 far *map;
+	Uint16 *map;
 	Uint16 tile, h;
 
-	tileoff = mapbwidthtable[ob->tilebottom]/2 + ob->tilemidx;
-	newtile = mapsegs[1][tileoff] + 18;
-	info = mapsegs[2][tileoff];
+	tileoff = ((ob->tilebottom)*CK_CurLevelWidth) + ob->tilemidx;
+	newtile = CK_CurLevelData[tileoff+CK_CurLevelSize] + 18;
+	info = CK_GetInfo(tileoff);
 	x = info >> 8;
 	y = info & 0xFF;
-	RF_MemToMap(&newtile, 1, ob->tilemidx, ob->tilebottom, 1, 1);
+	CK_SetMapTile(ob->tilemidx, ob->tilebottom, newtile, 1);
 	SD_PlaySound(SND_OPENDOOR);
 	GetNewObj(false);
-	new->x = x;
-	new->y = y;
+	ck_newobj->x = x;
+	ck_newobj->y = y;
 
-	if (x > mapwidth || x < 2 || y > mapheight || y < 2)
+	if (x > CK_CurLevelWidth || x < 2 || y > CK_CurLevelHeight || y < 2)
 		Quit("Keyholder points to a bad spot!");
 
-	map = mapsegs[1] + mapbwidthtable[y]/2 + x;
+	map = CK_CurLevelData +CK_CurLevelSize + (y*CK_CurLevelWidth) + x;
 	tile = *map;
 	h = 1;
-	map += mapwidth;
+	map += CK_CurLevelWidth;
 	while (*map == tile)
 	{
 			h++;
-			map += mapwidth;
+			map += CK_CurLevelWidth;
 	}
-	new->temp1 = h;
-	new->active = ac_allways;
-	new->needtoclip = cl_noclip;
-	new->obclass = inertobj;
-	NewState(new, &s_door1);*/
+	ck_newobj->temp1 = h;
+	ck_newobj->active = ac_allways;
+	ck_newobj->needtoclip = cl_noclip;
+	ck_newobj->obclass = inertobj;
+	NewState(ck_newobj, &s_door1);
+	CK_SetDummySprite(ck_newobj);
 }
 
 //===========================================================================
@@ -1676,8 +1677,9 @@ void KillKeen(void)
 ============================
 */
 
+
 void KeenContact(objtype *ob, objtype *hit)
-{/*
+{
 	switch (hit->obclass)
 	{
 	case bonusobj:
@@ -1722,6 +1724,7 @@ void KeenContact(objtype *ob, objtype *hit)
 			}
 #endif
 			ChangeState(hit, &s_bonusrise);
+			CK_RemakeSprite(hit, CK_BonusShadows[hit->temp1]);
 		}
 		break;
 
@@ -1783,7 +1786,7 @@ void KeenContact(objtype *ob, objtype *hit)
 			ClipToSpriteTop(ob, hit);
 		break;
 #endif
-	}*/
+	}
 }
 
 /*
@@ -1795,7 +1798,7 @@ void KeenContact(objtype *ob, objtype *hit)
 */
 
 void KeenPosContact(objtype *ob, objtype *hit)
-{/*
+{
 	switch (hit->obclass)
 	{
 #if defined KEEN4
@@ -1845,7 +1848,7 @@ void KeenPosContact(objtype *ob, objtype *hit)
 		ClipToSpriteTop(ob, hit);	// BUG: allows Keen to stand on Blooglets and Flects
 		break;
 #endif
-	}*/
+	}
 }
 
 /*
@@ -1857,7 +1860,7 @@ void KeenPosContact(objtype *ob, objtype *hit)
 */
 
 void HandleRiding(objtype *ob)
-{/*
+{
 	objtype *plat;
 
 	plat = gamestate.riding;
@@ -1907,7 +1910,7 @@ void HandleRiding(objtype *ob)
 		{
 			ob->hitnorth = 25;
 		}
-	}*/
+	}
 }
 
 /*
@@ -1922,7 +1925,7 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 {
 	CK_SetMapTile(x, y, 0, 1);
 	SD_PlaySound(bonussound[bonus]);
-	//GivePoints(bonuspoints[bonus]);
+	GivePoints(bonuspoints[bonus]);
 	if (bonus < 4)
 	{
 		gamestate.keys[bonus]++;
@@ -1934,16 +1937,16 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	else if (bonus == 11)
 	{
 		gamestate.ammo += shotsinclip[gamestate.difficulty];
-	}/*
+	}
 	GetNewObj(true);
-	new->obclass = inertobj;
-	new->priority = 3;
-	new->x = CONVERT_TILE_TO_GLOBAL(x);
-	new->y = CONVERT_TILE_TO_GLOBAL(y);
-	new->ydir = -1;
-	new->temp2 = new->shapenum = bonussprite[bonus];
-	NewState(new, &s_bonusrise);
-	new->needtoclip = cl_noclip;*/
+	ck_newobj->obclass = inertobj;
+	ck_newobj->priority = 3;
+	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
+	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
+	ck_newobj->ydir = -1;
+	ck_newobj->temp2 = ck_newobj->shapenum = bonussprite[bonus];
+	NewState(ck_newobj, &s_bonusrise);
+	ck_newobj->needtoclip = cl_noclip;
 }
 
 /*
@@ -1958,12 +1961,12 @@ void GiveDrop(Uint16 x, Uint16 y)
 {
 	CK_SetMapTile(x, y, 0, 1);
 	SD_PlaySound(SND_GETWATER);
-//	SpawnSplash(x, y);
+	SpawnSplash(x, y);
 	if (++gamestate.drops == 100)
 	{
 		gamestate.drops = 0;
 		SD_PlaySound(SND_EXTRAKEEN);
-		gamestate.lives++;/*
+		gamestate.lives++;
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
 		ck_newobj->priority = 3;
@@ -1972,7 +1975,8 @@ void GiveDrop(Uint16 x, Uint16 y)
 		ck_newobj->ydir = -1;
 		ck_newobj->temp2 = ck_newobj->shapenum = BONUS100UPSPR;
 		NewState(ck_newobj, &s_bonusrise);
-		ck_newobj->needtoclip = cl_noclip;*/
+		CK_SetSprite(ck_newobj, CKS_SHADOWONEUP);
+		ck_newobj->needtoclip = cl_noclip;
 	}
 }
 
@@ -2334,7 +2338,7 @@ void KeenAirReact(objtype *ob)
 */
 
 void BreakFuse(Uint16 tileX, Uint16 tileY)
-{/*
+{
 	Uint16 tiles[] = {1932, 1950};	// should be 'static' for less overhead
 
 	// The original disassembly had some code here equivalent to this:
@@ -2349,7 +2353,7 @@ void BreakFuse(Uint16 tileX, Uint16 tileY)
 	{
 		SpawnDeadMachine();
 	}
-	RF_MemToMap(tiles, 1, tileX, tileY, 1, 2);*/
+	RF_MemToMap(tiles, 1, tileX, tileY, 1, 2);
 }
 #endif
 

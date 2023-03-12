@@ -1912,11 +1912,7 @@ done:
 */
 
 void BadState(void){
-    // TODO:
-    // Make this work
-    VW_ClearVideo(0xF1F1F1F1);
-    while(1); // Just hang???
-	//Quit("Object with bad state!");
+	Quit("Object with bad state!");
 };
 
 

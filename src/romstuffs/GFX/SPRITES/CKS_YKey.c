@@ -81,7 +81,7 @@ const unsigned char CKS_YKey_data[] = {
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_YKey_boxinfo[] = {
 	4, 4, 11, 11, 0, 3, //244
-	16, 4, 15, 7, 0, 2, //245
+	4, 4, 11, 11, 0, 2, //245
 };
 
 const signed short CKS_YKey_gbainfo[] = {

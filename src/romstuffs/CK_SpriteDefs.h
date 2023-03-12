@@ -63,24 +63,87 @@ extern const signed short CKS_Droplets_gbainfo[];
 extern const unsigned int CKS_Droplets_SprSize;
 extern const unsigned int CKS_Droplets_SprCount;
 extern const unsigned int CKS_Droplets_SprData[];
-extern const unsigned int CKS_OneUp_width;
-extern const unsigned int CKS_OneUp_height;
-extern const unsigned int CKS_OneUp_size;
-extern const unsigned char CKS_OneUp_data[];
-extern const signed short CKS_OneUp_boxinfo[];
-extern const signed short CKS_OneUp_gbainfo[];
-extern const unsigned int CKS_OneUp_SprSize;
-extern const unsigned int CKS_OneUp_SprCount;
-extern const unsigned int CKS_OneUp_SprData[];
-extern const unsigned int CKS_Shadows_width;
-extern const unsigned int CKS_Shadows_height;
-extern const unsigned int CKS_Shadows_size;
-extern const unsigned char CKS_Shadows_data[];
-extern const signed short CKS_Shadows_boxinfo[];
-extern const signed short CKS_Shadows_gbainfo[];
-extern const unsigned int CKS_Shadows_SprSize;
-extern const unsigned int CKS_Shadows_SprCount;
-extern const unsigned int CKS_Shadows_SprData[];
+extern const unsigned int CKS_ShadowOneUp_width;
+extern const unsigned int CKS_ShadowOneUp_height;
+extern const unsigned int CKS_ShadowOneUp_size;
+extern const unsigned char CKS_ShadowOneUp_data[];
+extern const signed short CKS_ShadowOneUp_boxinfo[];
+extern const signed short CKS_ShadowOneUp_gbainfo[];
+extern const unsigned int CKS_ShadowOneUp_SprSize;
+extern const unsigned int CKS_ShadowOneUp_SprCount;
+extern const unsigned int CKS_ShadowOneUp_SprData[];
+extern const unsigned int CKS_Shadow100_width;
+extern const unsigned int CKS_Shadow100_height;
+extern const unsigned int CKS_Shadow100_size;
+extern const unsigned char CKS_Shadow100_data[];
+extern const signed short CKS_Shadow100_boxinfo[];
+extern const signed short CKS_Shadow100_gbainfo[];
+extern const unsigned int CKS_Shadow100_SprSize;
+extern const unsigned int CKS_Shadow100_SprCount;
+extern const unsigned int CKS_Shadow100_SprData[];
+extern const unsigned int CKS_Shadow200_width;
+extern const unsigned int CKS_Shadow200_height;
+extern const unsigned int CKS_Shadow200_size;
+extern const unsigned char CKS_Shadow200_data[];
+extern const signed short CKS_Shadow200_boxinfo[];
+extern const signed short CKS_Shadow200_gbainfo[];
+extern const unsigned int CKS_Shadow200_SprSize;
+extern const unsigned int CKS_Shadow200_SprCount;
+extern const unsigned int CKS_Shadow200_SprData[];
+extern const unsigned int CKS_Shadow500_width;
+extern const unsigned int CKS_Shadow500_height;
+extern const unsigned int CKS_Shadow500_size;
+extern const unsigned char CKS_Shadow500_data[];
+extern const signed short CKS_Shadow500_boxinfo[];
+extern const signed short CKS_Shadow500_gbainfo[];
+extern const unsigned int CKS_Shadow500_SprSize;
+extern const unsigned int CKS_Shadow500_SprCount;
+extern const unsigned int CKS_Shadow500_SprData[];
+extern const unsigned int CKS_Shadow1k_width;
+extern const unsigned int CKS_Shadow1k_height;
+extern const unsigned int CKS_Shadow1k_size;
+extern const unsigned char CKS_Shadow1k_data[];
+extern const signed short CKS_Shadow1k_boxinfo[];
+extern const signed short CKS_Shadow1k_gbainfo[];
+extern const unsigned int CKS_Shadow1k_SprSize;
+extern const unsigned int CKS_Shadow1k_SprCount;
+extern const unsigned int CKS_Shadow1k_SprData[];
+extern const unsigned int CKS_Shadow2k_width;
+extern const unsigned int CKS_Shadow2k_height;
+extern const unsigned int CKS_Shadow2k_size;
+extern const unsigned char CKS_Shadow2k_data[];
+extern const signed short CKS_Shadow2k_boxinfo[];
+extern const signed short CKS_Shadow2k_gbainfo[];
+extern const unsigned int CKS_Shadow2k_SprSize;
+extern const unsigned int CKS_Shadow2k_SprCount;
+extern const unsigned int CKS_Shadow2k_SprData[];
+extern const unsigned int CKS_Shadow5k_width;
+extern const unsigned int CKS_Shadow5k_height;
+extern const unsigned int CKS_Shadow5k_size;
+extern const unsigned char CKS_Shadow5k_data[];
+extern const signed short CKS_Shadow5k_boxinfo[];
+extern const signed short CKS_Shadow5k_gbainfo[];
+extern const unsigned int CKS_Shadow5k_SprSize;
+extern const unsigned int CKS_Shadow5k_SprCount;
+extern const unsigned int CKS_Shadow5k_SprData[];
+extern const unsigned int CKS_Shadow1up_width;
+extern const unsigned int CKS_Shadow1up_height;
+extern const unsigned int CKS_Shadow1up_size;
+extern const unsigned char CKS_Shadow1up_data[];
+extern const signed short CKS_Shadow1up_boxinfo[];
+extern const signed short CKS_Shadow1up_gbainfo[];
+extern const unsigned int CKS_Shadow1up_SprSize;
+extern const unsigned int CKS_Shadow1up_SprCount;
+extern const unsigned int CKS_Shadow1up_SprData[];
+extern const unsigned int CKS_ShadowStun_width;
+extern const unsigned int CKS_ShadowStun_height;
+extern const unsigned int CKS_ShadowStun_size;
+extern const unsigned char CKS_ShadowStun_data[];
+extern const signed short CKS_ShadowStun_boxinfo[];
+extern const signed short CKS_ShadowStun_gbainfo[];
+extern const unsigned int CKS_ShadowStun_SprSize;
+extern const unsigned int CKS_ShadowStun_SprCount;
+extern const unsigned int CKS_ShadowStun_SprData[];
 extern const unsigned int CKS_Soda_width;
 extern const unsigned int CKS_Soda_height;
 extern const unsigned int CKS_Soda_size;
@@ -207,15 +270,24 @@ extern const signed short CKS_NStunner_gbainfo[];
 extern const unsigned int CKS_NStunner_SprSize;
 extern const unsigned int CKS_NStunner_SprCount;
 extern const unsigned int CKS_NStunner_SprData[];
-extern const unsigned int CKS_ScoreBox_width;
-extern const unsigned int CKS_ScoreBox_height;
-extern const unsigned int CKS_ScoreBox_size;
-extern const unsigned char CKS_ScoreBox_data[];
-extern const signed short CKS_ScoreBox_boxinfo[];
-extern const signed short CKS_ScoreBox_gbainfo[];
-extern const unsigned int CKS_ScoreBox_SprSize;
-extern const unsigned int CKS_ScoreBox_SprCount;
-extern const unsigned int CKS_ScoreBox_SprData[];
+extern const unsigned int CKS_ScoreBoxDOS_width;
+extern const unsigned int CKS_ScoreBoxDOS_height;
+extern const unsigned int CKS_ScoreBoxDOS_size;
+extern const unsigned char CKS_ScoreBoxDOS_data[];
+extern const signed short CKS_ScoreBoxDOS_boxinfo[];
+extern const signed short CKS_ScoreBoxDOS_gbainfo[];
+extern const unsigned int CKS_ScoreBoxDOS_SprSize;
+extern const unsigned int CKS_ScoreBoxDOS_SprCount;
+extern const unsigned int CKS_ScoreBoxDOS_SprData[];
+extern const unsigned int CKS_ScoreBoxGBA_width;
+extern const unsigned int CKS_ScoreBoxGBA_height;
+extern const unsigned int CKS_ScoreBoxGBA_size;
+extern const unsigned char CKS_ScoreBoxGBA_data[];
+extern const signed short CKS_ScoreBoxGBA_boxinfo[];
+extern const signed short CKS_ScoreBoxGBA_gbainfo[];
+extern const unsigned int CKS_ScoreBoxGBA_SprSize;
+extern const unsigned int CKS_ScoreBoxGBA_SprCount;
+extern const unsigned int CKS_ScoreBoxGBA_SprData[];
 extern const unsigned int CKS_MapKeen_width;
 extern const unsigned int CKS_MapKeen_height;
 extern const unsigned int CKS_MapKeen_size;
@@ -234,24 +306,15 @@ extern const signed short CKS_MapFoot_gbainfo[];
 extern const unsigned int CKS_MapFoot_SprSize;
 extern const unsigned int CKS_MapFoot_SprCount;
 extern const unsigned int CKS_MapFoot_SprData[];
-extern const unsigned int CKS_MapFlagFlip_width;
-extern const unsigned int CKS_MapFlagFlip_height;
-extern const unsigned int CKS_MapFlagFlip_size;
-extern const unsigned char CKS_MapFlagFlip_data[];
-extern const signed short CKS_MapFlagFlip_boxinfo[];
-extern const signed short CKS_MapFlagFlip_gbainfo[];
-extern const unsigned int CKS_MapFlagFlip_SprSize;
-extern const unsigned int CKS_MapFlagFlip_SprCount;
-extern const unsigned int CKS_MapFlagFlip_SprData[];
-extern const unsigned int CKS_MapFlagIdle_width;
-extern const unsigned int CKS_MapFlagIdle_height;
-extern const unsigned int CKS_MapFlagIdle_size;
-extern const unsigned char CKS_MapFlagIdle_data[];
-extern const signed short CKS_MapFlagIdle_boxinfo[];
-extern const signed short CKS_MapFlagIdle_gbainfo[];
-extern const unsigned int CKS_MapFlagIdle_SprSize;
-extern const unsigned int CKS_MapFlagIdle_SprCount;
-extern const unsigned int CKS_MapFlagIdle_SprData[];
+extern const unsigned int CKS_MapFlag_width;
+extern const unsigned int CKS_MapFlag_height;
+extern const unsigned int CKS_MapFlag_size;
+extern const unsigned char CKS_MapFlag_data[];
+extern const signed short CKS_MapFlag_boxinfo[];
+extern const signed short CKS_MapFlag_gbainfo[];
+extern const unsigned int CKS_MapFlag_SprSize;
+extern const unsigned int CKS_MapFlag_SprCount;
+extern const unsigned int CKS_MapFlag_SprData[];
 extern const unsigned int CKS_KeenSwim_width;
 extern const unsigned int CKS_KeenSwim_height;
 extern const unsigned int CKS_KeenSwim_size;
@@ -342,6 +405,15 @@ extern const signed short CKS_TESmoke_gbainfo[];
 extern const unsigned int CKS_TESmoke_SprSize;
 extern const unsigned int CKS_TESmoke_SprCount;
 extern const unsigned int CKS_TESmoke_SprData[];
+extern const unsigned int CKS_CMember_width;
+extern const unsigned int CKS_CMember_height;
+extern const unsigned int CKS_CMember_size;
+extern const unsigned char CKS_CMember_data[];
+extern const signed short CKS_CMember_boxinfo[];
+extern const signed short CKS_CMember_gbainfo[];
+extern const unsigned int CKS_CMember_SprSize;
+extern const unsigned int CKS_CMember_SprCount;
+extern const unsigned int CKS_CMember_SprData[];
 extern const unsigned int CKS_Egg_width;
 extern const unsigned int CKS_Egg_height;
 extern const unsigned int CKS_Egg_size;
@@ -586,8 +658,15 @@ const unsigned int *CK_SpritePtrs[] = {
 	(unsigned int*)CKS_Stars_SprData, &CKS_Stars_SprCount, (unsigned int*)CKS_Stars_data, &CKS_Stars_SprSize, (unsigned int*)CKS_Stars_boxinfo, 
 	(unsigned int*)CKS_Shot_SprData, &CKS_Shot_SprCount, (unsigned int*)CKS_Shot_data, &CKS_Shot_SprSize, (unsigned int*)CKS_Shot_boxinfo, 
 	(unsigned int*)CKS_Droplets_SprData, &CKS_Droplets_SprCount, (unsigned int*)CKS_Droplets_data, &CKS_Droplets_SprSize, (unsigned int*)CKS_Droplets_boxinfo, 
-	(unsigned int*)CKS_OneUp_SprData, &CKS_OneUp_SprCount, (unsigned int*)CKS_OneUp_data, &CKS_OneUp_SprSize, (unsigned int*)CKS_OneUp_boxinfo, 
-	(unsigned int*)CKS_Shadows_SprData, &CKS_Shadows_SprCount, (unsigned int*)CKS_Shadows_data, &CKS_Shadows_SprSize, (unsigned int*)CKS_Shadows_boxinfo, 
+	(unsigned int*)CKS_ShadowOneUp_SprData, &CKS_ShadowOneUp_SprCount, (unsigned int*)CKS_ShadowOneUp_data, &CKS_ShadowOneUp_SprSize, (unsigned int*)CKS_ShadowOneUp_boxinfo, 
+	(unsigned int*)CKS_Shadow100_SprData, &CKS_Shadow100_SprCount, (unsigned int*)CKS_Shadow100_data, &CKS_Shadow100_SprSize, (unsigned int*)CKS_Shadow100_boxinfo, 
+	(unsigned int*)CKS_Shadow200_SprData, &CKS_Shadow200_SprCount, (unsigned int*)CKS_Shadow200_data, &CKS_Shadow200_SprSize, (unsigned int*)CKS_Shadow200_boxinfo, 
+	(unsigned int*)CKS_Shadow500_SprData, &CKS_Shadow500_SprCount, (unsigned int*)CKS_Shadow500_data, &CKS_Shadow500_SprSize, (unsigned int*)CKS_Shadow500_boxinfo, 
+	(unsigned int*)CKS_Shadow1k_SprData, &CKS_Shadow1k_SprCount, (unsigned int*)CKS_Shadow1k_data, &CKS_Shadow1k_SprSize, (unsigned int*)CKS_Shadow1k_boxinfo, 
+	(unsigned int*)CKS_Shadow2k_SprData, &CKS_Shadow2k_SprCount, (unsigned int*)CKS_Shadow2k_data, &CKS_Shadow2k_SprSize, (unsigned int*)CKS_Shadow2k_boxinfo, 
+	(unsigned int*)CKS_Shadow5k_SprData, &CKS_Shadow5k_SprCount, (unsigned int*)CKS_Shadow5k_data, &CKS_Shadow5k_SprSize, (unsigned int*)CKS_Shadow5k_boxinfo, 
+	(unsigned int*)CKS_Shadow1up_SprData, &CKS_Shadow1up_SprCount, (unsigned int*)CKS_Shadow1up_data, &CKS_Shadow1up_SprSize, (unsigned int*)CKS_Shadow1up_boxinfo, 
+	(unsigned int*)CKS_ShadowStun_SprData, &CKS_ShadowStun_SprCount, (unsigned int*)CKS_ShadowStun_data, &CKS_ShadowStun_SprSize, (unsigned int*)CKS_ShadowStun_boxinfo, 
 	(unsigned int*)CKS_Soda_SprData, &CKS_Soda_SprCount, (unsigned int*)CKS_Soda_data, &CKS_Soda_SprSize, (unsigned int*)CKS_Soda_boxinfo, 
 	(unsigned int*)CKS_TTGum_SprData, &CKS_TTGum_SprCount, (unsigned int*)CKS_TTGum_data, &CKS_TTGum_SprSize, (unsigned int*)CKS_TTGum_boxinfo, 
 	(unsigned int*)CKS_CBar_SprData, &CKS_CBar_SprCount, (unsigned int*)CKS_CBar_data, &CKS_CBar_SprSize, (unsigned int*)CKS_CBar_boxinfo, 
@@ -602,11 +681,11 @@ const unsigned int *CK_SpritePtrs[] = {
 	(unsigned int*)CKS_GKey_SprData, &CKS_GKey_SprCount, (unsigned int*)CKS_GKey_data, &CKS_GKey_SprSize, (unsigned int*)CKS_GKey_boxinfo, 
 	(unsigned int*)CKS_KeyShadow_SprData, &CKS_KeyShadow_SprCount, (unsigned int*)CKS_KeyShadow_data, &CKS_KeyShadow_SprSize, (unsigned int*)CKS_KeyShadow_boxinfo, 
 	(unsigned int*)CKS_NStunner_SprData, &CKS_NStunner_SprCount, (unsigned int*)CKS_NStunner_data, &CKS_NStunner_SprSize, (unsigned int*)CKS_NStunner_boxinfo, 
-	(unsigned int*)CKS_ScoreBox_SprData, &CKS_ScoreBox_SprCount, (unsigned int*)CKS_ScoreBox_data, &CKS_ScoreBox_SprSize, (unsigned int*)CKS_ScoreBox_boxinfo, 
+	(unsigned int*)CKS_ScoreBoxDOS_SprData, &CKS_ScoreBoxDOS_SprCount, (unsigned int*)CKS_ScoreBoxDOS_data, &CKS_ScoreBoxDOS_SprSize, (unsigned int*)CKS_ScoreBoxDOS_boxinfo, 
+	(unsigned int*)CKS_ScoreBoxGBA_SprData, &CKS_ScoreBoxGBA_SprCount, (unsigned int*)CKS_ScoreBoxGBA_data, &CKS_ScoreBoxGBA_SprSize, (unsigned int*)CKS_ScoreBoxGBA_boxinfo, 
 	(unsigned int*)CKS_MapKeen_SprData, &CKS_MapKeen_SprCount, (unsigned int*)CKS_MapKeen_data, &CKS_MapKeen_SprSize, (unsigned int*)CKS_MapKeen_boxinfo, 
 	(unsigned int*)CKS_MapFoot_SprData, &CKS_MapFoot_SprCount, (unsigned int*)CKS_MapFoot_data, &CKS_MapFoot_SprSize, (unsigned int*)CKS_MapFoot_boxinfo, 
-	(unsigned int*)CKS_MapFlagFlip_SprData, &CKS_MapFlagFlip_SprCount, (unsigned int*)CKS_MapFlagFlip_data, &CKS_MapFlagFlip_SprSize, (unsigned int*)CKS_MapFlagFlip_boxinfo, 
-	(unsigned int*)CKS_MapFlagIdle_SprData, &CKS_MapFlagIdle_SprCount, (unsigned int*)CKS_MapFlagIdle_data, &CKS_MapFlagIdle_SprSize, (unsigned int*)CKS_MapFlagIdle_boxinfo, 
+	(unsigned int*)CKS_MapFlag_SprData, &CKS_MapFlag_SprCount, (unsigned int*)CKS_MapFlag_data, &CKS_MapFlag_SprSize, (unsigned int*)CKS_MapFlag_boxinfo, 
 	(unsigned int*)CKS_KeenSwim_SprData, &CKS_KeenSwim_SprCount, (unsigned int*)CKS_KeenSwim_data, &CKS_KeenSwim_SprSize, (unsigned int*)CKS_KeenSwim_boxinfo, 
 	(unsigned int*)CKS_PoisonSlug_SprData, &CKS_PoisonSlug_SprCount, (unsigned int*)CKS_PoisonSlug_data, &CKS_PoisonSlug_SprSize, (unsigned int*)CKS_PoisonSlug_boxinfo, 
 	(unsigned int*)CKS_PoisonPoo_SprData, &CKS_PoisonPoo_SprCount, (unsigned int*)CKS_PoisonPoo_data, &CKS_PoisonPoo_SprSize, (unsigned int*)CKS_PoisonPoo_boxinfo, 
@@ -617,6 +696,7 @@ const unsigned int *CK_SpritePtrs[] = {
 	(unsigned int*)CKS_TEater_SprData, &CKS_TEater_SprCount, (unsigned int*)CKS_TEater_data, &CKS_TEater_SprSize, (unsigned int*)CKS_TEater_boxinfo, 
 	(unsigned int*)CKS_PVaper_SprData, &CKS_PVaper_SprCount, (unsigned int*)CKS_PVaper_data, &CKS_PVaper_SprSize, (unsigned int*)CKS_PVaper_boxinfo, 
 	(unsigned int*)CKS_TESmoke_SprData, &CKS_TESmoke_SprCount, (unsigned int*)CKS_TESmoke_data, &CKS_TESmoke_SprSize, (unsigned int*)CKS_TESmoke_boxinfo, 
+	(unsigned int*)CKS_CMember_SprData, &CKS_CMember_SprCount, (unsigned int*)CKS_CMember_data, &CKS_CMember_SprSize, (unsigned int*)CKS_CMember_boxinfo, 
 	(unsigned int*)CKS_Egg_SprData, &CKS_Egg_SprCount, (unsigned int*)CKS_Egg_data, &CKS_Egg_SprSize, (unsigned int*)CKS_Egg_boxinfo, 
 	(unsigned int*)CKS_EggParticles_SprData, &CKS_EggParticles_SprCount, (unsigned int*)CKS_EggParticles_data, &CKS_EggParticles_SprSize, (unsigned int*)CKS_EggParticles_boxinfo, 
 	(unsigned int*)CKS_BBirdWalk_SprData, &CKS_BBirdWalk_SprCount, (unsigned int*)CKS_BBirdWalk_data, &CKS_BBirdWalk_SprSize, (unsigned int*)CKS_BBirdWalk_boxinfo, 
@@ -646,12 +726,13 @@ const unsigned int *CK_SpritePtrs[] = {
 };
 
 
-const unsigned short *CK_SpriteOffsets[] = {
-	&CKS_Paddle_gbainfo, &CKS_Ball_gbainfo, &CKS_Demo_gbainfo, &CKS_Keen_gbainfo, &CKS_Stars_gbainfo, &CKS_Shot_gbainfo, &CKS_Droplets_gbainfo, &CKS_OneUp_gbainfo, 
-	&CKS_Shadows_gbainfo, &CKS_Soda_gbainfo, &CKS_TTGum_gbainfo, &CKS_CBar_gbainfo, &CKS_JBreaker_gbainfo, &CKS_Doughnut_gbainfo, &CKS_Icecream_gbainfo, &CKS_LWFlask_gbainfo, 
-	&CKS_Door_gbainfo, &CKS_RKey_gbainfo, &CKS_YKey_gbainfo, &CKS_BKey_gbainfo, &CKS_GKey_gbainfo, &CKS_KeyShadow_gbainfo, &CKS_NStunner_gbainfo, &CKS_ScoreBox_gbainfo, 
-	&CKS_MapKeen_gbainfo, &CKS_MapFoot_gbainfo, &CKS_MapFlagFlip_gbainfo, &CKS_MapFlagIdle_gbainfo, &CKS_KeenSwim_gbainfo, &CKS_PoisonSlug_gbainfo, &CKS_PoisonPoo_gbainfo, &CKS_MadMushroom_gbainfo, 
-	&CKS_PLindsey_gbainfo, &CKS_Inchworm_gbainfo, &CKS_Foot_gbainfo, &CKS_TEater_gbainfo, &CKS_PVaper_gbainfo, &CKS_TESmoke_gbainfo, &CKS_Egg_gbainfo, &CKS_EggParticles_gbainfo, 
+const signed short *CK_SpriteOffsets[] = {
+	&CKS_Paddle_gbainfo, &CKS_Ball_gbainfo, &CKS_Demo_gbainfo, &CKS_Keen_gbainfo, &CKS_Stars_gbainfo, &CKS_Shot_gbainfo, &CKS_Droplets_gbainfo, &CKS_ShadowOneUp_gbainfo, 
+	&CKS_Shadow100_gbainfo, &CKS_Shadow200_gbainfo, &CKS_Shadow500_gbainfo, &CKS_Shadow1k_gbainfo, &CKS_Shadow2k_gbainfo, &CKS_Shadow5k_gbainfo, &CKS_Shadow1up_gbainfo, &CKS_ShadowStun_gbainfo, 
+	&CKS_Soda_gbainfo, &CKS_TTGum_gbainfo, &CKS_CBar_gbainfo, &CKS_JBreaker_gbainfo, &CKS_Doughnut_gbainfo, &CKS_Icecream_gbainfo, &CKS_LWFlask_gbainfo, &CKS_Door_gbainfo, 
+	&CKS_RKey_gbainfo, &CKS_YKey_gbainfo, &CKS_BKey_gbainfo, &CKS_GKey_gbainfo, &CKS_KeyShadow_gbainfo, &CKS_NStunner_gbainfo, &CKS_ScoreBoxDOS_gbainfo, &CKS_ScoreBoxGBA_gbainfo, 
+	&CKS_MapKeen_gbainfo, &CKS_MapFoot_gbainfo, &CKS_MapFlag_gbainfo, &CKS_KeenSwim_gbainfo, &CKS_PoisonSlug_gbainfo, &CKS_PoisonPoo_gbainfo, &CKS_MadMushroom_gbainfo, &CKS_PLindsey_gbainfo, 
+	&CKS_Inchworm_gbainfo, &CKS_Foot_gbainfo, &CKS_TEater_gbainfo, &CKS_PVaper_gbainfo, &CKS_TESmoke_gbainfo, &CKS_CMember_gbainfo, &CKS_Egg_gbainfo, &CKS_EggParticles_gbainfo, 
 	&CKS_BBirdWalk_gbainfo, &CKS_BBirdFly_gbainfo, &CKS_Dart_gbainfo, &CKS_Mimrock_gbainfo, &CKS_DopeFish_gbainfo, &CKS_LBubble_gbainfo, &CKS_SBubble_gbainfo, &CKS_MBubble_gbainfo, 
 	&CKS_Schoolfish_gbainfo, &CKS_Arachnut_gbainfo, &CKS_Swimsuit_gbainfo, &CKS_Sprite_gbainfo, &CKS_EBlast_gbainfo, &CKS_Mine_gbainfo, &CKS_Skypest_gbainfo, &CKS_Wormouth_gbainfo, 
 	&CKS_Lick_gbainfo, &CKS_Elevator_gbainfo, &CKS_EFire_gbainfo, &CKS_Bounder_gbainfo, &CKS_ThunderCloud_gbainfo, &CKS_LightningBolt_gbainfo, &CKS_Berkeloid_gbainfo, &CKS_Flame_gbainfo, };

@@ -26,9 +26,7 @@ Uint16 originytilemax;
 ControlInfo c;
 
 // ck_newobj is known as 'new' in OG code
-objtype *ck_newobj, *check, *player, *scoreobj;
-
-objtype dummyobj;
+GBA_IN_IWRAM objtype *ck_newobj = NULL, *player = NULL, *scoreobj = NULL;
 
 Sint16 invincible;
 
@@ -426,12 +424,12 @@ void ScrollScreen(objtype *ob)
 		centerlevel = CK_HALF_SCREENY;
 	}
 
-	pix = (ob->bottom-32*PIXGLOBAL)-(originyglobal+yscroll+64*PIXGLOBAL);
+	pix = (ob->bottom-32*PIXGLOBAL)-(originyglobal+yscroll+32*PIXGLOBAL);
 	if (pix < 0)
 	{
 		yscroll += pix;
 	}
-	pix = (ob->bottom)-(originyglobal+yscroll+120*PIXGLOBAL);
+	pix = (ob->bottom+32*PIXGLOBAL)-(originyglobal+yscroll+200*PIXGLOBAL);
 	if (pix > 0)
 	{
 		yscroll += pix;
@@ -685,7 +683,7 @@ void StartMusic(Uint16 num)
 
 void PlayLoop(void)
 {
-	objtype *check;
+	objtype *check = NULL;
 
 	StartMusic(gamestate.mapon);
 	fireheld = pogoheld = upheld = jumpheld = false;
@@ -716,6 +714,8 @@ void PlayLoop(void)
 		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
+			if(!obj) break;
+			if(obj->isFree == true) continue;
 
 			if (!obj->active && obj->tileright >= originxtile-1
 				&& obj->tileleft <= originxtilemax+1 && obj->tiletop <= originytilemax+1
@@ -741,9 +741,11 @@ void PlayLoop(void)
 						if (US_RndT() < tics*2 || screenfaded || loadedgame)
 						{
                             // TODO: Make this remove the sprites???
-							//RF_RemoveSprite(&obj->sprite);
-							//if (obj->obclass == stunnedobj)
-							//	RF_RemoveSprite((void **)&obj->temp3);
+							RF_RemoveSprite(obj);
+							if (obj->obclass == stunnedobj){
+						        Quit("PlayLoop() : Temp Sprite Removed!");
+								RF_RemoveSprite(obj->temp3);
+							}
 							obj->active = ac_no;
 							continue;
 						}
@@ -765,11 +767,15 @@ void PlayLoop(void)
 		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
+			if(!obj) break;
+			if(obj->isFree == true) continue;
 			if (obj->active)
 			{
 				for(int oi = i; oi < CK_NumOfObjects; oi++){
         			check = &CK_ObjectList[oi];
+
 					if(!check) break;
+					if(check->isFree == true) break;
 
 					if (!check->active)
 					{
@@ -814,6 +820,8 @@ void PlayLoop(void)
 		for (int i = 0; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
+			if(!obj) continue;
+			if(obj->isFree == true) continue;
 			if (!obj->active)
 			{
 				continue;

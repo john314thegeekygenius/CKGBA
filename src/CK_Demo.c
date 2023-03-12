@@ -390,9 +390,8 @@ void Terminator(void)
 
 		IN_Ack();
 	}
-	// TODO:
-	// Make this run the Control Panel! :D
-	//US_ControlPanel();
+
+	US_ControlPanel();
 	if (restartgame)
 	{
 		playstate = ex_resetgame;

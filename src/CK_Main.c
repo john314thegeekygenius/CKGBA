@@ -84,7 +84,19 @@ void Quit(char *error)
 	}
 
 	exit(0);*/
-	VW_ClearVideo(0x49786234);
+	CK_RemoveSprites();
+	SD_MusicOff();
+	GBA_StopChannel(GBA_CHANNEL_A);
+	GBA_StopChannel(GBA_CHANNEL_B);
+	VW_ClearVideo(BLACK);
+	VW_ClearScroll();
+	PrintX = 0;
+	PrintY = 0;
+	fontcolor = CK_EGA_WHITE;
+	US_SafePrint(error);
+	PrintX = 0;
+	PrintY += 8;
+	US_SafePrint(CK_DOS_PROMPT);
 	while(1); // Make the game run forever
 };
 
@@ -103,6 +115,8 @@ void DemoLoop(void)
 	Sint16 i, state;
 	Sint16 level;
 	DemoMode = demo_Off;
+
+	gamestate.scoreboxdisp = CK_DISP_SCORE_DOS;
 
 //
 // demo loop

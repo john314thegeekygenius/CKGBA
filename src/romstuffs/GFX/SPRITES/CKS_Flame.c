@@ -368,8 +368,8 @@ const unsigned char CKS_Flame_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_Flame_boxinfo[] = {
-	16, 2, 15, 13, 0, 0, //515
-	16, 2, 15, 12, 0, 1, //516
+	2, 2, 13, 15, 0, 0, //515
+	2, 2, 13, 14, 0, 1, //516
 	2, -22, 13, 15, 0, -24, //517
 	2, -22, 13, 15, 0, -24, //518
 };

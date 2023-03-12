@@ -764,7 +764,10 @@ loaded:
 
 		if (playstate != ex_loadedgame)
 		{
-			gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
+			// TODO:
+			// Make this 0
+			
+			gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 99;
 #ifdef KEEN5
 			gamestate.keycard = false;
 #endif

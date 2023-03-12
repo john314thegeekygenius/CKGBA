@@ -656,14 +656,14 @@ const unsigned char CKS_PoisonSlug_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_PoisonSlug_boxinfo[] = {
-	16, 8, 15, 15, 0, 0, //315
+	2, 8, 13, 23, 0, 0, //315
 	2, 8, 13, 23, -8, 2, //316
-	24, 8, 23, 15, -8, 0, //317
+	2, 8, 13, 23, -8, 0, //317
 	2, 8, 13, 23, -8, 2, //318
-	24, 8, 23, 15, -8, 0, //319
-	16, 8, 15, 15, 0, 0, //320
+	2, 8, 13, 23, -8, 0, //319
+	2, 8, 13, 23, 0, 0, //320
 	2, 8, 13, 23, 0, 2, //321
-	24, 8, 23, 15, 0, 0, //322
+	2, 8, 13, 23, 0, 0, //322
 };
 
 const signed short CKS_PoisonSlug_gbainfo[] = {

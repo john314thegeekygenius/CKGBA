@@ -152,10 +152,10 @@ const unsigned char CKS_EBlast_data[] = {
 
 // Stores data as { boxl,boxt,boxr,boxb,offx,offy }
 const signed short CKS_EBlast_boxinfo[] = {
-	16, 3, 15, 9, 0, 0, //436
-	16, 3, 15, 9, 0, 0, //437
-	16, 3, 15, 9, 0, 0, //438
-	16, 3, 15, 9, 0, 0, //439
+	3, 3, 12, 12, 0, 0, //436
+	3, 3, 12, 12, 0, 0, //437
+	3, 3, 12, 12, 0, 0, //438
+	3, 3, 12, 12, 0, 0, //439
 };
 
 const signed short CKS_EBlast_gbainfo[] = {

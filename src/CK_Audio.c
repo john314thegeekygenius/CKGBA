@@ -33,7 +33,7 @@ void
 SD_PlaySound(soundnames sound)
 {
 	unsigned short s_priority = 0;
-
+#ifndef CK_DISABLE_SOUND	
 	// Check if a sound is playing
 	if(GBA_SamplePlaying(GBA_CHANNEL_B) == 0){
 		GBA_StopChannel(GBA_CHANNEL_B);
@@ -59,6 +59,7 @@ SD_PlaySound(soundnames sound)
 
 	SoundNumber = sound;
 	SoundPriority = s_priority;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,7 @@ word
 SD_SoundPlaying(void)
 {
 	boolean	result = false;
-
+#ifndef CK_DISABLE_SOUND
 	switch (SoundMode)
 	{
 	case sdm_PC:
@@ -81,7 +82,7 @@ SD_SoundPlaying(void)
 		result = GBA_SamplePlaying(GBA_CHANNEL_B)? true : false;
 		break;
 	}
-
+#endif
 	if (result)
 		return (SoundNumber+1);
 	else{
@@ -98,6 +99,7 @@ SD_SoundPlaying(void)
 void
 SD_StopSound(void)
 {
+#ifndef CK_DISABLE_SOUND
 	switch (SoundMode)
 	{
 	case sdm_PC:
@@ -108,6 +110,7 @@ SD_StopSound(void)
     	GBA_StopChannel(GBA_CHANNEL_B);
 		break;
 	}
+#endif
     SoundNumber = SoundPriority = 0;
 }
 

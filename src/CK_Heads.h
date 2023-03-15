@@ -7,7 +7,8 @@
 #define __CK_HEADS__
 
 
-// #define CK_DISABLE_MUSIC
+#define CK_DISABLE_SOUND
+#define CK_DISABLE_MUSIC
 #define CK4
 
 

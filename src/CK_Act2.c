@@ -76,8 +76,8 @@ void SpawnWormMouth(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_worm);
 	CK_SetSprite(ck_newobj, CKS_WORMOUTH);
+	NewState(ck_newobj, &s_worm);
 }
 
 /*
@@ -250,8 +250,8 @@ void SpawnCloudster(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	NewState(ck_newobj, &s_cloudsleep);
 	CK_SetSprite(ck_newobj, CKS_THUNDERCLOUD);
+	NewState(ck_newobj, &s_cloudsleep);
 }
 
 /*
@@ -338,8 +338,8 @@ void T_CloudShoot(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->x = ob->x + TILEGLOBAL;
 	ck_newobj->y = ob->y + TILEGLOBAL;
-	NewState(ck_newobj, &s_bolt1);
 	CK_SetSprite(ck_newobj, CKS_LIGHTNINGBOLT);
+	NewState(ck_newobj, &s_bolt1);
 	SD_PlaySound(SND_THUNDER);
 }
 
@@ -425,8 +425,8 @@ void SpawnBerkeloid(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->temp2 = 8;
-	NewState(ck_newobj, &s_berkefloat1);
 	CK_SetSprite(ck_newobj, CKS_BERKELOID);
+	NewState(ck_newobj, &s_berkefloat1);
 }
 
 
@@ -498,8 +498,8 @@ void BerkeThrowThink(objtype *ob)
 		ck_newobj->x = ob->x - 16*PIXGLOBAL;
 		ck_newobj->xdir = -1;
 	}
-	NewState(ck_newobj, &s_fire1);
 	CK_SetSprite(ck_newobj, CKS_FLAME);
+	NewState(ck_newobj, &s_fire1);
 	ob->needtoreact = true;
 }
 
@@ -664,8 +664,8 @@ void SpawnInchworm(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_inch1);
 	CK_SetSprite(ck_newobj, CKS_INCHWORM);
+	NewState(ck_newobj, &s_inch1);
 	ck_newobj->ticcount = US_RndT() / 32;
 }
 
@@ -685,8 +685,8 @@ void SpawnFoot(Sint16 x, Sint16 y)
 	ck_newobj->priority = 0;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-3);
-	NewState(ck_newobj, &s_footwait);
 	CK_SetSprite(ck_newobj, CKS_FOOT);
+	NewState(ck_newobj, &s_footwait);
 }
 
 /*
@@ -749,34 +749,34 @@ void InchContact(objtype *ob, objtype *hit)
 	ck_newobj->x = ob->x -  8*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	NewState(ck_newobj, &s_footsmoke1);
 	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 16*PIXGLOBAL;
 	ck_newobj->y = ob->y + 24*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	NewState(ck_newobj, &s_footsmoke1);
 	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 40*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	NewState(ck_newobj, &s_footsmoke1);
 	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x;
 	ck_newobj->y = ob->y - 8*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	NewState(ck_newobj, &s_footsmoke1);
 	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	NewState(ck_newobj, &s_footsmoke1);
 
 	//remove ALL inchworm from the level:
 	for(int i = player->uuid; i < CK_NumOfObjects; i++){
         ob2 = &CK_ObjectList[i];
-        if(ob2->isFree) continue;
+        if(ob2->removed) continue;
 		if (ob2->obclass == inchwormobj)
 			RemoveObj(ob2);
 	}
@@ -836,8 +836,8 @@ void SpawnBounder(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 8*PIXGLOBAL;
 	ck_newobj->ydir = 1;
 	ck_newobj->xdir = 0;
-	NewState(ck_newobj, &s_bounderup1);
     CK_SetSprite(ck_newobj, CKS_BOUNDER);
+	NewState(ck_newobj, &s_bounderup1);
 }
 
 /*
@@ -999,8 +999,8 @@ void SpawnLick(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->nothink = US_RndT() / 64;
-	NewState(ck_newobj, &s_lick3);
 	CK_SetSprite(ck_newobj, CKS_LICK);
+	NewState(ck_newobj, &s_lick3);
 }
 
 /*
@@ -1151,8 +1151,8 @@ void SpawnPlatform(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->ydir = 0;
 		break;
 	}
-	NewState(ck_newobj, &s_platform);
 	CK_SetSprite(ck_newobj, CKS_ELEVATOR);
+	NewState(ck_newobj, &s_platform);
 }
 
 /*
@@ -1324,8 +1324,8 @@ void SpawnDropPlat(Sint16 x, Sint16 y)
 	ck_newobj->xdir = 0;
 	ck_newobj->ydir = 1;
 	ck_newobj->needtoclip = cl_noclip;
-	NewState(ck_newobj, &s_dropplatsit);
 	CK_SetSprite(ck_newobj, CKS_ELEVATOR);
+	NewState(ck_newobj, &s_dropplatsit);
 }
 
 /*

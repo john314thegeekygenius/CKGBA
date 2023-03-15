@@ -648,6 +648,15 @@ extern const signed short CKS_Flame_gbainfo[];
 extern const unsigned int CKS_Flame_SprSize;
 extern const unsigned int CKS_Flame_SprCount;
 extern const unsigned int CKS_Flame_SprData[];
+extern const unsigned int CKS_EOL_width;
+extern const unsigned int CKS_EOL_height;
+extern const unsigned int CKS_EOL_size;
+extern const unsigned char CKS_EOL_data[];
+extern const signed short CKS_EOL_boxinfo[];
+extern const signed short CKS_EOL_gbainfo[];
+extern const unsigned int CKS_EOL_SprSize;
+extern const unsigned int CKS_EOL_SprCount;
+extern const unsigned int CKS_EOL_SprData[];
 
 
 const unsigned int *CK_SpritePtrs[] = {
@@ -723,6 +732,7 @@ const unsigned int *CK_SpritePtrs[] = {
 	(unsigned int*)CKS_LightningBolt_SprData, &CKS_LightningBolt_SprCount, (unsigned int*)CKS_LightningBolt_data, &CKS_LightningBolt_SprSize, (unsigned int*)CKS_LightningBolt_boxinfo, 
 	(unsigned int*)CKS_Berkeloid_SprData, &CKS_Berkeloid_SprCount, (unsigned int*)CKS_Berkeloid_data, &CKS_Berkeloid_SprSize, (unsigned int*)CKS_Berkeloid_boxinfo, 
 	(unsigned int*)CKS_Flame_SprData, &CKS_Flame_SprCount, (unsigned int*)CKS_Flame_data, &CKS_Flame_SprSize, (unsigned int*)CKS_Flame_boxinfo, 
+	(unsigned int*)CKS_EOL_SprData, &CKS_EOL_SprCount, (unsigned int*)CKS_EOL_data, &CKS_EOL_SprSize, (unsigned int*)CKS_EOL_boxinfo, 
 };
 
 
@@ -735,4 +745,5 @@ const signed short *CK_SpriteOffsets[] = {
 	&CKS_Inchworm_gbainfo, &CKS_Foot_gbainfo, &CKS_TEater_gbainfo, &CKS_PVaper_gbainfo, &CKS_TESmoke_gbainfo, &CKS_CMember_gbainfo, &CKS_Egg_gbainfo, &CKS_EggParticles_gbainfo, 
 	&CKS_BBirdWalk_gbainfo, &CKS_BBirdFly_gbainfo, &CKS_Dart_gbainfo, &CKS_Mimrock_gbainfo, &CKS_DopeFish_gbainfo, &CKS_LBubble_gbainfo, &CKS_SBubble_gbainfo, &CKS_MBubble_gbainfo, 
 	&CKS_Schoolfish_gbainfo, &CKS_Arachnut_gbainfo, &CKS_Swimsuit_gbainfo, &CKS_Sprite_gbainfo, &CKS_EBlast_gbainfo, &CKS_Mine_gbainfo, &CKS_Skypest_gbainfo, &CKS_Wormouth_gbainfo, 
-	&CKS_Lick_gbainfo, &CKS_Elevator_gbainfo, &CKS_EFire_gbainfo, &CKS_Bounder_gbainfo, &CKS_ThunderCloud_gbainfo, &CKS_LightningBolt_gbainfo, &CKS_Berkeloid_gbainfo, &CKS_Flame_gbainfo, };
+	&CKS_Lick_gbainfo, &CKS_Elevator_gbainfo, &CKS_EFire_gbainfo, &CKS_Bounder_gbainfo, &CKS_ThunderCloud_gbainfo, &CKS_LightningBolt_gbainfo, &CKS_Berkeloid_gbainfo, &CKS_Flame_gbainfo, 
+	&CKS_EOL_gbainfo, };

@@ -326,11 +326,13 @@ typedef struct objstruct
     // Added for GBA port
     unsigned char isFree;
 	unsigned int uuid;
+	unsigned char sprAvailable;
+	bool removed;
     GBA_SpriteIndex_t gbaSprites[MAX_GBA_SPRITES];
-    unsigned int sprtype[MAX_GBA_SPRITES];
+    unsigned int sprsizes[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
-	Uint16 deltax, deltay;
+	Sint32 deltax, deltay;
 	uint8_t drawtype;
     CK_SpriteType ck_sprType;
 } objtype;

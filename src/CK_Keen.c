@@ -247,8 +247,8 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 
 	player->xdir = dir;
 	player->ydir = 1;
-	NewState(player, &s_keenstand);
     CK_SetSprite(player, CKS_KEEN);
+	NewState(player, &s_keenstand);
 
 }
 
@@ -370,12 +370,13 @@ boolean CheckEnterHouse(objtype *ob)
 				gamestate.keycard = false;
 				SD_PlaySound(SND_OPENCARDDOOR);
 				GetNewObj(false);
-				new->x = ob->tilemidx - 2;
-				new->y = ob->tilebottom - 4;
-				new->active = ac_allways;
-				new->needtoclip = cl_noclip;
-				new->obclass = inertobj;
-				NewState(new, &s_carddoor);
+				ck_newobj->x = ob->tilemidx - 2;
+				ck_newobj->y = ob->tilebottom - 4;
+				ck_newobj->active = ac_allways;
+				ck_newobj->needtoclip = cl_noclip;
+				ck_newobj->obclass = inertobj;
+				CK_SetDummySprite(ck_newobj);
+				NewState(ck_newobj, &s_carddoor);
 				// Note: no invincibility here - card doors were always used as level exits in Keen 5
 				ob->state = &s_keenenter0;
 				ob->priority = 0;
@@ -896,7 +897,7 @@ void KeenSwitchThink(objtype *ob)
 	tileoff = ((ob->tiletop)*CK_CurLevelWidth) + ob->tilemidx;
 	maptile = CK_CurLevelData[tileoff + CK_CurLevelSize];
 	newtile = maptile + (Sint8)CK_TileInfo[1][MANIM + maptile];
-	info = CK_CurLevelData[tileoff + (CK_CurLevelSize*2)];
+	info = CK_GetInfo(tileoff);
 	sx = info >> 8;
 	sy = info & 0xFF;
 	intile = CK_TileInfo[1][INTILE + maptile];
@@ -924,16 +925,18 @@ void KeenSwitchThink(objtype *ob)
 	else
 	{
 		//toggle platform blocker:
-		map = (Uint16 *)CK_CurLevelData + (CK_CurLevelSize*2) + (sy*CK_CurLevelWidth) + sx;
-		tile = *map;
+		tileoff = (sy*CK_CurLevelWidth) + sx;
+		tile = CK_GetInfo(tileoff);
 #ifdef KEEN5
 		if (tile >= DIRARROWSTART && tile < DIRARROWEND)
 		{
+			Quit("KeenSwitchThink : Handle this!");
 			*map = arrowflip[tile-DIRARROWSTART]+DIRARROWSTART;
 			return;
 		}
 #endif
-		*map = tile ^ PLATFORMBLOCK;
+		tile ^= PLATFORMBLOCK;
+		CK_SetInfo(tileoff, tile);
 	}
 }
 
@@ -980,8 +983,8 @@ void KeenKeyThink(objtype *ob)
 	ck_newobj->active = ac_allways;
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->obclass = inertobj;
-	NewState(ck_newobj, &s_door1);
 	CK_SetDummySprite(ck_newobj);
+	NewState(ck_newobj, &s_door1);
 }
 
 //===========================================================================
@@ -1945,6 +1948,7 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = -1;
 	ck_newobj->temp2 = ck_newobj->shapenum = bonussprite[bonus];
+	CK_SetSprite(ck_newobj, CK_BonusShadows[bonus]);
 	NewState(ck_newobj, &s_bonusrise);
 	ck_newobj->needtoclip = cl_noclip;
 }
@@ -1974,8 +1978,8 @@ void GiveDrop(Uint16 x, Uint16 y)
 		ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-1);
 		ck_newobj->ydir = -1;
 		ck_newobj->temp2 = ck_newobj->shapenum = BONUS100UPSPR;
-		NewState(ck_newobj, &s_bonusrise);
 		CK_SetSprite(ck_newobj, CKS_SHADOWONEUP);
+		NewState(ck_newobj, &s_bonusrise);
 		ck_newobj->needtoclip = cl_noclip;
 	}
 }

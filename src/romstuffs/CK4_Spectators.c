@@ -757,8 +757,8 @@ void SpawnSwimKeen(Sint16 x, Sint16 y)
 	player->xdir = 1;
 	player->ydir = 1;
 	player->needtoclip = cl_fullclip;
-	NewState(player, &s_keenswimslow1);
 	CK_SetSprite(player, CKS_KEENSWIM);
+	NewState(player, &s_keenswimslow1);
 }
 
 /*
@@ -788,6 +788,7 @@ void SpawnKbubble(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->yspeed = -24;
 	ck_newobj->xspeed = 4;
+	CK_SetSprite(ck_newobj, CKS_SBUBBLE);
 	switch (US_RndT() / 64)
 	{
 	case 0:
@@ -803,7 +804,6 @@ void SpawnKbubble(objtype *ob)
 		NewState(ck_newobj, &s_kbubble4);
 		break;
 	}
-	CK_SetSprite(ck_newobj, CKS_SBUBBLE);
 	SD_PlaySound(SND_BLUB);
 }
 

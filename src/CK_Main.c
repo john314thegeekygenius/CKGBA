@@ -45,45 +45,13 @@ void InitGame(void)
 
 void Quit(char *error)
 {
-//	Uint16 finscreen;
-/*
-	if (!error)
-	{
-		CA_SetAllPurge();
-		CA_CacheGrChunk(ORDERSCREEN);
-		finscreen = (Uint16)grsegs[ORDERSCREEN];
+	if (!error || !(*error)){
+//		CA_SetAllPurge();
+//		CA_CacheGrChunk(ORDERSCREEN);
+//		finscreen = (Uint16)grsegs[ORDERSCREEN];
+		return;
 	}
-
-	VW_ClearVideo(BLACK);
-	VW_SetLineWidth(40);
-
-	ShutdownId();
-	if (error && *error)
-	{
-		puts(error);
-		if (tedlevel)
-		{
-			getch();
-			execlp("TED5.EXE", "TED5.EXE", "/LAUNCH", NULL);
-		}
-		else if (US_ParmPresent("windows"))
-		{
-			bioskey(0);
-		}
-		exit(1);
-	}
-
-	if (!NoWait)
-	{
-		movedata(finscreen, 7, 0xB800, 0, 4000);
-		gotoxy(1, 24);
-		if (US_ParmPresent("windows"))
-		{
-			bioskey(0);
-		}
-	}
-
-	exit(0);*/
+//	ShutdownId();
 	CK_RemoveSprites();
 	SD_MusicOff();
 	GBA_StopChannel(GBA_CHANNEL_A);
@@ -115,8 +83,6 @@ void DemoLoop(void)
 	Sint16 i, state;
 	Sint16 level;
 	DemoMode = demo_Off;
-
-	gamestate.scoreboxdisp = CK_DISP_SCORE_DOS;
 
 //
 // demo loop

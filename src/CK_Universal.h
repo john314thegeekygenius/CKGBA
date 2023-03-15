@@ -108,6 +108,7 @@ extern void US_TextScreen(),
 int _ck_strcpy(char *dest, char *src);
 char *_ck_ultoa(unsigned int n, char*buff, int mode);
 char *_ck_ltoa(int n, char*buff, int mode);
+unsigned int _ck_strlen(char *str);
 
 // From Assembly Code
 unsigned int US_InitRndT();

@@ -172,14 +172,17 @@ const unsigned int CKS_ScoreBoxDOS_SprData[] = {
 	4, 64, 32, 52, // 
 	0, 80, 32, 54, // 
 };
-const unsigned int CKS_ScoreBoxGBA_SprSize = 7680;
-const unsigned int CKS_ScoreBoxGBA_SprCount = 5;
+const unsigned int CKS_ScoreBoxGBA_SprSize = 3840;
+const unsigned int CKS_ScoreBoxGBA_SprCount = 8;
 const unsigned int CKS_ScoreBoxGBA_SprData[] = {
-	7, 0, 0, 0, // 
-	7, 64, 0, 32, // 
-	7, 128, 0, 64, // 
-	2, 192, 0, 96, // 
-	10, 224, 0, 112, // 
+	6, 0, 0, 0, // 
+	6, 32, 0, 8, // 
+	6, 64, 0, 16, // 
+	6, 96, 0, 24, // 
+	6, 128, 0, 32, // 
+	6, 160, 0, 40, // 
+	6, 192, 0, 48, // 
+	1, 224, 0, 56, // 
 };
 const unsigned int CKS_MapKeen_SprSize = 256;
 const unsigned int CKS_MapKeen_SprCount = 1;
@@ -445,4 +448,9 @@ const unsigned int CKS_Flame_SprCount = 2;
 const unsigned int CKS_Flame_SprData[] = {
 	10, 0, 0, 0, // 
 	4, 0, 32, 32, // 
+};
+const unsigned int CKS_EOL_SprSize = 64;
+const unsigned int CKS_EOL_SprCount = 1;
+const unsigned int CKS_EOL_SprData[] = {
+	0, 0, 0, 0, // 
 };

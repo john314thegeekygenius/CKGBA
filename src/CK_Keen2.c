@@ -61,7 +61,6 @@ void SpawnScore(void)
 	}
 	else if (!DemoMode)
 	{
-		NewState(scoreobj, &s_score);
 		switch(gamestate.scoreboxdisp){
 			case CK_DISP_SCORE_DOS:
 			    CK_SetSprite(scoreobj, CKS_SCOREBOXDOS);
@@ -70,11 +69,12 @@ void SpawnScore(void)
 			    CK_SetSprite(scoreobj, CKS_SCOREBOXGBA);
 				break;
 		}
+		NewState(scoreobj, &s_score);
 	}
 	else
 	{
-		NewState(scoreobj, &s_demo);
 	    CK_SetSprite(scoreobj, CKS_DEMO);
+		NewState(scoreobj, &s_demo);
 	}
 }
 
@@ -91,13 +91,41 @@ void SpawnScore(void)
 
 extern const unsigned char CK_HUD[];
 
+// Offsets within the graphics memory for each gba sprite
+// stored as a pair: [spr_id, offset]
+
+static const uint16_t CK_ScoreBoxNumPos[] = {
+	// Score locations
+	0,0x120, 0,0x140, 0,0x160, 0,0x180, 0,0x1A0, 0,0x1C0, 0,0x1E0, 1,0x40, 1,0x60,
+	// Lives locations
+	0,0x360, 0,0x380,
+	// Ammo locations
+	1,0xC0, 1,0xE0,
+};
+static const uint16_t CK_GBAScoreBoxNumPos[] = {
+	// Score locations
+	3,0x20, 3,0x40, 3,0x60, 4,0x0, 4,0x20, 4,0x40, 4,0x60, 5,0x0, 5,0x20,
+	// Lives locations
+	0,0x60, 1,0x0,
+	// Ammo locations
+	2,0x20, 2,0x40,
+	// Added:
+	// Keys
+	6,0x0, 6,0x20, 6,0x40, 6,0x60,
+	// Oracle Member
+	7,0x0,
+};
+
 void UpdateScore(objtype *ob)
 {
 	char		str[10],*ch;
 	boolean changed;
 	Uint16	i, length, number;
+	uint32_t* vidmem = NULL;
+	uint32_t sprsize = 0;
 
 	if(!scoreobj) return;
+	if(scoreobj->gfxoffset == CK_GFX_NULL) return;
 
 	if (scorescreenkludge)
 		return;
@@ -108,107 +136,24 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
-	//if (!showscorebox)
-	//	return;
+	// MOVED FROM BOTTOM OF FUNCTION
+	/*
+	Note:
+	-----
+
+	It would be more efficient to use
+
+		if (changed)
+			ShiftScore();
+
+	here instead of the individual ShiftScore() calls above. Because if the player
+	gains a life by collecting points items, both the score and lives numbers need
+	to be updated, which means the sprite would be shifted twice. And if the player
+	fires a shot during the same frame, the ammo number also needs to be updated,
+	leading to up to three shifts in one frame.
+	*/
 
 	changed = false;
-
-//code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
-
-//
-// score changed
-//
-	if ((gamestate.score>>16) != ob->temp1
-		|| (Uint16)gamestate.score != ob->temp2 )
-	{
-		
-		_ck_ltoa (gamestate.score,str,10);
-
-		// erase leading spaces
-		length = strlen(str);
-//		for (i=9;i>length;i--)
-//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
-
-		// draw digits
-		ch = str;
-//		while (*ch)
-//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
-
-		ob->needtoreact = true;
-		ob->temp1 = gamestate.score>>16;
-		ob->temp2 = gamestate.score;
-
-		changed = true;
-	}
-
-//
-// ammo changed
-//
-	number = gamestate.ammo;
-	if (number != ob->temp3)
-	{
-		if (number > 99)
-			_ck_strcpy (str,"99");
-		else
-			_ck_ltoa (number,str,10);
-
-		// erase leading spaces
-		length = strlen(str);
-//		for (i=2;i>length;i--)
-//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
-
-		// draw digits
-		ch = str;
-//		while (*ch)
-//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
-
-		ob->needtoreact = true;
-		ob->temp3 = number;
-
-		changed = true;
-	}
-
-//
-// lives changed
-//
-	if (gamestate.lives != ob->temp4)
-	{
-		if (gamestate.lives > 99)
-			strcpy (str,"99");
-		else
-			_ck_ltoa (gamestate.lives,str,10);
-
-		// erase leading spaces
-		length = strlen(str);
-//		for (i=2;i>length;i--)
-//			MemDrawChar (41,dest+=CHARWIDTH,width,planesize);
-
-		// draw digits
-		ch = str;
-//		while (*ch)
-//			MemDrawChar (*ch++ - '0'+42,dest+=CHARWIDTH,width,planesize);
-
-		ob->needtoreact = true;
-		ob->temp4 = gamestate.lives;
-
-		changed = true;
-	}
-
-/*
-Note:
------
-
-It would be more efficient to use
-
-	if (changed)
-		ShiftScore();
-
-here instead of the individual ShiftScore() calls above. Because if the player
-gains a life by collecting points items, both the score and lives numbers need
-to be updated, which means the sprite would be shifted twice. And if the player
-fires a shot during the same frame, the ammo number also needs to be updated,
-leading to up to three shifts in one frame.
-*/
 
 	if (ob->x != originxglobal || ob->y != originyglobal)
 	{
@@ -222,10 +167,129 @@ leading to up to three shifts in one frame.
 				RF_PlaceSprite(ob, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
 			break;
 			case CK_DISP_SCORE_GBA:
-				RF_PlaceSprite(ob, ob->x, ob->y-4*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
+				RF_PlaceSprite(ob, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
 			break;
 		};
 	}
+
+	//if (!showscorebox)
+	//	return;
+
+//code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
+
+//
+// score changed
+//
+	if ((gamestate.score>>16) != ob->temp1
+		|| (Uint16)gamestate.score != ob->temp2  || changed)
+	{
+		
+		_ck_ltoa (gamestate.score,str,10);
+
+		// erase leading spaces
+		length = _ck_strlen(str);
+
+		// draw digits
+		ch = str;
+		i = 9-length;
+		while (*ch ){
+			switch(gamestate.scoreboxdisp){
+				case CK_DISP_SCORE_DOS:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+				case CK_DISP_SCORE_GBA:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+			}
+			for(int drw = 0; drw < 8; drw++){
+				*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 8 + (((*ch)-'0')*8)];
+			}
+			ch++;
+			i++;
+		}
+
+		ob->needtoreact = true;
+		ob->temp1 = gamestate.score>>16;
+		ob->temp2 = gamestate.score;
+
+		changed = true;
+	}
+
+//
+// ammo changed
+//
+	number = gamestate.ammo;
+	if (number != ob->temp3 || changed)
+	{
+		if (number > 99)
+			_ck_strcpy (str,"99");
+		else
+			_ck_ltoa (number,str,10);
+
+		// erase leading spaces
+		length = strlen(str);
+		i = (2-length)+9+2;
+		ch = str;
+
+		while (*ch ){
+			switch(gamestate.scoreboxdisp){
+				case CK_DISP_SCORE_DOS:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+				case CK_DISP_SCORE_GBA:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+			}
+			for(int drw = 0; drw < 8; drw++){
+				*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 8 + (((*ch)-'0')*8)];
+			}
+			ch++;
+			i++;
+		}
+
+		ob->needtoreact = true;
+		ob->temp3 = number;
+
+		changed = true;
+	}
+
+//
+// lives changed
+//
+	if (gamestate.lives != ob->temp4 || changed)
+	{
+		if (gamestate.lives > 99)
+			strcpy (str,"99");
+		else
+			_ck_ltoa (gamestate.lives,str,10);
+
+		// erase leading spaces
+		length = strlen(str);
+		i = (2-length)+9;
+		ch = str;
+
+		while (*ch ){
+			switch(gamestate.scoreboxdisp){
+				case CK_DISP_SCORE_DOS:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+				case CK_DISP_SCORE_GBA:
+					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					break;
+			}
+			for(int drw = 0; drw < 8; drw++){
+				*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 8 + (((*ch)-'0')*8)];
+			}
+			ch++;
+			i++;
+		}
+
+		ob->needtoreact = true;
+		ob->temp4 = gamestate.lives;
+
+		changed = true;
+	}
+
 };
 
 /*
@@ -322,8 +386,8 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 			player->xspeed = (Sint16)(16*TILEGLOBAL - player->x)/140 + 1;
 			player->yspeed = (Sint16)(47*TILEGLOBAL - player->y)/140 + 1;
 		}
-		NewState(player, &s_keenonfoot1);
 		CK_SetSprite(player, CKS_MAPFOOT);
+		NewState(player, &s_keenonfoot1);
 		return;
 	}
 #endif
@@ -347,8 +411,8 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	NewState(player, &s_worldkeen);
 	CK_SetSprite(player, CKS_MAPKEEN);
+	NewState(player, &s_worldkeen);
 }
 
 #ifdef KEEN5
@@ -373,8 +437,8 @@ void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	NewState(player, &s_worldkeen);
 	CK_SetSprite(player, CKS_MAPKEEN);
+	NewState(player, &s_worldkeen);
 }
 #endif
 
@@ -1061,8 +1125,8 @@ void SpawnFlag(Sint16 x, Sint16 y)
 	}
 #endif
 	ck_newobj->ticcount = US_RndT() / 16;
-	NewState(ck_newobj, &s_flagwave1);
 	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
+	NewState(ck_newobj, &s_flagwave1);
 }
 
 #ifndef KEEN5
@@ -1122,8 +1186,8 @@ void SpawnThrowFlag(Sint16 x, Sint16 y)
 			flagpath[i].y -= (29-i)*3*PIXGLOBAL;
 		}
 	}
-	NewState(ck_newobj, &s_throwflag0);
 	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
+	NewState(ck_newobj, &s_throwflag0);
 }
 
 /*
@@ -1250,8 +1314,8 @@ void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 		Quit("SpawnShot: Bad dir!");
 		break;
 	}
-	NewState(ck_newobj, &s_stunray1);
 	CK_SetSprite(ck_newobj, CKS_SHOT);
+	NewState(ck_newobj, &s_stunray1);
 
 #ifdef KEEN6
 	{
@@ -1320,7 +1384,7 @@ void T_Shot(objtype *ob)
 	
     for(int i = player->uuid; i < CK_NumOfObjects; i++){
         ob2 = &CK_ObjectList[i];
-		if(ob2->isFree == true) break;
+		if(ob2->removed) continue;
 		
 		if (!ob2->active && ob->right > ob2->left && ob->left < ob2->right
 			&& ob->top < ob2->bottom && ob->bottom > ob2->top)

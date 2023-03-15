@@ -220,6 +220,13 @@ int _ck_strcpy(char *dest, char *src){
 	return 0;
 };
 
+unsigned int _ck_strlen(char *str){
+	unsigned int len = 0;
+	while(*(str++)) len++;
+	return len;	
+};
+
+
 ///////////////////////////////////////////////////////////////////////////
 //
 //      US_PrintUnsigned() - Prints an unsigned long

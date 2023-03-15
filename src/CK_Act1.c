@@ -220,8 +220,8 @@ void SpawnBonus(Sint16 x, Sint16 y, Sint16 type)
 	ck_newobj->temp1 = type;
 	ck_newobj->temp2 = ck_newobj->shapenum = bonusshape[type];
 	ck_newobj->temp3 = ck_newobj->temp2 + 2;
-	NewState(ck_newobj, &s_bonus1);
 	CK_SetSprite(ck_newobj, ckbonussprites[type]);
+	NewState(ck_newobj, &s_bonus1);
 }
 
 /*
@@ -240,8 +240,8 @@ void SpawnSplash(Sint16 x, Sint16 y)
 	ck_newobj->obclass = inertobj;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
-	NewState(ck_newobj, &s_splash1);
 	CK_SetSprite(ck_newobj, CKS_DROPLETS);
+	NewState(ck_newobj, &s_splash1);
 }
 
 /*
@@ -296,8 +296,8 @@ void SpawnCouncil(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_councilwalk1);
 	CK_SetSprite(ck_newobj, CKS_CMEMBER);
+	NewState(ck_newobj, &s_councilwalk1);
 }
 
 /*
@@ -364,8 +364,8 @@ void SpawnSlug(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_slugwalk1);
 	CK_SetSprite(ck_newobj, CKS_POISONSLUG);
+	NewState(ck_newobj, &s_slugwalk1);
 }
 
 /*
@@ -410,8 +410,8 @@ void T_SlugPiss(objtype *ob)
 	ck_newobj->priority = 0;
 	ck_newobj->x = ob->x;
 	ck_newobj->y = ob->bottom - 8*PIXGLOBAL;
-	NewState(ck_newobj, &s_slugslime);
 	CK_SetSprite(ck_newobj, CKS_POISONPOO);
+	NewState(ck_newobj, &s_slugslime);
 }
 
 /*
@@ -475,8 +475,8 @@ void SpawnMadMushroom(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 0xF1;
 	ck_newobj->xdir = 1;
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_mushroom1);
 	CK_SetSprite(ck_newobj, CKS_MADMUSHROOM);
+	NewState(ck_newobj, &s_mushroom1);
 }
 
 /*
@@ -609,8 +609,8 @@ void SpawnEggbird(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 0x71;
 	ck_newobj->xdir = 1;
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_egg);
 	CK_SetSprite(ck_newobj, CKS_EGG);
+	NewState(ck_newobj, &s_egg);
 }
 
 /*
@@ -651,8 +651,8 @@ void SpawnEggbirdOut(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_eggbirdpause);
 	CK_SetSprite(ck_newobj, CKS_BBIRDWALK);
+	NewState(ck_newobj, &s_eggbirdpause);
 
 }
 
@@ -689,8 +689,8 @@ void C_Egg(objtype *ob, objtype *hit)
 			ck_newobj->xdir = -1;
 		}
 		ck_newobj->ydir = 1;
-		NewState(ck_newobj, &s_eggbirdpause);
 		CK_SetSprite(ck_newobj, CKS_EGGPARTICLES);
+		NewState(ck_newobj, &s_eggbirdpause);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -699,8 +699,8 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = -28;
 		ck_newobj->yspeed = -40;
-		NewState(ck_newobj, &s_eggchip1);
 		CK_SetSprite(ck_newobj, CKS_EGGPARTICLES);
+		NewState(ck_newobj, &s_eggchip1);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -709,8 +709,8 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = 28;
 		ck_newobj->yspeed = -40;
-		NewState(ck_newobj, &s_eggchip2);
 		CK_SetSprite(ck_newobj, CKS_EGGPARTICLES);
+		NewState(ck_newobj, &s_eggchip2);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -719,8 +719,8 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = 0;
 		ck_newobj->yspeed = -56;
-		NewState(ck_newobj, &s_eggchip3);
 		CK_SetSprite(ck_newobj, CKS_EGGPARTICLES);
+		NewState(ck_newobj, &s_eggchip3);
 	}
 }
 
@@ -978,8 +978,8 @@ void SpawnArachnut(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	NewState(ck_newobj, &s_arach1);
 	CK_SetSprite(ck_newobj, CKS_ARACHNUT);
+	NewState(ck_newobj, &s_arach1);
 }
 
 /*
@@ -1099,8 +1099,8 @@ void SpawnSkypest(Sint16 x, Sint16 y)
 	{
 		ck_newobj->ydir = -1;
 	}
-	NewState(ck_newobj, &s_pestfly1);
 	CK_SetSprite(ck_newobj, CKS_SKYPEST);
+	NewState(ck_newobj, &s_pestfly1);
 }
 
 /*

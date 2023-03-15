@@ -89,6 +89,11 @@ void NewGame(void)
 	gamestate.nextextra = 20000;
 	gamestate.lives = 3;
 	gamestate.ammo = 5;
+	// TODO:
+	// Remove this
+	gamestate.wetsuit = 1;
+	gamestate.scoreboxdisp = CK_DISP_SCORE_DOS;
+	gamestate.difficulty = gd_Easy;
 }
 
 //===========================================================================
@@ -351,9 +356,6 @@ void ResetGame(void)
 
 void PatchWorldMap(void)
 {
-    // TODO:
-    // Make this fix the world map
-
 	Uint16 x, y, planeoff, info, level, tag;
 
 	planeoff = 0;

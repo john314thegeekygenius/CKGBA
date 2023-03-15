@@ -8,12 +8,14 @@
 
 #include "romstuffs/CK_SpriteDefs.h"
 
-GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS];
+GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS+1];
+
 unsigned int CK_NumOfObjects = 0;
 unsigned int CK_SprGfxOffset = 0;
 unsigned int CK_SprTileOffset = 0;
 
-objtype dummyobj;
+const unsigned int CK_GFX_NULL = 0xDEADBEEF;
+
 
 static void CK_ClearObject(objtype *obj,bool overwrite){
 	obj->obclass = 0;
@@ -38,46 +40,62 @@ static void CK_ClearObject(objtype *obj,bool overwrite){
     ///////////////////////////////////////////////////
     // Added for GBA port
     obj->deltax = obj->deltay = 0;
-    obj->drawtype = 0;
-
+    obj->drawtype = 0xF;
+    // Overwrite these or else bad things happen
+    obj->gbaSpriteCount = 0;
+    for(int i = 0; i < 16; i++)
+        obj->sprsizes[i] = 0;
     if(overwrite){
         obj->uuid = 0;
-        obj->gbaSpriteCount = 0;
+        obj->removed = true;
         // Hmmm
         obj->isFree = true;
-        obj->gfxoffset = 0xFFFFFFFF;
+        obj->gfxoffset = CK_GFX_NULL;
         obj->ck_sprType = CKS_EOL;
+        ck_newobj->sprAvailable = 0;
     }
 };
 
 DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
-    bool foundobj = false;
+    bool foundobj = false;/*
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
-        if(obj->isFree) {
+        if(obj->removed) {
             CK_ClearObject(obj, false);
             ck_newobj = obj;
             foundobj = true;
             break;
         }
-    }
+    }*/
     if(!foundobj){
         // Ummm... Will break if more than MAXACTORS are spawned... :S
-        if(CK_NumOfObjects >= MAXACTORS){
+        if(CK_NumOfObjects >= MAXACTORS-1){
             if (usedummy){
-                ck_newobj = &dummyobj;
-                return &dummyobj;
+                ck_newobj = &CK_ObjectList[MAXACTORS-1]; // Dummy obj stored at end of list???
+                ck_newobj->removed = false;
+                ck_newobj->gfxoffset = CK_GFX_NULL;
+                ck_newobj->ck_sprType = CKS_EOL;
+                ck_newobj->gbaSpriteCount = 0;
+                ck_newobj->uuid = MAXACTORS-1;
+                ck_newobj->isFree = false;
+                ck_newobj->removed = false;
+                ck_newobj->shapenum = 0;
+                ck_newobj->sprAvailable = 0;
+                return ck_newobj;
             }
             Quit("GetNewObj: No free spots in objarray!");
         }
         ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
-        ck_newobj->gfxoffset = 0xFFFFFFFF;
+        ck_newobj->gfxoffset = CK_GFX_NULL;
         ck_newobj->ck_sprType = CKS_EOL;
+        ck_newobj->drawtype = 0xF;
         ck_newobj->gbaSpriteCount = 0;
         ck_newobj->uuid = CK_NumOfObjects-1;
     }
     ck_newobj->isFree = false;
+    ck_newobj->removed = false;
     ck_newobj->shapenum = 0;
+    ck_newobj->sprAvailable = 0;
 
 	ck_newobj->active = ac_yes;
 	ck_newobj->needtoclip = cl_midclip;
@@ -96,11 +114,11 @@ void RemoveObj(objtype *ob){
 	RF_RemoveSprite(ob);
 	if (ob->obclass == stunnedobj)
 	{
-        // TODO:
-        // Handle stuned objects???
-        Quit("RemoveObj() : Temp Sprite Removed!");
 		RF_RemoveSprite(ob->temp3);
 	}
+    ob->sprAvailable = 1;
+    ob->removed = true;
+    ob->drawtype = 0xF;
 
 };
 
@@ -116,36 +134,28 @@ const unsigned int CK_SpriteSizes[] = {
 
 void CK_SetSprite(objtype *obj, CK_SpriteType type){
     if(!obj) return;
-    objtype *gfxobj = NULL;
-    // See if an old object already has the needed sprite space
-    for(int i = 0; i < CK_NumOfObjects; i++){
-        objtype *oldobj = &CK_ObjectList[i];
-        if(oldobj != obj)
-            if(!oldobj->isFree) continue;
-        if(oldobj->ck_sprType != type) continue;
-        if(oldobj->gfxoffset == 0xFFFFFFFF) continue;
-        gfxobj = oldobj;
-    }
+
     obj->ck_sprType = type;
     obj->isFree = false; // ???
-    if(gfxobj != NULL){
-        // Should all be taken care of??
-        return;
-    }
+    obj->sprAvailable = 0;
     // Only add new sprites if needed???
-  //  if(ck_newobj->gfxoffset == 0xFFFFFFFF && obj->isFree == false){
-        obj->gbaSpriteCount = *CK_SpritePtrs[(type*5)+1];
-        obj->gfxoffset = CK_SprGfxOffset;
-        for(int i = 0; i < obj->gbaSpriteCount; i++){
-            obj->sprtype[i] = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)];
-            obj->gbaSprites[i] = GBA_CreateSprite(GBA_SPR_OFFX,GBA_SPR_OFFY,obj->sprtype[i],CK_SprTileOffset,0,0);
-            CK_SprTileOffset += CK_SpriteSizes[obj->sprtype[i]]>>3;
-            if(GBA_SpriteIndex >= 127){
-                Quit("CK_SetSprite: No free GBA sprites!");
-            }
+  //  if(ck_newobj->gfxoffset == CK_GFX_NULL && obj->isFree == false){
+    obj->gbaSpriteCount = *CK_SpritePtrs[(type*5)+1];
+    obj->gfxoffset = CK_SprGfxOffset;
+    if(CK_SprGfxOffset >= 0x8000){
+        Quit("CK_SetSprite : No free graphics space left!");
+    }
+    for(int i = 0; i < obj->gbaSpriteCount; i++){
+        obj->sprsizes[i] = CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)];
+        obj->gbaSprites[i] = GBA_CreateSprite(GBA_SPR_OFFX,GBA_SPR_OFFY,obj->sprsizes[i],CK_SprTileOffset,0,0);
+        CK_SprTileOffset += CK_SpriteSizes[obj->sprsizes[i]]>>3;
+        if(GBA_SpriteIndex >= 127){
+            Quit("CK_SetSprite: No free GBA sprites!");
         }
-        CK_SprGfxOffset += (*CK_SpritePtrs[(obj->ck_sprType*5)+3])>>3;
+    }
+    CK_SprGfxOffset += (*CK_SpritePtrs[(obj->ck_sprType*5)+3])>>3;
     //}
+
 };
 
 
@@ -155,7 +165,7 @@ void CK_RemakeSprite(objtype *obj, CK_SpriteType type){
      for(int i = 0; i < obj->gbaSpriteCount; i++){
         GBA_RemoveSprite(obj->gbaSprites[i]);
      }
-//    obj->gfxoffset = 0xFFFFFFFF;
+//    obj->gfxoffset = CK_GFX_NULL;
     obj->isFree = true;
 //    obj->gbaSpriteCount = 0;
 //    obj->ck_sprType = CKS_EOL;
@@ -168,7 +178,9 @@ void CK_RemakeSprite(objtype *obj, CK_SpriteType type){
 void CK_SetDummySprite(objtype *obj){
     obj->ck_sprType = CKS_EOL;
     obj->gbaSpriteCount = 0;
-    obj->gfxoffset = 0;
+    obj->gfxoffset = CK_GFX_NULL;
+    obj->drawtype = 0xF;
+    obj->sprAvailable = 0;
     obj->shapenum = 0;
 };
 
@@ -176,33 +188,49 @@ void CK_UpdateObjGraphics(objtype *obj){
     if(!obj) return;
     if(obj->isFree) return;
     if(obj->ck_sprType == CKS_EOL) return;
+    if(obj->gfxoffset == CK_GFX_NULL) Quit("CK_UpdateObjGraphics : \nInvalid Graphics Memory used!");
     
     // Copy the graphics memory
     uint32_t* vidmem = (uint32_t*)GBA_VSRAM+obj->gfxoffset;
 
-    uint32_t blocksize = (32*16)>>3;//CK_SpritePtrs[(obj->ck_sprType<<2)][(i*4)+3]<<3;
     for(int i = 0; i < obj->gbaSpriteCount; i++){
-        uint32_t sprsize = CK_SpriteSizes[obj->sprtype[i]];
+        uint32_t sprsize = CK_SpriteSizes[obj->sprsizes[i]];
         uint32_t* sprmem = (uint32_t*)CK_SpritePtrs[(obj->ck_sprType*5)+2]+(sprsize*obj->shapenum) + (CK_SpritePtrs[(obj->ck_sprType*5)][(i*4)+3]<<3);
         GBA_DMA_Copy32(vidmem, sprmem, sprsize);
         vidmem += sprsize;
     }
 };
 
+uint32_t *CK_GetObjGfxOffset(objtype *obj, int spriteid){
+    if(!obj) Quit("CK_GetObjGfxOffset : \nObject does not exist!");
+    if(obj->gfxoffset == CK_GFX_NULL) Quit("CK_GetObjGfxOffset : \nInvalid Graphics Memory!");
+    
+    uint32_t* vidmem = (uint32_t*)GBA_VSRAM+obj->gfxoffset;
+
+    for(int i = 0; i < spriteid && i < obj->gbaSpriteCount; i++){
+        vidmem += CK_SpriteSizes[obj->sprsizes[i]];
+    }
+    return vidmem;
+};
+
 void CK_UpdateObjects(){
+    // TODO:
+    // Fix this function!!!!!!
+    // Makes the app crash ??
+    return;
+
     // Fix every object position
     for(int i = 0; i < CK_NumOfObjects; i++){
         objtype *obj = &CK_ObjectList[i];
-        if(!obj) return;
-        if(obj->isFree) return;
-        if(obj->ck_sprType == CKS_EOL) return;
+        if(obj->removed) continue;
+        if(obj->isFree) continue;
+        if(obj->ck_sprType == CKS_EOL) continue;
+        if(obj->drawtype == 0xF) continue;
 
         CK_UpdateObjGraphics(obj);
 
         signed int dx = obj->deltax;
         signed int dy = obj->deltay;
-
-        signed short *shape = CK_GetShape(obj->ck_sprType, obj->shapenum);
 
         dx -= originxglobal;
         dy -= originyglobal;
@@ -210,19 +238,24 @@ void CK_UpdateObjects(){
         dx = CONVERT_GLOBAL_TO_PIXEL(dx);
         dy = CONVERT_GLOBAL_TO_PIXEL(dy);
 
-        dx += shape[4];
-        dy += shape[5];
-
         CK_DrawObject(obj, dx, dy);
     }
-    // Update the sprite list
-    GBA_UPDATE_SPRITES()
 };
 
 void CK_DrawObject(objtype *obj, signed int dx, signed int dy){
     if(!obj) return;
+    if(obj->removed) return;
     if(obj->isFree) return;
     if(obj->ck_sprType == CKS_EOL) return;
+
+    /*
+        TODO:
+        Make this "spawn" gba sprites in realtime
+        depending on what can be seen on the screen
+        at any one frame.
+
+        Object can store a "dummy" gba sprite that can be loaded into a real gba sprite
+    */
    
     for(int i = 0; i < obj->gbaSpriteCount; i++){
         // Make the object work in global map space
@@ -325,13 +358,9 @@ void CK_PrintObjInfo(){
 const signed short CK_DUMMY_RECT[] = { 0, 0, 0, 0, 0, 0 };
 
 signed short *CK_GetSprShape(objtype *obj){
-    if(obj == NULL || obj->isFree || (unsigned int)obj->ck_sprType>=CKS_EOL) return CK_DUMMY_RECT; // ???
+    if(obj == NULL || obj->removed ) Quit("CK_GetSprShape : Invalid object for shape rect");
+    //return CK_DUMMY_RECT; // ???
     return (signed short*)(CK_SpritePtrs[(obj->ck_sprType*5)+4]) + (obj->shapenum*6);
-};
-
-signed short *CK_GetShape(unsigned int sprtype, unsigned short shapenumber){
-    if(sprtype==-1) return CK_DUMMY_RECT; // ???
-    return (signed short*)(CK_SpritePtrs[(sprtype*5)+4]) + (shapenumber*6);
 };
 
 void CK_SetupSprites(){
@@ -431,35 +460,34 @@ void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
 	unsigned spritenumber, drawtype draw, int priority)
 {
     objtype *obj = (objtype*)user;
-    /*
-	if (!spritenumber || spritenumber == (unsigned)-1)
-	{
-		RF_RemoveSprite (user);
-		return;
-	}*/
+    
     if(!obj) return;
-    if(obj->isFree) return;
-    if(obj->ck_sprType == CKS_EOL) return;
+	if (spritenumber == CKS_EOL)
+	{
+		RF_RemoveSprite (obj);
+		return;
+	}
+    obj->isFree = false;
 
     CK_UpdateObjGraphics(obj);
 
-    obj->deltax = globalx;
-    obj->deltay = globaly;
-    obj->drawtype = draw;
+    signed short *shape = CK_GetSprShape(obj);
 
     signed int dx = globalx;
     signed int dy = globaly;    
 
-    signed short *shape = CK_GetShape(obj->ck_sprType, spritenumber);
+	dx += shape[4]<<G_P_SHIFT;
+	dy += shape[5]<<G_P_SHIFT;
+
+    obj->deltax = dx;
+    obj->deltay = dy;
+    obj->drawtype = draw;
 
     dx -= originxglobal;
     dy -= originyglobal;
 
     dx = CONVERT_GLOBAL_TO_PIXEL(dx);
     dy = CONVERT_GLOBAL_TO_PIXEL(dy);
-
-	dx += shape[4];
-	dy += shape[5];
 
     CK_DrawObject(obj, dx, dy);
 
@@ -478,14 +506,14 @@ void RF_PlaceSprite (void *user,unsigned globalx,unsigned globaly,
 void RF_RemoveSprite (void *user){
     objtype *ob = (objtype*)user;
     if(!ob) return;
+    if(ob->removed) return; // ???
+    if(ob->sprAvailable == 1) return; // Don't touch them???
     // Hide the GBA sprites so we can use them later??
      for(int i = 0; i < ob->gbaSpriteCount; i++){
         GBA_HideSprites(ob->gbaSprites[i]);
      }
-//    ob->gfxoffset = 0xFFFFFFFF;
     ob->isFree = true;
-//    ob->gbaSpriteCount = 0;
-//    ob->ck_sprType = CKS_EOL;
+    ob->drawtype = 0xF;
     GBA_UPDATE_SPRITES()
 };
 

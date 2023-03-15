@@ -711,11 +711,11 @@ void PlayLoop(void)
         //
         // go through state changes and propose movements
         //
-		for (int i = 0; i < CK_NumOfObjects; i++)
+		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
 			if(!obj) break;
-			if(obj->isFree == true) continue;
+			if(obj->removed) continue;
 
 			if (!obj->active && obj->tileright >= originxtile-1
 				&& obj->tileleft <= originxtilemax+1 && obj->tiletop <= originytilemax+1
@@ -763,18 +763,18 @@ void PlayLoop(void)
 //
 // check for and handle collisions between objects
 //
-		for (int i = 0; i < CK_NumOfObjects; i++)
+		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
 			if(!obj) break;
-			if(obj->isFree == true) continue;
+			if(obj->removed) continue;
 			if (obj->active)
 			{
-				for(int oi = i; oi < CK_NumOfObjects; oi++){
+				for(int oi = i+1; oi < CK_NumOfObjects; oi++){
         			check = &CK_ObjectList[oi];
 
 					if(!check) break;
-					if(check->isFree == true) break;
+					if(check->removed) continue;
 
 					if (!check->active)
 					{
@@ -816,11 +816,11 @@ void PlayLoop(void)
 //
 // react to whatever happened, and post sprites to the refresh manager
 //
-		for (int i = 0; i < CK_NumOfObjects; i++)
+		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
 			if(!obj) continue;
-			if(obj->isFree == true) continue;
+			if(obj->removed) continue;
 			if (!obj->active)
 			{
 				continue;

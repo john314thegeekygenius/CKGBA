@@ -8,9 +8,10 @@
 #define __CK_SPRITES__
 
 
-extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS];
+extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS+1]; // Plus dummy sprite
 extern unsigned int CK_NumOfObjects;
 
+extern const unsigned int CK_GFX_NULL;
 
 DONT_OPTIMISE objtype * GetNewObj(boolean dummy);
 
@@ -28,7 +29,7 @@ void CK_UpdateObjects();
 
 signed short *CK_GetSprShape(objtype *obj);
 
-signed short *CK_GetShape(unsigned int sprtype, unsigned short shapenumber);
+uint32_t *CK_GetObjGfxOffset(objtype *obj, int spriteid);
 
 void CK_DrawObject(objtype *obj, signed int dx, signed int dy);
 

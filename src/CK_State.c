@@ -326,7 +326,7 @@ boolean CheckPosition(objtype *ob)
 
 boolean StatePositionOk(objtype *ob, statetype *state)
 {
-
+	if(!ob || ob->removed) return false;
 	if (ob->xdir > 0)
 	{
 		ob->shapenum = state->rightshapenum;
@@ -360,6 +360,7 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 {
+	if(!ob || ob->removed) return;
 	signed short *shape = CK_GetSprShape(ob);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
@@ -388,6 +389,8 @@ void ClipToWalls(objtype *ob)
 	Uint16 y;
 #endif
 	boolean pushed;
+
+	if(!ob || ob->removed) return false;
 
 	oldx = ob->x;
 	oldy = ob->y;
@@ -441,7 +444,7 @@ void ClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-	if (ob->shapenum == -1)				// can't get a hit rect with no shape!
+	if (ob->shapenum == CKS_EOL)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
@@ -563,6 +566,8 @@ void ClipToWalls(objtype *ob)
 void FullClipToWalls(objtype *ob)
 {
 	Uint16 oldx, oldy, w, h;
+
+	if(!ob || ob->removed) return false;
 
 	oldx = ob->x;
 	oldy = ob->y;
@@ -710,7 +715,9 @@ void FullClipToWalls(objtype *ob)
 void PushObj(objtype *ob)
 {
 	Uint16 oldx, oldy;
-	
+
+	if(!ob || ob->removed) return false;
+
 	oldx = ob->x;
 	oldy = ob->y;
 
@@ -723,7 +730,7 @@ void PushObj(objtype *ob)
 	ob->needtoreact = true;
 
 	// Changed so sprites can have shape num of 0
-	if (ob->shapenum == -1)				// can't get a hit rect with no shape!
+	if (ob->shapenum == CKS_EOL)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
@@ -1897,9 +1904,14 @@ done:
 		if (++ob->temp2 == 3)
 			ob->temp2 = 0;
 	}
-	/// TODO:
+	// TODO:
 	// Hmmm
-//	RF_PlaceSprite((void **)&ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
+/*	if(ob->temp3 == 0){
+		ob->temp3 = (Sint16*)GetNewObj(true);
+		CK_SetSprite(ob->temp3, CKS_STARS);
+	}
+	RF_PlaceSprite(ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
+*/
 }
 
 

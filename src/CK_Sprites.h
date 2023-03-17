@@ -15,29 +15,24 @@ extern const unsigned int CK_GFX_NULL;
 
 DONT_OPTIMISE objtype * GetNewObj(boolean dummy);
 
-objtype * CK_GetObj(int index);
+void CK_SetSprite(objsprite **spr, CK_SpriteType type);
 
-void CK_SetSprite(objtype *obj, CK_SpriteType type);
+void CK_RemakeSprite(objsprite **spr, CK_SpriteType type);
 
-void CK_RemakeSprite(objtype *obj, CK_SpriteType type);
+void CK_UpdateSpriteGraphics(objsprite *spr);
 
-void CK_SetDummySprite(objtype *obj);
+signed short *CK_GetSprShape(objsprite *obj);
 
-void CK_UpdateObjGraphics(objtype *obj);
+uint32_t *CK_GetSpriteGfxOffset(objsprite *sprite, int spriteid);
 
-void CK_UpdateObjects();
+void CK_UpdateSprites();
 
-signed short *CK_GetSprShape(objtype *obj);
-
-uint32_t *CK_GetObjGfxOffset(objtype *obj, int spriteid);
-
-void CK_DrawObject(objtype *obj, signed int dx, signed int dy);
+void CK_DrawSprite(objsprite *sprite);
 
 void CK_SetupSprites();
 
 void CK_RemoveSprites();
 
-// DEBUG FUNCTION
-void CK_PrintObjInfo();
+void RF_RemoveSprite (void **user, bool cache);
 
 #endif

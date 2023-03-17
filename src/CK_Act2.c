@@ -76,7 +76,7 @@ void SpawnWormMouth(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(ck_newobj, CKS_WORMOUTH);
+	CK_SetSprite(&ck_newobj->sprite, CKS_WORMOUTH);
 	NewState(ck_newobj, &s_worm);
 }
 
@@ -250,7 +250,7 @@ void SpawnCloudster(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	CK_SetSprite(ck_newobj, CKS_THUNDERCLOUD);
+	CK_SetSprite(&ck_newobj->sprite, CKS_THUNDERCLOUD);
 	NewState(ck_newobj, &s_cloudsleep);
 }
 
@@ -319,7 +319,7 @@ void R_Cloud(objtype *ob)
 		ob->xspeed = 0;
 		ob->xdir = 1;
 	}
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -338,7 +338,7 @@ void T_CloudShoot(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->x = ob->x + TILEGLOBAL;
 	ck_newobj->y = ob->y + TILEGLOBAL;
-	CK_SetSprite(ck_newobj, CKS_LIGHTNINGBOLT);
+	CK_SetSprite(&ck_newobj->sprite, CKS_LIGHTNINGBOLT);
 	NewState(ck_newobj, &s_bolt1);
 	SD_PlaySound(SND_THUNDER);
 }
@@ -425,7 +425,7 @@ void SpawnBerkeloid(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->temp2 = 8;
-	CK_SetSprite(ck_newobj, CKS_BERKELOID);
+	CK_SetSprite(&ck_newobj->sprite, CKS_BERKELOID);
 	NewState(ck_newobj, &s_berkefloat1);
 }
 
@@ -498,7 +498,7 @@ void BerkeThrowThink(objtype *ob)
 		ck_newobj->x = ob->x - 16*PIXGLOBAL;
 		ck_newobj->xdir = -1;
 	}
-	CK_SetSprite(ck_newobj, CKS_FLAME);
+	CK_SetSprite(&ck_newobj->sprite, CKS_FLAME);
 	NewState(ck_newobj, &s_fire1);
 	ob->needtoreact = true;
 }
@@ -556,7 +556,7 @@ void FireReact(objtype *ob)
 		SD_PlaySound(SND_FIREBALLLAND);
 		ChangeState(ob, &s_fireland1);
 	}
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -582,7 +582,7 @@ void BerkeDrawReact(objtype *ob)
 		ob->temp2 = 8;
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y+ob->temp1, ob->shapenum, spritedraw, 0);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y+ob->temp1, ob->shapenum, spritedraw, 0);
 }
 
 /*
@@ -664,7 +664,7 @@ void SpawnInchworm(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(ck_newobj, CKS_INCHWORM);
+	CK_SetSprite(&ck_newobj->sprite, CKS_INCHWORM);
 	NewState(ck_newobj, &s_inch1);
 	ck_newobj->ticcount = US_RndT() / 32;
 }
@@ -685,7 +685,7 @@ void SpawnFoot(Sint16 x, Sint16 y)
 	ck_newobj->priority = 0;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-3);
-	CK_SetSprite(ck_newobj, CKS_FOOT);
+	CK_SetSprite(&ck_newobj->sprite, CKS_FOOT);
 	NewState(ck_newobj, &s_footwait);
 }
 
@@ -738,7 +738,7 @@ void InchContact(objtype *ob, objtype *hit)
 	ob->y -= 5*TILEGLOBAL;
 	ob->obclass = footobj;
 	ChangeState(ob, &s_footwait);
-	CK_RemakeSprite(ob, CKS_FOOT);
+	CK_RemakeSprite(&ob->sprite, CKS_FOOT);
 
 	//Note: It would make more sense to remove the remaining inchworm BEFORE
 	//spawning the smoke, just in case there are not enough free spots in the
@@ -749,28 +749,28 @@ void InchContact(objtype *ob, objtype *hit)
 	ck_newobj->x = ob->x -  8*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
 	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 16*PIXGLOBAL;
 	ck_newobj->y = ob->y + 24*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
 	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 40*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
 	NewState(ck_newobj, &s_footsmoke1);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x;
 	ck_newobj->y = ob->y - 8*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(ck_newobj, CKS_TESMOKE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
 	NewState(ck_newobj, &s_footsmoke1);
 
 	//remove ALL inchworm from the level:
@@ -836,7 +836,7 @@ void SpawnBounder(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 8*PIXGLOBAL;
 	ck_newobj->ydir = 1;
 	ck_newobj->xdir = 0;
-    CK_SetSprite(ck_newobj, CKS_BOUNDER);
+    CK_SetSprite(&ck_newobj->sprite, CKS_BOUNDER);
 	NewState(ck_newobj, &s_bounderup1);
 }
 
@@ -945,7 +945,7 @@ void R_Bounder(objtype *ob)
 		ob->xspeed = -ob->xspeed;
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -999,7 +999,7 @@ void SpawnLick(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->nothink = US_RndT() / 64;
-	CK_SetSprite(ck_newobj, CKS_LICK);
+	CK_SetSprite(&ck_newobj->sprite, CKS_LICK);
 	NewState(ck_newobj, &s_lick3);
 }
 
@@ -1100,7 +1100,7 @@ void LickAirReact(objtype *ob)
 	if (ob->hitnorth)
 		ChangeState(ob, &s_lick4);
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -1151,7 +1151,7 @@ void SpawnPlatform(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->ydir = 0;
 		break;
 	}
-	CK_SetSprite(ck_newobj, CKS_ELEVATOR);
+	CK_SetSprite(&ck_newobj->sprite, CKS_ELEVATOR);
 	NewState(ck_newobj, &s_platform);
 }
 
@@ -1253,42 +1253,52 @@ void R_Platform(objtype *ob)
 	Uint16 frame;
 
 	//place platform sprite:
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
-/*	
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+
+	// Generate the sprites if needed
+	if(!ob->temp2){
+		ob->temp2 = (Sint32)CK_GetNewSprite();
+		CK_SetSprite((objsprite**)(&ob->temp2), CKS_EFIRE);
+	}
+	if(!ob->temp3){
+		ob->temp3 = (Sint32)CK_GetNewSprite();
+		CK_SetSprite((objsprite**)(&ob->temp3), CKS_EFIRE);
+	}
+
 	//place (or remove) thruster sprites:
 	frame = (lasttimecount >> 2) & 1;
 	if (ob->xdir == 1)
 	{
-		RF_PlaceSprite(ob->temp2, ob->x-1*PIXGLOBAL, ob->y+3*PIXGLOBAL, frame+PLATSIDETHRUST1SPR, spritedraw, 0);
+		RF_PlaceSprite((objsprite**)&ob->temp2, ob->x-1*PIXGLOBAL, ob->y+3*PIXGLOBAL, frame+PLATSIDETHRUST1SPR, spritedraw, 0);
 		if (ob->temp3)
-			RF_RemoveSprite(ob->temp3);
+			RF_RemoveSprite(&ob->temp3, true);
 	}
 	else if (ob->xdir == -1)
 	{
 		if (ob->temp2)
-			RF_RemoveSprite(ob->temp2);
+			RF_RemoveSprite(&ob->temp2, true);
 		RF_PlaceSprite(ob->temp3, ob->x+48*PIXGLOBAL, ob->y+5*PIXGLOBAL, frame+PLATSIDETHRUST1SPR, spritedraw, 1);
 	}
 	else if (ob->ydir == -1)
 	{
-		RF_PlaceSprite(ob->temp2, ob->x+2*PIXGLOBAL, ob->y+9*PIXGLOBAL, frame+PLATLTHRUST1SPR, spritedraw, 0);
-		RF_PlaceSprite(ob->temp3, ob->x+46*PIXGLOBAL, ob->y+8*PIXGLOBAL, frame+PLATRTHRUST1SPR, spritedraw, 0);
+		RF_PlaceSprite(&ob->temp2, ob->x+2*PIXGLOBAL, ob->y+9*PIXGLOBAL, frame+PLATLTHRUST1SPR, spritedraw, 0);
+		RF_PlaceSprite(&ob->temp3, ob->x+46*PIXGLOBAL, ob->y+8*PIXGLOBAL, frame+PLATRTHRUST1SPR, spritedraw, 0);
 	}
 	else if (ob->ydir == 1)
 	{
 		if (frame)
 		{
-			RF_PlaceSprite(ob->temp2, ob->x+2*PIXGLOBAL, ob->y+9*PIXGLOBAL, frame+PLATLTHRUST1SPR, spritedraw, 0);
-			RF_PlaceSprite(ob->temp3, ob->x+46*PIXGLOBAL, ob->y+8*PIXGLOBAL, frame+PLATRTHRUST1SPR, spritedraw, 0);
+			RF_PlaceSprite(&ob->temp2, ob->x+2*PIXGLOBAL, ob->y+9*PIXGLOBAL, frame+PLATLTHRUST1SPR, spritedraw, 0);
+			RF_PlaceSprite(&ob->temp3, ob->x+46*PIXGLOBAL, ob->y+8*PIXGLOBAL, frame+PLATRTHRUST1SPR, spritedraw, 0);
 		}
 		else
 		{
 			if (ob->temp2)
-				RF_RemoveSprite(ob->temp2);
+				RF_RemoveSprite(&ob->temp2, true);
 			if (ob->temp3)
-				RF_RemoveSprite(ob->temp3);
+				RF_RemoveSprite(&ob->temp3, true);
 		}
-	}*/
+	}
 }
 
 /*
@@ -1324,7 +1334,7 @@ void SpawnDropPlat(Sint16 x, Sint16 y)
 	ck_newobj->xdir = 0;
 	ck_newobj->ydir = 1;
 	ck_newobj->needtoclip = cl_noclip;
-	CK_SetSprite(ck_newobj, CKS_ELEVATOR);
+	CK_SetSprite(&ck_newobj->sprite, CKS_ELEVATOR);
 	NewState(ck_newobj, &s_dropplatsit);
 }
 

@@ -9,7 +9,7 @@
 
 unsigned short ck_def_button0 = GBA_BUTTON_A, ck_def_button1 = GBA_BUTTON_RSHOLDER, ck_def_button2 = GBA_BUTTON_B;
 Demo	DemoMode;
-byte  *DemoBuffer;
+GBA_IN_EWRAM byte  DemoBuffer[MAX_DEMO_BUFFER];
 word DemoOffset, DemoSize;
 
 const static Direction	DirTable[] =		// Quick lookup for total direction
@@ -46,12 +46,13 @@ IN_ReadControl(int player, ControlInfo *info)
 		mx = ((dbyte >> 2) & 3) - 1;
 		buttons = (dbyte >> 4) & 3;
 
-		if (!(DemoBuffer[DemoOffset]-1))
+		if (!(--DemoBuffer[DemoOffset]))
 		{
 			DemoOffset += 2;
-			if (DemoOffset >= DemoSize)
+			if (DemoOffset >= DemoSize || DemoOffset >= MAX_DEMO_BUFFER)
 				DemoMode = demo_PlayDone;
 		}
+
 		realdelta = false;
 	}
 	else if (DemoMode == demo_PlayDone)
@@ -219,7 +220,7 @@ DONT_OPTIMISE boolean IN_UserInput(longword delay,boolean clear)
 void
 IN_StartDemoPlayback(byte *buffer,word bufsize)
 {
-	DemoBuffer = buffer;
+//	DemoBuffer = buffer;
 	DemoMode = demo_Playback;
 	DemoSize = bufsize & ~1;
 	DemoOffset = 0;

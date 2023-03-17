@@ -655,15 +655,16 @@ const char *keentext[] = {
 };
 
 void RescuedMember(void)
-{/*
+{
 	SD_WaitSoundDone();
 	CA_UpLevel();
-	CA_MarkGrChunk(ORACLEPIC);
+/*	CA_MarkGrChunk(ORACLEPIC);
 	CA_MarkGrChunk(KEENTALK1PIC);
 	CA_MarkGrChunk(KEENTALK2PIC);
 	CA_CacheMarks(NULL);
+*/
 	StartMusic(-1);
-	VW_FixRefreshBuffer();
+/*	VW_FixRefreshBuffer();
 
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX, WindowY, ORACLEPIC);
@@ -690,11 +691,11 @@ void RescuedMember(void)
 			"immediately."
 			);
 	}
-	VW_UpdateScreen();
+	VW_UpdateScreen();*/
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
-
+/*
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	WindowW -= 48;
@@ -706,7 +707,7 @@ void RescuedMember(void)
 	IN_Ack();
 
 	VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
-	VW_UpdateScreen();
+	VW_UpdateScreen();*/
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
@@ -714,7 +715,7 @@ void RescuedMember(void)
 	gamestate.rescued++;
 	CA_DownLevel();
 	StopMusic();
-*/
+
 	//Note: scorebox sprite may have been re-cached by CA_DownLevel, but the level ends after this anyway
 }
 
@@ -757,7 +758,7 @@ void SpawnSwimKeen(Sint16 x, Sint16 y)
 	player->xdir = 1;
 	player->ydir = 1;
 	player->needtoclip = cl_fullclip;
-	CK_SetSprite(player, CKS_KEENSWIM);
+	CK_SetSprite(&player->sprite, CKS_KEENSWIM);
 	NewState(player, &s_keenswimslow1);
 }
 
@@ -788,7 +789,7 @@ void SpawnKbubble(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->yspeed = -24;
 	ck_newobj->xspeed = 4;
-	CK_SetSprite(ck_newobj, CKS_SBUBBLE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_SBUBBLE);
 	switch (US_RndT() / 64)
 	{
 	case 0:
@@ -984,7 +985,7 @@ void C_KeenSwim(objtype *ob, objtype *hit)
 				gamestate.ammo += shotsinclip[gamestate.difficulty];
 			}
 			ChangeState(hit, &s_bonusrise);
-			CK_RemakeSprite(hit, CK_BonusShadows[hit->temp1]);
+			CK_RemakeSprite(&hit->sprite, CK_BonusShadows[hit->temp1]);
 			break;
 		}
 		break;
@@ -1012,5 +1013,5 @@ void R_KeenSwim(objtype *ob)
 	if (ob->hitnorth && ob->yspeed > 0 || ob->hitsouth && ob->yspeed < 0)
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }

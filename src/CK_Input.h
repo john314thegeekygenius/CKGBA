@@ -38,8 +38,9 @@ typedef	CursorInfo	ControlInfo;
 
 typedef	word ScanCode;
 
+#define MAX_DEMO_BUFFER 0x1FF
 extern	Demo		DemoMode;
-extern byte  *DemoBuffer;
+extern GBA_IN_EWRAM byte  DemoBuffer[MAX_DEMO_BUFFER];
 extern word DemoOffset, DemoSize;
 
 

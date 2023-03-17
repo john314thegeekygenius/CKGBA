@@ -83,7 +83,7 @@ void SpawnEater(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(ck_newobj, CKS_TEATER);
+	CK_SetSprite(&ck_newobj->sprite, CKS_TEATER);
 	NewState(ck_newobj, &s_eaterstand1);
 }
 
@@ -190,7 +190,7 @@ void T_EaterTeleport(objtype *ob)
 		{
 			ob->x = ob2->x - 8*PIXGLOBAL;
 			ob->y = ob2->y;
-			CK_RemakeSprite(ob, CKS_TESMOKE);
+			CK_RemakeSprite(&ob->sprite, CKS_TESMOKE);
 			NewState(ob, &s_eatertport5);
 			return;
 		}
@@ -262,7 +262,7 @@ void EaterInTile(objtype *ob)
 				ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 				ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 				ck_newobj->active = ac_removable;
-				CK_SetSprite(ck_newobj, CKS_PVAPER);
+				CK_SetSprite(&ck_newobj->sprite, CKS_PVAPER);
 				ChangeState(ck_newobj, &s_eatenbonus1);	//using ChangeState and not NewState is fine for noclipping objects
 				//BUG? this doesn't play a sound
 				break;
@@ -296,7 +296,7 @@ void R_EaterAir(objtype *ob)
 	if (ob->hitnorth)	//BUG? maybe this was supposed to check hitsouth as well?
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -338,7 +338,7 @@ void SpawnMimrock(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y)+ -13*PIXGLOBAL;
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	CK_SetSprite(ck_newobj, CKS_MIMROCK);
+	CK_SetSprite(&ck_newobj->sprite, CKS_MIMROCK);
 	NewState(ck_newobj, &s_mimrock);
 }
 
@@ -468,7 +468,7 @@ void R_MimAir(objtype *ob)
 	if (ob->hitnorth || ob->hitsouth)
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -493,7 +493,7 @@ void R_MimBounce(objtype *ob)
 	if (ob->hitnorth)
 		ob->yspeed = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -553,7 +553,7 @@ void SpawnDopefish(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(ck_newobj, CKS_DOPEFISH);
+	CK_SetSprite(&ck_newobj->sprite, CKS_DOPEFISH);
 	NewState(ck_newobj, &s_dopefish1);
 }
 
@@ -739,7 +739,7 @@ void T_Burp(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->yspeed = -20;
 	ck_newobj->xspeed = 4;
-	CK_SetSprite(ck_newobj, CKS_LBUBBLE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_LBUBBLE);
 	NewState(ck_newobj, &s_bubble1);
 	SD_PlaySound(SND_BURP);
 }
@@ -790,7 +790,7 @@ void C_Dope(objtype *ob, objtype *hit)
 
 	ob->temp2 = ob->x;
 	ob->temp3 = ob->y;
-	ob->temp4 = (Sint16)hit;
+	ob->temp4 = (Sint32)hit;// Changed to 32bit
 	if (hit->midx < ob->midx)
 	{
 		ob->xdir = -1;
@@ -826,7 +826,7 @@ void R_Fish(objtype *ob)	//for Dopefish and Schoolfish
 	if (!ob->hitsouth && !ob->hitnorth)
 		ob->temp1 = 0;
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -860,7 +860,7 @@ void SpawnSchoolfish(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	CK_SetSprite(ck_newobj, CKS_SCHOOLFISH);
+	CK_SetSprite(&ck_newobj->sprite, CKS_SCHOOLFISH);
 	NewState(ck_newobj, &s_schoolfish1);
 }
 
@@ -932,7 +932,7 @@ void SpawnPixie(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = ck_newobj->temp1 = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	CK_SetSprite(ck_newobj, CKS_SPRITE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_SPRITE);
 	NewState(ck_newobj, &s_pixie);
 }
 
@@ -1002,7 +1002,7 @@ void T_PixieShoot(objtype *ob)
 	ck_newobj->active = ac_removable;
 	SD_PlaySound(SND_KEENFIRE);	//BUG?
 	ck_newobj->xdir = ob->xdir;
-	CK_SetSprite(ck_newobj, CKS_EBLAST);
+	CK_SetSprite(&ck_newobj->sprite, CKS_EBLAST);
 	NewState(ck_newobj, &s_pixiefire1);
 	SD_PlaySound(SND_SPRITEFIRE);
 }
@@ -1023,7 +1023,7 @@ void R_Mshot(objtype *ob)
 	}
 	else
 	{
-		RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 	}
 }
 
@@ -1073,7 +1073,7 @@ void SpawnMine(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->ydir = 0;
 		break;
 	}
-	CK_SetSprite(ck_newobj, CKS_MINE);
+	CK_SetSprite(&ck_newobj->sprite, CKS_MINE);
 	NewState(ck_newobj, &s_mine);
 }
 
@@ -1126,7 +1126,7 @@ void SpawnLindsey(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = ck_newobj->temp1 = CONVERT_TILE_TO_GLOBAL(y) - TILEGLOBAL;
 	ck_newobj->ydir = 1;
-    CK_SetSprite(ck_newobj, CKS_PLINDSEY);
+    CK_SetSprite(&ck_newobj->sprite, CKS_PLINDSEY);
 	NewState(ck_newobj, &s_lindsey1);
 }
 
@@ -1208,7 +1208,6 @@ void SpawnDartShooter(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->shapenum = DARTL1SPR;
 		break;
 	}
-    CK_SetDummySprite(ck_newobj);
 	NewState(ck_newobj, &s_dartthrower);
 }
 
@@ -1227,7 +1226,7 @@ void T_DartShoot(objtype *ob)
 	ck_newobj->y = ob->y;
 	ck_newobj->obclass = mshotobj;
 	ck_newobj->active = ac_removable;
-    CK_SetSprite(ck_newobj, CKS_DART);
+    CK_SetSprite(&ck_newobj->sprite, CKS_DART);
 	switch (ob->temp1)
 	{
 	case 0:
@@ -1264,7 +1263,7 @@ void T_DartShoot(objtype *ob)
 
 void R_DartThrower(objtype *ob)	//never used
 {
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -1291,7 +1290,7 @@ void SpawnScuba(Sint16 x, Sint16 y)
 	ck_newobj->active = ac_yes;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) + -TILEGLOBAL;
-    CK_SetSprite(ck_newobj, CKS_SWIMSUIT);
+    CK_SetSprite(&ck_newobj->sprite, CKS_SWIMSUIT);
 	NewState(ck_newobj, &s_scuba);
 }
 

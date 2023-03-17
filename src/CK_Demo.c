@@ -321,7 +321,9 @@ void Terminator(void)
 	
 	// Finish the render of the background
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | TILEMAP_MAP_0 | TILEMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
-	GBA_FINISH_BG1_4BIT(GBA_BG_MID | TILEMAP_MAP_1 | TERMMAP_BLOCK | GBA_BG_SIZE_32x32);
+	GBA_FINISH_BG1_4BIT(GBA_BG_FRONT | TILEMAP_MAP_1 | TERMMAP_BLOCK | GBA_BG_SIZE_32x32);
+	// Remove the second background
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 
 	for(int i = 0; i < 16; i++)
 		*((uint16_t*)GBA_PAL_BG_START+i) = COMMANDER_KEEN_PALETTE[CK_TERM_PAL[i]];
@@ -517,7 +519,9 @@ void StarWars(void)
 	
 	// Finish the render of the background
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | TILEMAP_MAP_0 | TILEMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
-	GBA_FINISH_BG1_4BIT(GBA_BG_MID | TILEMAP_MAP_1 | SWMAP_BLOCK | GBA_BG_SIZE_32x32);
+	GBA_FINISH_BG1_4BIT(GBA_BG_FRONT | TILEMAP_MAP_1 | SWMAP_BLOCK | GBA_BG_SIZE_32x32);
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
+
 
 	// Set the GBA scroll
 	*(volatile uint32_t*)GBA_REG_BG0HOFS = 0;
@@ -597,9 +601,13 @@ void RunDemo(Sint16 num)
 	gamestate.mapon = demodata[0];
 	DemoSize = demodata[1];
 
+	if(DemoSize >= MAX_DEMO_BUFFER){
+		Quit("RunDemo : Demo is too long!");
+	}
 
-    DemoBuffer = &CK_DemoPtrs[num];
-	DemoBuffer += 4;
+	for(int i  = 0; i < DemoSize; i++){
+	    DemoBuffer[i] = ((Uint8*)demodata)[i+4];
+	}
 	IN_StartDemoPlayback(DemoBuffer, DemoSize);
 	SetupGameLevel(true);
 	if (scorescreenkludge)

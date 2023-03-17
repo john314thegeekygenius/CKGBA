@@ -46,10 +46,12 @@ const enum {
 
 #define TILEMAP_MAP_0 0x1E00
 #define TILEMAP_MAP_1 0x1F00
+#define TILEMAP_MAP_2 0x1D00
 
 
 extern volatile uint16_t *TILEMAP_0;
 extern volatile uint16_t *TILEMAP_1;
+extern volatile uint16_t *TILEMAP_2;
 
 extern volatile uint16_t* TILESTART_0;
 extern volatile uint16_t* TILESTART_1;
@@ -66,6 +68,9 @@ extern boolean	screenfaded;
 void VW_ClearVideo(unsigned int color);
 void VW_ClearScroll();
 void VW_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c);
+
+DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls);
+
 
 #define VW_SetDefaultColors() CK_FixPalette()
 

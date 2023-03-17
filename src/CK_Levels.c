@@ -28,14 +28,21 @@ int		hscrolledge[MAXSCROLLEDGES],vscrolledge[MAXSCROLLEDGES];
 
 void CK_SetupLevelGBAMaps(){
 	// Set the map to a constant 
-	for(int i = 0; i < 32*32; i++){
+	for(int i = 0; i < 32*22; i++){
 		*(uint16_t*)(TILEMAP_0+i) = i;
 		*(uint16_t*)(TILEMAP_1+i) = i+0xC0;
+		*(uint16_t*)(TILEMAP_2+i) = 0x380; // This tile must ALWAYS be clear!
 	}
-	
+
+    // Clear the special tile
+    GBA_DMA_MemSet32((volatile uint32_t *)TILESTART_1+0x1600, CK_EGA_CLEAR, 8);
+
 	// Finish the render of the background
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | TILEMAP_MAP_0 | TILEMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
 	GBA_FINISH_BG1_4BIT(GBA_BG_MID | TILEMAP_MAP_1 | TILEMAP_BLOCK_1 | GBA_BG_SIZE_32x32);
+	GBA_FINISH_BG2_4BIT(GBA_BG_FRONT | TILEMAP_MAP_2 | TILEMAP_BLOCK_1 | GBA_BG_SIZE_32x32);
+	*(volatile unsigned int*)GBA_REG_DISPCNT |= GBA_ENABLE_BG2;
+    
 };
 
 
@@ -119,7 +126,7 @@ void CK_SetInfo(unsigned int offset, unsigned short tile){
 void CK_ForceLevelRedraw(){
     CK_UpdateRendering = true;
     CK_RenderLevel();
-    CK_UpdateObjects();
+    CK_UpdateSprites();
 };
 
 void CK_LoadLevel(unsigned short lvlNumber){
@@ -253,7 +260,7 @@ void CK_ScrollCamera(signed int x, signed int y ){
 #define CKTILEBG(x,y) (((y)*(UMTILESET_WIDTH_VALD)) + ((x)<<4))
 #define CKTILEFG(x,y) (((y)*(MTILESET_WIDTH_VALD)) + ((x)<<4))
 
-GBA_IN_IWRAM uint32_t *CK_BlitBuffer[16*11][2];
+GBA_IN_IWRAM uint32_t *CK_BlitBuffer[16*11][3];
 
 void RFL_RemoveAnimsInBlock(unsigned int x, unsigned int y, unsigned short width, unsigned short height){
     for(int p = 0; p < 2; p++){
@@ -327,6 +334,7 @@ void CK_RenderLevel(){
         // Load the tiles in real time
         doffset = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
         const unsigned int VSHIFT = (32<<3);
+        int blitoffset = 0;
         // Pregenerate a new map
         for(int i = 0; i < 11; ++i){
             for(int e = 0; e < 16; ++e){
@@ -335,8 +343,10 @@ void CK_RenderLevel(){
                 tileX = keenTile%18;
                 BlitTile = CKTILEBG(tileX,tileY);
 
+                blitoffset = (i*16)+e;
+
                 // Copy the background tiles
-                CK_BlitBuffer[(i*16)+e][0] = (volatile uint32_t *)CK_TILESET_UNMASKED+BlitTile;
+                CK_BlitBuffer[blitoffset][0] = (volatile uint32_t *)CK_TILESET_UNMASKED+BlitTile;
 
                 keenTile = CK_CurLevelData[doffset+CK_CurLevelSize];
 //                if(keenTile==0) goto skipdraw2; // Skip blank tiles???????
@@ -345,13 +355,12 @@ void CK_RenderLevel(){
                 BlitTile = CKTILEFG(tileX,tileY);
 
                 // Copy the foreground tiles
-                CK_BlitBuffer[(i*16)+e][1] = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
-                // If it covers sprites, draw it in the foreground, else background
-//                if(CK_TileInfoFG[keenTile+(CK_TileInfo_FGTiles*5)&0x80]){
-/*                }else{
-                    GBA_DMA_Copy32(vptr, tileptr, 16);
-                    GBA_DMA_Copy32(vptr+(32<<3), tileptr+(MTILESET_WIDTH_VAL), 16);
-                }*/
+                CK_BlitBuffer[blitoffset][2] = 0;
+                CK_BlitBuffer[blitoffset][1] = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
+                // If it covers sprites, draw it in the super foreground
+                if( (unsigned int)CK_TileInfoFG[keenTile + INTILE] & INTILE_FOREGROUND){
+                    CK_BlitBuffer[blitoffset][2] = (volatile uint32_t *)CK_TILESET_MASKED+BlitTile;
+                }
                 ++doffset;
             }
             doffset += (CK_CurLevelWidth-16);
@@ -367,20 +376,41 @@ void CK_RenderLevel(){
 
             *(volatile uint16_t*)GBA_REG_BG1HOFS = (uint16_t)CK_CameraX&0x1FF;
             *(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_CameraY&0x1FF;
-        }
 
+            *(volatile uint16_t*)GBA_REG_BG2HOFS = (uint16_t)CK_CameraX&0x1FF;
+            *(volatile uint16_t*)GBA_REG_BG2VOFS = (uint16_t)CK_CameraY&0x1FF;
+        }
+        volatile uint16_t* tilemem = TILEMAP_2;
+        int tileoffset = 0;
         // Do the data transfer
         for(int i = 0; i < 11; ++i){
             for(int e = 0; e < 16; ++e){
-                GBA_DMA_Copy32(vptr, CK_BlitBuffer[(i<<4)+e][0], 16);
-                GBA_DMA_Copy32(vptr+VSHIFT, CK_BlitBuffer[(i<<4)+e][0]+(UMTILESET_WIDTH_VAL), 16);
+                blitoffset = (i<<4)+e;
+                tileoffset = (i<<6)+(e<<1);
+                GBA_DMA_Copy32(vptr, CK_BlitBuffer[blitoffset][0], 16);
+                GBA_DMA_Copy32(vptr+VSHIFT, CK_BlitBuffer[blitoffset][0]+(UMTILESET_WIDTH_VAL), 16);
 
-                GBA_DMA_Copy32(vptr2, CK_BlitBuffer[(i<<4)+e][1], 16);
-                GBA_DMA_Copy32(vptr2+VSHIFT, CK_BlitBuffer[(i<<4)+e][1]+(MTILESET_WIDTH_VAL), 16);
+                GBA_DMA_Copy32(vptr2, CK_BlitBuffer[blitoffset][1], 16);
+                GBA_DMA_Copy32(vptr2+VSHIFT, CK_BlitBuffer[blitoffset][1]+(MTILESET_WIDTH_VAL), 16);
+
+                if(CK_BlitBuffer[blitoffset][2]){
+                    // Copy some tile ids over the the top map
+                    *tilemem = tileoffset+0xC0;
+                    *(tilemem+1) = tileoffset+1+0xC0;
+                    *(tilemem+32) = tileoffset+32+0xC0;
+                    *(tilemem+33) = tileoffset+33+0xC0;
+                }else{
+                    *tilemem = 0x380;
+                    *(tilemem+1) = 0x380;
+                    *(tilemem+32) = 0x380;
+                    *(tilemem+33) = 0x380;
+                }
 
                 vptr += 16;
                 vptr2 += 16;
+                tilemem+=2;
             }
+            tilemem+=32;
             vptr += 256;
             vptr2 += 256;
         }
@@ -393,17 +423,6 @@ void CK_RenderLevel(){
             --CK_POICount;
         }
     }*/
-
-    // Move the camera if need be
-    if(CK_CameraMoved){
-        CK_CameraMoved = false;
-        *(volatile uint16_t*)GBA_REG_BG0HOFS = (uint16_t)CK_CameraX&0x1FF;
-        *(volatile uint16_t*)GBA_REG_BG0VOFS = (uint16_t)CK_CameraY&0x1FF;
-
-        *(volatile uint16_t*)GBA_REG_BG1HOFS = (uint16_t)CK_CameraX&0x1FF;
-        *(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_CameraY&0x1FF;
-    }
-
 };
 
 void CK_UpdateLevel(){
@@ -691,3 +710,19 @@ void RFL_BoundNewOrigin (unsigned orgx,unsigned orgy)
 }
 
 
+// These don't do what the original code did,
+// These functions reposition the screen for optimum
+// dialog viewing
+
+void CA_UpLevel(){
+    // TODO:
+    // Make this do somthing
+
+};
+
+void CA_DownLevel(){
+    // TODO:
+    // Make this do somthing
+    
+
+};

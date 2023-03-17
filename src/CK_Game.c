@@ -92,7 +92,7 @@ void NewGame(void)
 	// TODO:
 	// Remove this
 	gamestate.wetsuit = 1;
-	gamestate.scoreboxdisp = CK_DISP_SCORE_DOS;
+	gamestate.scoreboxdisp = CK_DISP_SCORE_GBA;
 	gamestate.difficulty = gd_Easy;
 }
 

@@ -36,13 +36,14 @@ void CK_FixPalette(){
 
 	// Copy over a completely white palette for sprite flashing
 	for(int i = 0; i < 16; i++){
-		*((uint16_t*)GBA_PAL_SPR_START+(15*16)+i) = COMMANDER_KEEN_PALETTE[(CK_PaletteSet*16)+15];
+		*((uint16_t*)GBA_PAL_SPR_START+(16)+i) = COMMANDER_KEEN_PALETTE[(CK_PaletteSet*16)+15];
 	}
 };
 
 
 volatile uint16_t *TILEMAP_0 = (volatile uint16_t*)GBA_SCREEN_BLOCK(30);
 volatile uint16_t *TILEMAP_1 = (volatile uint16_t*)GBA_SCREEN_BLOCK(31);
+volatile uint16_t *TILEMAP_2 = (volatile uint16_t*)GBA_SCREEN_BLOCK(29);
 
 volatile uint16_t* TILESTART_0 = (volatile uint16_t*)GBA_VRAM;
 volatile uint16_t* TILESTART_1 = (volatile uint16_t*)(GBA_VRAM+0x6000)-1024;
@@ -50,7 +51,7 @@ volatile uint16_t* TILESTART_1 = (volatile uint16_t*)(GBA_VRAM+0x6000)-1024;
 
 void CK_InitVideo(){
 	// Setup the video
-	*(volatile unsigned int*)GBA_REG_DISPCNT = GBA_MODE_0 | GBA_ENABLE_BG0 | GBA_ENABLE_BG1;// | GBA_BG_BACK;// | GBA_SHOW_BACK;
+	*(volatile unsigned int*)GBA_REG_DISPCNT = GBA_MODE_0 | GBA_ENABLE_BG0 | GBA_ENABLE_BG1;
 	
 	// Set the palette
 	CK_FixPalette();
@@ -84,3 +85,8 @@ void VW_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsi
 	}
 };
 
+DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls){
+	while(vbls--){
+		GBA_WAIT_VBLANK
+	}
+};

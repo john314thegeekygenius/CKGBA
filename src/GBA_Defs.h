@@ -100,6 +100,7 @@ void GBA_DMA_MemSet32(uint32_t* dest, uint32_t val, int len);
 
 void GBA_ASM_Copy16(uint16_t* dest, uint16_t* source, int amount);
 void GBA_ASM_Copy32(uint32_t* dest, uint32_t* source, int amount);
+void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) ;
 
 //void GBA_ASM_Memset16(uint16_t* dest, uint16_t* source, int amount);
 //void GBA_ASM_Memset32(uint32_t* dest, uint32_t* source, int amount);
@@ -490,10 +491,10 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 	GBA_SpriteList[(index)].a2 |= (tileindex)&0x3FF;\
 	}
 
-#define GBA_SET_RENDER(index,rend) \
+#define GBA_SET_PRIORITY(index,priority) \
 	if((index)>=0&&(index)<128){\
-	GBA_SpriteList[(index)].a1 &= 0xF3FF; \
-	GBA_SpriteList[(index)].a1 |= (rend);\
+	GBA_SpriteList[(index)].a2 &= 0xF3FF; \
+	GBA_SpriteList[(index)].a2 |= (priority&0x3);\
 	}
 
 #define GBA_UPDATE_SPRITES() GBA_DMA_Copy32((uint32_t*)GBA_SPRITE_START, (uint32_t*)GBA_SpriteList, GBA_NUM_SPRITES << 1);
@@ -504,6 +505,7 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 void GBA_ResetSprites();
 void GBA_HideSprites();
 void GBA_RemoveSprite(uint16_t id);
+void GBA_ClearSpriteCache();
 
 //////// Input
 

@@ -319,23 +319,28 @@ typedef struct objstruct
 	Uint16 left, top, right, bottom, midx;
 	Uint16 tileleft, tiletop, tileright, tilebottom, tilemidx;
 	Sint16 hitnorth, hiteast, hitsouth, hitwest;
-	Sint16 temp1, temp2, temp3, temp4;
+	Sint32 temp1, temp2, temp3, temp4; // Might break somthing??? now 32 bit
 	void *sprite;
 	//struct objstruct *next, *prev; // Originally used for saveing / loading
     ///////////////////////////////////////////////////
     // Added for GBA port
     unsigned char isFree;
 	unsigned int uuid;
-	unsigned char sprAvailable;
 	bool removed;
+} objtype;
+
+// New type for the GBA
+typedef struct objsprite {
     GBA_SpriteIndex_t gbaSprites[MAX_GBA_SPRITES];
     unsigned int sprsizes[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
+    CK_SpriteType ck_sprType;
+	Uint16 spritenum;
 	Sint32 deltax, deltay;
 	uint8_t drawtype;
-    CK_SpriteType ck_sprType;
-} objtype;
+	uint16_t priority;
+}objsprite;
 
 void ClearGameState();
 

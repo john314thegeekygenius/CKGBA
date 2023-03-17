@@ -77,6 +77,23 @@ copyloop:
 		goto copyloop;
 };
 
+void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) {
+	uint8_t *dstbytes = dest, *srcbytes = source;
+	uint8_t srcbyte, nibblea, nibbleb, wbyte;
+	amount *= 4; // multiply by 4
+copyloop:
+	wbyte = *(dstbytes);
+	srcbyte = *(srcbytes++);
+	nibblea = srcbyte&0xF;
+	nibbleb = srcbyte>>4;
+	if(nibblea) wbyte &= 0xF0;
+	if(nibbleb) wbyte &= 0x0F;
+	wbyte |= srcbyte;
+	*(dstbytes++) = wbyte;
+	if(--amount)
+		goto copyloop;	
+};
+
 
 GBA_Sprite GBA_SpriteList[GBA_NUM_SPRITES];
 uint16_t GBA_SpriteIndex = 0;
@@ -84,6 +101,12 @@ uint16_t GBA_SpriteIndex = 0;
 
 // Moves all the sprites off the screen to hide them
 void GBA_ResetSprites(){
+	GBA_ClearSpriteCache();
+	// Also update the sprites
+	GBA_UPDATE_SPRITES()
+};
+
+void GBA_ClearSpriteCache(){
 	int i;
 	for(i = 0; i < GBA_NUM_SPRITES; i++){
 		GBA_SpriteList[i].a0 = 0xF0;
@@ -91,7 +114,6 @@ void GBA_ResetSprites(){
 		GBA_SpriteList[i].a2 = 0;
 	}
 	GBA_SpriteIndex = 0;
-	GBA_UPDATE_SPRITES()
 };
 
 void GBA_HideSprites(){
@@ -130,14 +152,13 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 
 	// Set the sprite attributes
 	size_bits = size&0x3;//((int)size%4);
-	shape_bits = (size >> 2);
+	shape_bits = (size >> 2)&0x3;
 
 	for(i = 0; i < GBA_SpriteIndex; i++){
 		if(GBA_SpriteList[i].a0 == 0xF0 && GBA_SpriteList[i].a1 == 0xA0 && GBA_SpriteList[i].a2 == 0){
-			GBA_SpriteList[i].a0 = y | palflags | (shape_bits<<14);
-			GBA_SpriteList[i].a1 = x | (size_bits<<14);
-			GBA_SpriteList[i].a2 = tileIndex | zLayer | (palette<<12);
-
+			GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+			GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+			GBA_SpriteList[i].a2 = (tileIndex&0x3FF) | zLayer | (palette<<12);
 			return i;
 		}
 	}
@@ -147,8 +168,8 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 		GBA_SpriteIndex = 127; // lock in place
 	}
 
-	GBA_SpriteList[index].a0 = y | palflags | (shape_bits<<14);
-	GBA_SpriteList[index].a1 = x | (size_bits<<14);
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
 	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
 
 	GBA_UPDATE_SPRITE(index)
@@ -167,12 +188,12 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 
 	// Set the sprite attributes
 	size_bits = size&0x3;//((int)size%4);
-	shape_bits = (size >> 2);
+	shape_bits = (size >> 2)&0x3;
 
 	if(index<0||index>127) return; // bad sprite ID
-	GBA_SpriteList[index].a0 = y | palflags | (shape_bits<<14);
-	GBA_SpriteList[index].a1 = x | (size_bits<<14);
-	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+	GBA_SpriteList[index].a2 = (tileIndex&0x3FF) | zLayer | (palette<<12);
 };
 
 

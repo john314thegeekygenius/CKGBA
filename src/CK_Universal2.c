@@ -54,7 +54,6 @@ USL_SetUpCtlPanel(void)
 		GameIsDirty = true;
 */
 	IN_ClearKeysDown();
-	restartgame = gd_Easy;
 }
 
 

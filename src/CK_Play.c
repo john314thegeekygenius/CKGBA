@@ -711,10 +711,11 @@ void PlayLoop(void)
         //
         // go through state changes and propose movements
         //
+		if(!player) Quit("PlayLoop : No player!");
+
 		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
-			if(!obj) break;
 			if(obj->removed) continue;
 
 			if (!obj->active && obj->tileright >= originxtile-1
@@ -740,10 +741,9 @@ void PlayLoop(void)
 					{
 						if (US_RndT() < tics*2 || screenfaded || loadedgame)
 						{
-                            // TODO: Make this remove the sprites???
-							RF_RemoveSprite(obj);
+							RF_RemoveSprite(&obj->sprite, true);
 							if (obj->obclass == stunnedobj){
-								RF_RemoveSprite(obj->temp3);
+								RF_RemoveSprite(&obj->temp3, true);
 							}
 							obj->active = ac_no;
 							continue;
@@ -766,14 +766,12 @@ void PlayLoop(void)
 		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
-			if(!obj) break;
 			if(obj->removed) continue;
 			if (obj->active)
 			{
 				for(int oi = i+1; oi < CK_NumOfObjects; oi++){
         			check = &CK_ObjectList[oi];
 
-					if(!check) break;
 					if(check->removed) continue;
 
 					if (!check->active)
@@ -793,7 +791,7 @@ void PlayLoop(void)
 						}
 						if (obj->obclass == nothing)	//useless -- obclass is NOT set to nothing by RemoveObj
 						{
-							break;
+							continue; // Should be break???
 						}
 					}
 				}
@@ -819,7 +817,6 @@ void PlayLoop(void)
 		for (int i = player->uuid; i < CK_NumOfObjects; i++)
 		{
             objtype *obj = &CK_ObjectList[i];
-			if(!obj) continue;
 			if(obj->removed) continue;
 			if (!obj->active)
 			{
@@ -874,8 +871,7 @@ void PlayLoop(void)
 //
         CK_FixCamera();
         CK_RenderLevel();
-		//CK_PrintObjInfo();
-		CK_UpdateObjects();
+		CK_UpdateSprites();
 
         RF_CalcTics();
 

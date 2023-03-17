@@ -57,6 +57,8 @@ void Quit(char *error)
 	GBA_StopChannel(GBA_CHANNEL_A);
 	GBA_StopChannel(GBA_CHANNEL_B);
 	VW_ClearVideo(BLACK);
+	// Remove the second background
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 	VW_ClearScroll();
 	PrintX = 0;
 	PrintY = 0;
@@ -91,6 +93,7 @@ void DemoLoop(void)
 	while (1)
 	{
 		playstate = ex_resetgame;
+		restartgame = gd_Easy;
 		DemoMode = demo_Off;
 		switch (state++)
 		{

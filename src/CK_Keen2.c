@@ -63,17 +63,17 @@ void SpawnScore(void)
 	{
 		switch(gamestate.scoreboxdisp){
 			case CK_DISP_SCORE_DOS:
-			    CK_SetSprite(scoreobj, CKS_SCOREBOXDOS);
+			    CK_SetSprite(&scoreobj->sprite, CKS_SCOREBOXDOS);
 				break;
 			case CK_DISP_SCORE_GBA:
-			    CK_SetSprite(scoreobj, CKS_SCOREBOXGBA);
+			    CK_SetSprite(&scoreobj->sprite, CKS_SCOREBOXGBA);
 				break;
 		}
 		NewState(scoreobj, &s_score);
 	}
 	else
 	{
-	    CK_SetSprite(scoreobj, CKS_DEMO);
+	    CK_SetSprite(&scoreobj->sprite, CKS_DEMO);
 		NewState(scoreobj, &s_demo);
 	}
 }
@@ -124,8 +124,7 @@ void UpdateScore(objtype *ob)
 	uint32_t* vidmem = NULL;
 	uint32_t sprsize = 0;
 
-	if(!scoreobj) return;
-	if(scoreobj->gfxoffset == CK_GFX_NULL) return;
+	if(!scoreobj || !scoreobj->sprite) return;
 
 	if (scorescreenkludge)
 		return;
@@ -164,10 +163,10 @@ void UpdateScore(objtype *ob)
 	if (changed){
 		switch(gamestate.scoreboxdisp){
 			case CK_DISP_SCORE_DOS:
-				RF_PlaceSprite(ob, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
+				RF_PlaceSprite(&ob->sprite, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
 			break;
 			case CK_DISP_SCORE_GBA:
-				RF_PlaceSprite(ob, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
+				RF_PlaceSprite(&ob->sprite, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
 			break;
 		};
 	}
@@ -195,10 +194,10 @@ void UpdateScore(objtype *ob)
 		while (*ch ){
 			switch(gamestate.scoreboxdisp){
 				case CK_DISP_SCORE_DOS:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 				case CK_DISP_SCORE_GBA:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 			}
 			for(int drw = 0; drw < 8; drw++){
@@ -234,10 +233,10 @@ void UpdateScore(objtype *ob)
 		while (*ch ){
 			switch(gamestate.scoreboxdisp){
 				case CK_DISP_SCORE_DOS:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 				case CK_DISP_SCORE_GBA:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 			}
 			for(int drw = 0; drw < 8; drw++){
@@ -271,10 +270,10 @@ void UpdateScore(objtype *ob)
 		while (*ch ){
 			switch(gamestate.scoreboxdisp){
 				case CK_DISP_SCORE_DOS:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 				case CK_DISP_SCORE_GBA:
-					vidmem = CK_GetObjGfxOffset(scoreobj, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
 					break;
 			}
 			for(int drw = 0; drw < 8; drw++){
@@ -288,6 +287,25 @@ void UpdateScore(objtype *ob)
 		ob->temp4 = gamestate.lives;
 
 		changed = true;
+	}
+
+	// custom gba status bar
+	// includes:
+	// -- gem display
+	// -- oricale member display
+	if(gamestate.scoreboxdisp == CK_DISP_SCORE_GBA){
+		for(i = 13; i < 17; i++){
+			if(!gamestate.keys[i-13]) continue;
+			vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);			
+			for(int drw = 0; drw < 8; drw++){
+				*(vidmem++) = ((uint32_t*)CK_HUD)[drw - 8 + (i*8)];
+			}
+		}
+		i = 17; // for safety (should already be 17)
+		vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);			
+		for(int drw = 0; drw < 8; drw++){
+			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (gamestate.rescued*8)];
+		}
 	}
 
 };
@@ -305,7 +323,7 @@ void DrawDemoPlaque(objtype *ob){
 	{
 		ob->x = originxglobal;
 		ob->y = originyglobal;
-		RF_PlaceSprite(ob, ob->x + 120*PIXGLOBAL - 32*PIXGLOBAL, ob->y + 4*PIXGLOBAL, DEMOPLAQUESPR, spritedraw, 3);
+		RF_PlaceSprite(&ob->sprite, ob->x + 120*PIXGLOBAL - 32*PIXGLOBAL, ob->y + 4*PIXGLOBAL, DEMOPLAQUESPR, spritedraw, 3);
 	}
 
 }
@@ -386,7 +404,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 			player->xspeed = (Sint16)(16*TILEGLOBAL - player->x)/140 + 1;
 			player->yspeed = (Sint16)(47*TILEGLOBAL - player->y)/140 + 1;
 		}
-		CK_SetSprite(player, CKS_MAPFOOT);
+		CK_SetSprite(&player->sprite, CKS_MAPFOOT);
 		NewState(player, &s_keenonfoot1);
 		return;
 	}
@@ -411,7 +429,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	CK_SetSprite(player, CKS_MAPKEEN);
+	CK_SetSprite(&player->sprite, CKS_MAPKEEN);
 	NewState(player, &s_worldkeen);
 }
 
@@ -437,7 +455,7 @@ void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	CK_SetSprite(player, CKS_MAPKEEN);
+	CK_SetSprite(&player->sprite, CKS_MAPKEEN);
 	NewState(player, &s_worldkeen);
 }
 #endif
@@ -683,7 +701,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 		}
 
 		ob->shapenum = ((TimeCount >> 3) % 3) + WORLDKEENU1SPR;
-		RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 		tile = ((TimeCount >> 2) & TELEPORERTILEMASK) + TELEPORTERTILE1;
 		RF_MemToMap(&tile, 1, tileX, tileY, 1, 1);
@@ -717,7 +735,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 		{
 			o->needtoreact = true;
 			o->active = ac_yes;
-			RF_PlaceSprite(o, o->x, o->y, o->shapenum, spritedraw, o->priority);
+			RF_PlaceSprite(&o->sprite, o->x, o->y, o->shapenum, spritedraw, o->priority);
 		}
 	}
 	UpdateScore(scoreobj);
@@ -736,7 +754,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 		ob->y += tics*2 + tics;
 
 		ob->shapenum = ((TimeCount >> 3) % 3) + WORLDKEEND1SPR;
-		RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 		tile = ((TimeCount >> 2) & TELEPORERTILEMASK) + TELEPORTERTILE3;
 		RF_MemToMap(&tile, 1, tileX, tileY, 1, 1);
@@ -818,7 +836,7 @@ void T_Elevate(objtype *ob)
 	RF_Refresh();
 
 	ob->y -= TILEGLOBAL;
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 	//
 	// open the elevator door
@@ -845,7 +863,7 @@ void T_Elevate(objtype *ob)
 	{
 		ob->y += 8;	// move half a pixel every frame for 32 frames -> move down 16 pixels total
 		ob->shapenum = (y / 4) % 3 + WORLDKEEND1SPR;
-		RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 		RF_Refresh();
 	}
 	ob->needtoclip = cl_midclip;	// redundant, but doesn't do any harm
@@ -912,7 +930,7 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 		}
 
 		ob->shapenum = ((duration / 8) % 3) + WORLDKEENU1SPR;
-		RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 	}
 
 	//
@@ -936,7 +954,7 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 	//
 	// make Keen invisible (and not clipping) and send him to the destination
 	//
-	RF_RemoveSprite(ob);
+	RF_RemoveSprite(&ob->sprite, true);
 	info = *(mapsegs[2] + mapbwidthtable[tileY]/2 + tileX);
 	ob->temp2 = CONVERT_TILE_TO_GLOBAL(info >> 8);
 	ob->temp1 = CONVERT_TILE_TO_GLOBAL((info & 0x7F) + 1);	// BUG? y coordinate is limited to 1..127
@@ -1125,7 +1143,7 @@ void SpawnFlag(Sint16 x, Sint16 y)
 	}
 #endif
 	ck_newobj->ticcount = US_RndT() / 16;
-	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
+	CK_SetSprite(&ck_newobj->sprite, CKS_MAPFLAG);
 	NewState(ck_newobj, &s_flagwave1);
 }
 
@@ -1186,7 +1204,7 @@ void SpawnThrowFlag(Sint16 x, Sint16 y)
 			flagpath[i].y -= (29-i)*3*PIXGLOBAL;
 		}
 	}
-	CK_SetSprite(ck_newobj, CKS_MAPFLAG);
+	CK_SetSprite(&ck_newobj->sprite, CKS_MAPFLAG);
 	NewState(ck_newobj, &s_throwflag0);
 }
 
@@ -1314,7 +1332,7 @@ void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 		Quit("SpawnShot: Bad dir!");
 		break;
 	}
-	CK_SetSprite(ck_newobj, CKS_SHOT);
+	CK_SetSprite(&ck_newobj->sprite, CKS_SHOT);
 	NewState(ck_newobj, &s_stunray1);
 
 #ifdef KEEN6
@@ -1453,7 +1471,7 @@ void R_Shot(objtype *ob)
 	{
 		ExplodeShot(ob);
 	}
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 

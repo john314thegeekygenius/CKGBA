@@ -247,7 +247,7 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 
 	player->xdir = dir;
 	player->ydir = 1;
-    CK_SetSprite(player, CKS_KEEN);
+    CK_SetSprite(&player->sprite, CKS_KEEN);
 	NewState(player, &s_keenstand);
 
 }
@@ -375,7 +375,6 @@ boolean CheckEnterHouse(objtype *ob)
 				ck_newobj->active = ac_allways;
 				ck_newobj->needtoclip = cl_noclip;
 				ck_newobj->obclass = inertobj;
-				CK_SetDummySprite(ck_newobj);
 				NewState(ck_newobj, &s_carddoor);
 				// Note: no invincibility here - card doors were always used as level exits in Keen 5
 				ob->state = &s_keenenter0;
@@ -983,7 +982,6 @@ void KeenKeyThink(objtype *ob)
 	ck_newobj->active = ac_allways;
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->obclass = inertobj;
-	CK_SetDummySprite(ck_newobj);
 	NewState(ck_newobj, &s_door1);
 }
 
@@ -1727,7 +1725,7 @@ void KeenContact(objtype *ob, objtype *hit)
 			}
 #endif
 			ChangeState(hit, &s_bonusrise);
-			CK_RemakeSprite(hit, CK_BonusShadows[hit->temp1]);
+			CK_RemakeSprite(&hit->sprite, CK_BonusShadows[hit->temp1]);
 		}
 		break;
 
@@ -1941,6 +1939,9 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	{
 		gamestate.ammo += shotsinclip[gamestate.difficulty];
 	}
+	// TODO:
+	// This will make it crash???
+	return;
 	GetNewObj(true);
 	ck_newobj->obclass = inertobj;
 	ck_newobj->priority = 3;
@@ -1948,7 +1949,7 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = -1;
 	ck_newobj->temp2 = ck_newobj->shapenum = bonussprite[bonus];
-	CK_SetSprite(ck_newobj, CK_BonusShadows[bonus]);
+	CK_SetSprite(&ck_newobj->sprite, CK_BonusShadows[bonus]);
 	NewState(ck_newobj, &s_bonusrise);
 	ck_newobj->needtoclip = cl_noclip;
 }
@@ -1978,7 +1979,7 @@ void GiveDrop(Uint16 x, Uint16 y)
 		ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-1);
 		ck_newobj->ydir = -1;
 		ck_newobj->temp2 = ck_newobj->shapenum = BONUS100UPSPR;
-		CK_SetSprite(ck_newobj, CKS_SHADOWONEUP);
+		CK_SetSprite(&ck_newobj->sprite, CKS_SHADOWONEUP);
 		NewState(ck_newobj, &s_bonusrise);
 		ck_newobj->needtoclip = cl_noclip;
 	}
@@ -2084,7 +2085,7 @@ void CheckInTiles(objtype *ob)
 
 void KeenSimpleReact(objtype *ob)
 {
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -2128,7 +2129,7 @@ void KeenStandReact(objtype *ob)
 		ClipToWalls(ob);
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 }
 
@@ -2179,7 +2180,7 @@ void KeenWalkReact(objtype *ob)
 		ob->shapenum = ob->xdir == 1? s_keenstand.rightshapenum : s_keenstand.leftshapenum;
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 }
 
@@ -2329,7 +2330,7 @@ void KeenAirReact(objtype *ob)
 		}
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 #ifdef KEEN5
@@ -2428,7 +2429,7 @@ void KeenPogoReact(objtype *ob)
 				else
 				{
 					BreakFuse(ob->tilemidx, ob->tilebottom);
-					RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+					RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 					return;
 				}
 			}
@@ -2460,7 +2461,7 @@ void KeenPogoReact(objtype *ob)
 		}
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -2487,6 +2488,6 @@ void KeenPoleReact(objtype *ob)
 		ChangeState(ob, &s_keenlookdown);
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 

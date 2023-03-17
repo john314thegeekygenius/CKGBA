@@ -335,7 +335,8 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	{
 		ob->shapenum = state->leftshapenum;
 	}
-	signed short *shape = CK_GetSprShape(ob);
+	if(!ob->sprite) Quit("StatePositionOk () : Bad Obj sprite!");
+	signed short *shape = CK_GetSprShape(ob->sprite);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
 	ob->top = ob->y + shape[1]* HITGLOBAL;
@@ -361,7 +362,7 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 {
 	if(!ob || ob->removed) return;
-	signed short *shape = CK_GetSprShape(ob);
+	signed short *shape = CK_GetSprShape(ob->sprite);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
 	ob->top = ob->y + shape[1]* HITGLOBAL;
@@ -444,7 +445,7 @@ void ClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-	if (ob->shapenum == CKS_EOL)				// can't get a hit rect with no shape!
+	if (!ob->shapenum)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
@@ -462,7 +463,8 @@ void ClipToWalls(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	signed short *shape = CK_GetSprShape(ob);
+	if(!ob->sprite) Quit("ClipToWalls : Bad Obj sprite");
+	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
@@ -597,8 +599,8 @@ void FullClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-
-	signed short *shape = CK_GetSprShape(ob);
+	if(!ob->sprite) Quit("FullClipToWalls () : Bad Obj sprite!");
+	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	switch (ob->obclass)
 	{
@@ -730,12 +732,13 @@ void PushObj(objtype *ob)
 	ob->needtoreact = true;
 
 	// Changed so sprites can have shape num of 0
-	if (ob->shapenum == CKS_EOL)				// can't get a hit rect with no shape!
+	if (!ob->shapenum)				// can't get a hit rect with no shape!
 	{
 		return;
 	}
 
-	signed short *shape = CK_GetSprShape(ob);
+	if(!ob->sprite) Quit("PushObj () : Bad Obj sprite!");
+	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	oldtileright = ob->tileright;
 	oldtiletop = ob->tiletop;
@@ -979,8 +982,10 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 {
 	Sint16 ticcount, usedtics, excesstics;
 	statetype *state;
-	
+
+	if(!ob || ob->removed) Quit("DoActor : Bad object!");
 	state = ob->state;
+	if(!state) Quit("DoActor : Bad state!");
 
 	if (state->progress == think)
 	{
@@ -1092,15 +1097,21 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 ====================
 */
 
+
+// TODO:
+// This function crashes the game???
 void StateMachine(objtype *ob)
 {
 	Sint16 excesstics, oldshapenum;
 	statetype *state;
 	
+	if(!ob || ob->removed) Quit("StateMachine : Bad Object");
+
 	ob->xmove=ob->ymove=xtry=ytry=0;
 	oldshapenum = ob->shapenum;
 
 	state = ob->state;
+	if(!state) Quit("StateMachine : Bad state!");
 
 	excesstics = DoActor(ob, tics);
 	if (ob->state != state)
@@ -1135,12 +1146,12 @@ void StateMachine(objtype *ob)
 		return;
 	}
 
+	
 	//
 	// if state->rightshapenum == NULL, the state does not have a standard
 	// shape (the think routine should have set it)
 	//
-	// Fixed so shapenum can be 0
-	if (state->rightshapenum >= 0)
+	if (state->rightshapenum)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1153,7 +1164,7 @@ void StateMachine(objtype *ob)
 	}
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = -2;		// make it invisable this time
+		ob->shapenum = 0;		// make it invisable this time
 	}
 
 	if (xtry || ytry || ob->shapenum != oldshapenum || ob->hitnorth == 25)
@@ -1189,8 +1200,8 @@ void NewState(objtype *ob, statetype *state)
 	Sint16 temp;
 	
 	ob->state = state;
-	// Fixed so shapenum can be 0
-	if (state->rightshapenum >= 0)
+
+	if (state->rightshapenum)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1204,8 +1215,9 @@ void NewState(objtype *ob, statetype *state)
 
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = -2;
+		ob->shapenum = 0;
 	}
+
 
 	temp = ob->needtoclip;
 	ob->needtoclip = cl_noclip;
@@ -1240,8 +1252,7 @@ void ChangeState(objtype *ob, statetype *state)
 {
 	ob->state = state;
 	ob->ticcount = 0;
-	// Fixed so shapenum can be 0
-	if (state->rightshapenum >= 0)
+	if (state->rightshapenum)
 	{
 		if (ob->xdir > 0)
 		{
@@ -1255,7 +1266,7 @@ void ChangeState(objtype *ob, statetype *state)
 
 	if ((Sint16)ob->shapenum == -1)
 	{
-		ob->shapenum = -2;
+		ob->shapenum = 0;
 	}
 
 	ob->needtoreact = true;			// it will need to be redrawn this frame
@@ -1266,9 +1277,8 @@ void ChangeState(objtype *ob, statetype *state)
 	{
 		ClipToWalls(ob);
 	}
-	// Probably need to update the graphics???
-	CK_UpdateObjGraphics(ob);
 }
+
 
 //==========================================================================
 
@@ -1703,7 +1713,7 @@ void T_Stunned(objtype *ob)
 
 void C_Lethal(objtype *ob, objtype *hit)
 {
-	ob++;			// shut up compiler
+//	ob++;			// shut up compiler
 	if (hit->obclass == keenobj)
 	{
 		KillKeen();
@@ -1721,7 +1731,7 @@ void C_Lethal(objtype *ob, objtype *hit)
 
 void R_Draw(objtype *ob)
 {
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -1756,7 +1766,7 @@ void R_Walk(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 
@@ -1793,7 +1803,7 @@ void R_WalkNormal(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 }
 
 /*
@@ -1821,7 +1831,7 @@ void R_Stunned(objtype *ob)
 			ChangeState(ob, ob->state->nextstate);
 	}
 
-	RF_PlaceSprite(ob, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 
 	starx = stary = 0;
 	switch (ob->temp4)
@@ -1904,14 +1914,11 @@ done:
 		if (++ob->temp2 == 3)
 			ob->temp2 = 0;
 	}
-	// TODO:
-	// Hmmm
-/*	if(ob->temp3 == 0){
-		ob->temp3 = (Sint16*)GetNewObj(true);
-		CK_SetSprite(ob->temp3, CKS_STARS);
+	if(!ob->temp3){
+		ob->temp3 = (Sint32)CK_GetNewSprite();
+		CK_SetSprite((objsprite**)(&ob->temp3), CKS_STARS);
 	}
-	RF_PlaceSprite(ob->temp3, ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
-*/
+	RF_PlaceSprite((objsprite**)(&ob->temp3), ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
 }
 
 

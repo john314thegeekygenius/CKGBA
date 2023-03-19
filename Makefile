@@ -31,6 +31,9 @@ OBJ_GFX=$(addprefix obj/rom/gfx/, $(notdir $(GFX_FILES:.c=.o)))
 GFX2_FILES=$(wildcard src/romstuffs/GFX/INTR/*.c)
 OBJ_GFX2=$(addprefix obj/rom/gfx/, $(notdir $(GFX2_FILES:.c=.o)))
 
+BMP_FILES=$(wildcard src/romstuffs/GFX/BMPS/*.c)
+OBJ_BMP=$(addprefix obj/rom/gfx/bmps/, $(notdir $(BMP_FILES:.c=.o)))
+
 TXT_FILES=$(wildcard src/romstuffs/TXT/*.c)
 OBJ_TXT=$(addprefix obj/rom/txt/, $(notdir $(TXT_FILES:.c=.o)))
 
@@ -55,8 +58,8 @@ music: $(OBJ_MUS)
 
 all: mkdirs clean music src build
 
-build: $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_TXT) $(OBJ_SPR) $(OBJ_DEMO) $(OBJ_ADLIB) $(OBJ_PCS)
-	$(CC) crt0.s $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_TXT) $(OBJ_DEMO) $(OBJ_SPR) $(OBJ_MUS) $(OBJ_ADLIB) $(OBJ_PCS) $(CFLAGS)
+build: $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_BMP) $(OBJ_TXT) $(OBJ_SPR) $(OBJ_DEMO) $(OBJ_ADLIB) $(OBJ_PCS)
+	$(CC) crt0.s $(OBJ_SRC) $(OBJ_LVLS) $(OBJ_GFX) $(OBJ_GFX2) $(OBJ_BMP) $(OBJ_TXT) $(OBJ_DEMO) $(OBJ_SPR) $(OBJ_MUS) $(OBJ_ADLIB) $(OBJ_PCS) $(CFLAGS)
 	arm-none-eabi-objcopy -v -O binary a.out bin/$(GB_GBA).gba
 	gbafix bin/$(GB_GBA).gba -t $(GB_GBA)
 
@@ -70,6 +73,9 @@ obj/rom/demos/%.o: src/romstuffs/DEMOS/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/gfx/%.o: src/romstuffs/GFX/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+obj/rom/gfx/bmps/%.o: src/romstuffs/GFX/BMPS/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/rom/gfx/%.o: src/romstuffs/GFX/INTR/%.c
@@ -93,6 +99,7 @@ obj/rom/audio/sound/%.o: src/romstuffs/AUDIO/PC/%.c
 mkdirs:
 	mkdir -p bin
 	mkdir -p obj/rom/txt
+	mkdir -p obj/rom/gfx/bmps
 	mkdir -p obj/rom/gfx/sprites
 	mkdir -p obj/rom/lvls
 	mkdir -p obj/rom/demos
@@ -104,6 +111,7 @@ clean:
 	rm -rf obj/*.o
 	rm -rf obj/rom/txt/*.o
 	rm -rf obj/rom/gfx/*.o
+	rm -rf obj/rom/gfx/bmps/*.o
 	rm -rf obj/rom/gfx/sprites/*.o
 	rm -rf obj/rom/lvls/*.o
 	rm -rf obj/rom/demos/*.o

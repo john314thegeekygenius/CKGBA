@@ -7,6 +7,28 @@
 #ifndef __CK_UNIVERSAL__
 #define __CK_UNIVERSAL__
 
+#define ConfigVersion 0x0101 // v.0.1.0.1
+
+// GBA File Blocks
+typedef enum {
+	CKF_CONFIG = 0xCC01,
+	CKF_SLOT1 = 0xAA01,
+	CKF_SLOT2 = 0xAA02,
+	CKF_SLOT3 = 0xAA03,
+	CKF_SLOT4 = 0xAA04,
+//	CKF_SLOT5 = 0xAA05,
+//	CKF_SLOT6 = 0xAA06,
+} CK_FILE_BLOCKS;
+
+
+// GBA has a max of 64 KBytes in SRAM - 8bit Bus width
+
+typedef enum {
+	CKFB_CONFIG_S = 0x240, // bytes for the config file
+	CKFB_SLOT_S = 16000, // bytes for save file (16K)
+} CK_FILE_BLOCKS_SIZES;
+
+
 // From ID_IN.C
 extern int LastScan;
 
@@ -34,14 +56,14 @@ typedef	struct
 			word	completed;
 		} HighScore;
 
-#define	MaxGameName		32
-#define	MaxSaveGames	6
+#define	MaxGameName		16
+#define	MaxSaveGames	4
 typedef	struct
 		{
-			char	signature[4];
-			word	*oldtest;
-			boolean	present;
-			char	name[MaxGameName + 1];
+			char	signature[4]; // 4
+//			word	*oldtest;
+			boolean	present; // ???
+			char	name[MaxGameName + 1]; // 17
 		} SaveGame;
 
 #define	MaxString	128	// Maximum input string size
@@ -85,8 +107,11 @@ extern	int			CursorX,CursorY;
 // Should have been from ID_VW.C
 extern unsigned char fontcolor;
 extern void USL_DrawString(char*pstr);
+void US_ShowScreen(unsigned short screen);
+
 
 void US_Setup();
+void US_Shutdown(void);
 
 extern void US_TextScreen(), 
 				US_UpdateTextScreen(void),
@@ -101,7 +126,6 @@ extern void US_TextScreen(),
 				US_SafePrint(char *s),
 				US_PrintUnsigned(longword n),
 				US_PrintSigned(long n),
-				US_ControlPanel(void),
 				US_CheckHighScore(long score, word other);
 //				US_DisplayHighScores(int which);
 

@@ -232,7 +232,7 @@ void SpawnBonus(Sint16 x, Sint16 y, Sint16 type)
 */
 
 void SpawnSplash(Sint16 x, Sint16 y)
-{
+{	
 	GetNewObj(true);
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->priority = 3;

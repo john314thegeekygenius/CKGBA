@@ -1277,7 +1277,7 @@ void R_Platform(objtype *ob)
 	{
 		if (ob->temp2)
 			RF_RemoveSprite(&ob->temp2, true);
-		RF_PlaceSprite(ob->temp3, ob->x+48*PIXGLOBAL, ob->y+5*PIXGLOBAL, frame+PLATSIDETHRUST1SPR, spritedraw, 1);
+		RF_PlaceSprite(&ob->temp3, ob->x+48*PIXGLOBAL, ob->y+5*PIXGLOBAL, frame+PLATSIDETHRUST1SPR, spritedraw, 1);
 	}
 	else if (ob->ydir == -1)
 	{

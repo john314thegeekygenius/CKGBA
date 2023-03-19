@@ -524,21 +524,27 @@ signed char mixerBuffer[736*2] GBA_IN_EWRAM;
 #endif
 
 unsigned int GBA_VSyncCounter = 0;
+unsigned int GBA_VSyncTicker  = 0;
 
-void GBA_UserIRQ();
+extern GBA_ARM void GBA_UserIRQ();
+extern GBA_ARM void GBA_UserIRQ2();
 
-void GBA_VSyncIRQ() {
+#define _140_HZ 0xFF73//0xFF8C;
+
+GBA_ARM void GBA_VSyncIRQ() {
 	unsigned short temp;
-		
+
 	/* disable interrupts for now and save current state of interrupt */
 	*(volatile uint16_t*)GBA_INT_ENABLE = 0;
 
 	temp = *(volatile uint16_t*)GBA_INT_STATE;
 
+	GBA_UserIRQ2();
 
     // look for vertical refresh 
-    if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_VBLANK) == GBA_INT_VBLANK) {
-		
+//    if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_VBLANK) == GBA_INT_VBLANK) {
+	GBA_VSyncTicker = !GBA_VSyncTicker;
+	if(GBA_VSyncTicker){		
 		GBA_VSyncCounter += 1; // Update the number of VBlanks
 		GBA_UserIRQ();
 
@@ -617,10 +623,13 @@ void GBA_VSyncIRQ() {
 		}
     }
 
+	// Make it update every 1/140 of a second
+	*(volatile unsigned short*)GBA_TIMER2_DATA = _140_HZ;
 
     // restore/enable interrupts 
-    *(volatile uint16_t*)GBA_INT_STATE = temp;
+    *(volatile uint16_t*)GBA_INT_ACK = GBA_INT_TIMER2;
 	*(volatile uint16_t*)GBA_INT_ENABLE = 1;
+
 };
 
 
@@ -638,12 +647,16 @@ void GBA_InitAudio(void){
 	GBA_Channel_B_Src = (void*)0;
 
 
-	// Setup interupt to stop sounds
+	// Setup interupt to play sounds
 	*(volatile uint16_t*)GBA_INT_ENABLE = 0;
     *(volatile unsigned int *)GBA_INT_CALLBACK = (unsigned int) &GBA_VSyncIRQ;
-    *(volatile uint16_t*)GBA_INT_SELECT |= GBA_INT_VBLANK;
-    *(volatile uint16_t*)GBA_DISP_INT |= 0x08;
+    *(volatile uint16_t*)GBA_INT_SELECT |= GBA_INT_TIMER2;
 	*(volatile uint16_t*)GBA_INT_ENABLE = 1;
+
+	// Make it update every 1/140 of a second
+	*(volatile unsigned short*)GBA_TIMER2_DATA = _140_HZ;
+	*(volatile unsigned short*)GBA_TIMER2_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_256 | GBA_TIMER_INTERUPT;
+
 
 	// Enable sound
 	*(volatile uint16_t*)GBA_SOUNDCNT_X = GBA_SOUND_MASTER_ENABLE;

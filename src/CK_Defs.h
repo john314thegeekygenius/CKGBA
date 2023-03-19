@@ -25,7 +25,7 @@
 
 #ifdef KEEN5
 
-#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXSPRITES			200		// max tracked sprites // MODIFIED
 #define	MAXANIMTILES		90		// max animating tiles on screen
 #define MAXANIMTYPES		80		// max different unique anim tiles on map
 
@@ -33,7 +33,7 @@
 
 #else
 
-#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXSPRITES			200		// max tracked sprites // MODIFIED
 #define	MAXANIMTILES		90		// max animating tiles on screen
 #define MAXANIMTYPES		65		// max different unique anim tiles on map
 
@@ -60,8 +60,9 @@
 typedef enum {spritedraw,maskdraw} drawtype;
 
 
-#define CK_DISP_SCORE_DOS 0
-#define CK_DISP_SCORE_GBA 1
+#define CK_DISP_SCORE_NONE 0
+#define CK_DISP_SCORE_DOS 1
+#define CK_DISP_SCORE_GBA 2
 
 
 // Pulled from CK_DEF.H
@@ -367,6 +368,7 @@ typedef struct
 	objtype *riding;
 	// added
 	Sint16 scoreboxdisp; // how to display the scorebox
+	bool fastticks; // do we run at a fast tick rate?
 
 } gametype;
 
@@ -375,6 +377,18 @@ typedef struct
 // Found in CK_Sprites.c
 extern statetype sc_deadstate;
 extern statetype sc_badstate;
+
+/*
+=============================================================================
+
+						CK_MAIN DEFINITIONS
+
+=============================================================================
+*/
+
+
+void SizeText(char *text, Uint16 *width, Uint16 *height);
+
 
 /*
 =============================================================================
@@ -440,13 +454,15 @@ void Terminator(void);
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;
 extern gametype gamestate;
-extern ControlInfo c;
 extern objtype *ck_newobj, *player, *scoreobj;
 extern Uint16 originxtilemax, originytilemax;
+extern ControlInfo c;
+extern boolean button2, button3;	// never used
 extern objtype dummyobj;
 extern Sint16 invincible;
+extern short showscorebox;
+extern Sint16 groundslam;
 extern boolean debugok;
-
 extern boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
 
 void Quit(char *error);

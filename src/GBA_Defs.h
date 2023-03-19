@@ -43,6 +43,8 @@ extern unsigned int GBA_VSyncCounter;
 #define GBA_IN_EWRAM __attribute__((section (".ewram")))
 #define GBA_IN_IWRAM __attribute__((section (".iwram")))
 
+#define GBA_ARM __attribute__((__target__("arm")))
+#define GBA_THUMB __attribute__((__target__("thumb")))
 
 #define GBA_GAMEPAK_RAM_START 0x0E000000
 
@@ -117,6 +119,7 @@ void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) ;
 
 /* this registers stores which interrupts if any occured */
 #define GBA_INT_STATE 0x4000202
+#define GBA_INT_ACK 0x4000202
 
 /* the address of the function to call when an interrupt occurs */
 #define GBA_INT_CALLBACK 0x3007FFC
@@ -127,6 +130,27 @@ void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) ;
 /* the interrupts are identified by number, we only care about this one */
 #define GBA_INT_VBLANK 0x1
 
+
+//Defines for Interrupts
+//There are 14 Interrupts that we can register with REG_IE
+#define GBA_INT_VBLANK 	0x0001
+#define GBA_INT_HBLANK 	0x0002
+#define GBA_INT_VCOUNT 	0x0004
+#define GBA_INT_TIMER0 	0x0008
+#define GBA_INT_TIMER1 	0x0010
+#define GBA_INT_TIMER2 	0x0020
+#define GBA_INT_TIMER3 	0x0040
+#define GBA_INT_COM 	0x0080
+#define GBA_INT_DMA0 	0x0100
+#define GBA_INT_DMA1	0x0200
+#define GBA_INT_DMA2 	0x0400
+#define GBA_INT_DMA3 	0x0800
+#define GBA_INT_BUTTON 	0x1000
+#define GBA_INT_CART 	0x2000
+//create pointer to video memory
+#define DSTAT_VBL_IRQ 0x0008
+#define DSTAT_VHB_IRQ 0x0010
+#define DSTAT_VCT_IRQ 0x0020
 
 
 ////////////// Video Stuff
@@ -674,6 +698,8 @@ void GBA_SetSoundFreq(short id, int freq);
 #define GBA_TIMER_FREQ_256  0x03
 #define GBA_TIMER_FREQ_1024 0x04
 #define GBA_TIMER_ENABLE    0x80
+
+#define GBA_TIMER_INTERUPT  0x40
 
 /* define the timer control registers */
 #define GBA_TIMER0_DATA    0x4000100

@@ -26,14 +26,52 @@ void InitGame(void)
 	CK_SetupSprites();
 
 	US_InitRndT(true);              // Initialize the random number generator
-	US_TextScreen();
-
 	US_Setup();
+	CK_FixPalette();
+	US_TextScreen();
 
 	VW_ClearVideo(BLACK);
 };
 
+
 //===========================================================================
+
+/*
+=====================
+=
+= SizeText
+=
+= Calculates width and height of a string that contains line breaks
+= (Note: only the height is ever used, width is NOT calculated correctly)
+=
+=====================
+*/
+
+void SizeText(char *text, Uint16 *width, Uint16 *height)
+{
+	char *ptr;
+	char c;
+	Uint16 w, h;
+	char strbuf[80];
+
+	*width = *height = 0;
+	ptr = &strbuf[0];
+	while ((c=*(text++)) != '\0')
+	{
+		*(ptr++) = c;
+		if (c == '\n' || !*text)
+		{
+			USL_MeasureString(strbuf, &w, &h);	// BUG: strbuf may not have a terminating '\0' at the end!
+			*height += h;
+			if (*width < w)
+			{
+				*width = w;
+			}
+			ptr = &strbuf[0];
+		}
+	}
+}
+
 
 /*
 ==========================
@@ -43,15 +81,12 @@ void InitGame(void)
 ==========================
 */
 
+bool gameQuit = false;
+
 void Quit(char *error)
 {
-	if (!error || !(*error)){
-//		CA_SetAllPurge();
-//		CA_CacheGrChunk(ORDERSCREEN);
-//		finscreen = (Uint16)grsegs[ORDERSCREEN];
-		return;
-	}
-//	ShutdownId();
+	gameQuit = true;
+
 	CK_RemoveSprites();
 	SD_MusicOff();
 	GBA_StopChannel(GBA_CHANNEL_A);
@@ -60,6 +95,17 @@ void Quit(char *error)
 	// Remove the second background
 	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 	VW_ClearScroll();
+
+	if (!error || !(*error)){
+		// Save the config data
+		US_Shutdown();
+
+		US_ShowScreen(3);
+		
+		while(1); // Make the game run forever?
+		return;
+	}
+
 	PrintX = 0;
 	PrintY = 0;
 	fontcolor = CK_EGA_WHITE;
@@ -90,11 +136,8 @@ void DemoLoop(void)
 // demo loop
 //
 	state = 0;
-	while (1)
+	while (!gameQuit)
 	{
-		playstate = ex_resetgame;
-		restartgame = gd_Easy;
-		DemoMode = demo_Off;
 		switch (state++)
 		{
 		case 0:

@@ -33,6 +33,8 @@ void CK_SetupSprites();
 
 void CK_RemoveSprites();
 
+void CK_RemoveDummySprites();
+
 void RF_RemoveSprite (void **user, bool cache);
 
 #endif

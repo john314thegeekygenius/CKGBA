@@ -55,6 +55,8 @@ void SpawnScore(void)
 	scoreobj->temp1 = -1;
 	scoreobj->temp3 = -1;
 	scoreobj->temp4 = -1;
+
+	gamestate.scoreboxdisp = showscorebox;
 	if (scorescreenkludge)
 	{
 		scoreobj->state = &sc_deadstate;
@@ -135,6 +137,11 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
+	gamestate.scoreboxdisp = showscorebox;
+
+	if (!showscorebox)
+		return;
+
 	// MOVED FROM BOTTOM OF FUNCTION
 	/*
 	Note:
@@ -171,8 +178,7 @@ void UpdateScore(objtype *ob)
 		};
 	}
 
-	//if (!showscorebox)
-	//	return;
+	gamestate.scoreboxdisp = showscorebox;
 
 //code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
 

@@ -1939,9 +1939,6 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	{
 		gamestate.ammo += shotsinclip[gamestate.difficulty];
 	}
-	// TODO:
-	// This will make it crash???
-	return;
 	GetNewObj(true);
 	ck_newobj->obclass = inertobj;
 	ck_newobj->priority = 3;

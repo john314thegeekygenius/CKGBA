@@ -30,7 +30,7 @@ GBA_IN_IWRAM objtype *ck_newobj = NULL, *player = NULL, *scoreobj = NULL;
 
 Sint16 invincible;
 
-boolean oldshooting, showscorebox, joypad;
+short showscorebox;
 
 Sint16 groundslam;
 
@@ -66,35 +66,499 @@ Sint16 inactivatebottom;
 =====================
 */
 bool HITBITTON = 0;
-void CheckKeys(void)
-{
-/*	if (screenfaded)			// don't do anything with a faded screen
+void CheckKeys(void){
+	if (screenfaded)			// don't do anything with a faded screen
 	{
 		return;
 	}
-*/
+
 //
 // Enter for status screen
 //
-/*	if (Keyboard[sc_Enter] || (GravisGamepad && GravisAction[ga_Status]))
+	if (LastScan == GBA_BUTTON_SELECT)
 	{
 		StatusWindow();
 		IN_ClearKeysDown();
 		RF_ForceRefresh();
 		lasttimecount = TimeCount;	// BUG: should be the other way around
 	}
-*/
-	if(GBA_TEST_BUTTONS(GBA_BUTTON_SELECT)){
-		HITBITTON = 1;
-	}else{
-		if(HITBITTON){
-			HITBITTON = 0;
-			CK_PaletteSet += 1;
-			if(CK_PaletteSet > 4) CK_PaletteSet = 0;
-			CK_FixPalette();
+
+//
+// pause key wierdness can't be checked as a scan code
+//
+	if (Paused)
+	{
+		SD_MusicOff();
+//		VW_FixRefreshBuffer();
+		US_CenterWindow(8, 3);
+		US_PrintCentered("PAUSED");
+		VW_UpdateScreen();
+		IN_Ack();
+//		RF_ForceRefresh();
+		Paused = false;
+		SD_MusicOn();
+	}
+
+#ifndef KEEN6
+//
+// F1 to enter help screens
+//
+	if (LastScan == (GBA_BUTTON_LSHOLDER | GBA_BUTTON_RSHOLDER) )
+	{
+		StopMusic();
+		HelpScreens();
+		StartMusic(gamestate.mapon);
+		if (showscorebox)
+		{
+			scoreobj->temp2 = -1;
+			scoreobj->temp1 = -1;
+			scoreobj->temp3 = -1;
+			scoreobj->temp4 = -1;
 		}
+		RF_ForceRefresh();
+	}
+#endif
+//
+// F2-F7/ESC to enter control panel
+//
+		if (LastScan == GBA_BUTTON_START)
+		{
+			StopMusic();
+			US_ControlPanel();
+			RF_FixOfs(0,0);
+			StartMusic(gamestate.mapon);
+			if (!showscorebox && scoreobj->sprite)
+			{
+				RF_RemoveSprite(&scoreobj->sprite, true);
+			}
+			if (showscorebox)
+			{
+				scoreobj->temp2 = -1;
+				scoreobj->temp1 = -1;
+				scoreobj->temp3 = -1;
+				scoreobj->temp4 = -1;
+			}
+			IN_ClearKeysDown();
+			if (restartgame)
+			{
+				playstate = ex_resetgame;
+			}
+			else if (!loadedgame)
+			{
+				RF_ForceRefresh();
+			}
+			if (abortgame)
+			{
+				abortgame = false;
+				playstate = ex_abortgame;
+			}
+			if (loadedgame)
+			{
+				playstate = ex_loadedgame;
+			}
+			lasttimecount = TimeCount;	// BUG: should be the other way around
+		}
+
+}
+
+
+//===========================================================================
+
+/*
+==================
+=
+= PrintNumbers
+=
+==================
+*/
+
+void PrintNumbers(Sint16 x, Sint16 y, Sint16 maxlen, Sint16 basetile, Sint32 number)
+{
+	register Sint16 i;
+	Sint16 len;
+	char buffer[20];
+
+	_ck_ltoa(number, buffer, 10);
+	len = strlen(buffer);
+	i = maxlen;
+	while (i>len)
+	{
+		VWB_DrawTile8(x, y, basetile);
+		i--;
+		x += 8;
+	}
+	while (i>0)
+	{
+		VWB_DrawTile8(x, y, basetile+buffer[len-i]+(1-'0'));
+		i--;
+		x += 8;
 	}
 }
+
+/*
+==================
+=
+= DrawStatusWindow
+=
+==================
+*/
+
+#define BACKCOLOR LIGHTGRAY
+#define TEXTBACK WHITE
+#define NUMBERBACK BLACK
+
+void DrawStatusWindow(void)
+{/*
+	Sint16 off, x, y, w, h, i;
+	Uint16 width, height;
+
+	x = 64;
+	y = 16;
+	w = 184;
+	h = 144;
+	VWB_DrawTile8(x, y, 54);
+	VWB_DrawTile8(x, y+h, 60);
+	for (i=x+8; i<=x+w-8; i+=8)
+	{
+		VWB_DrawTile8(i, y, 55);
+		VWB_DrawTile8(i, y+h, 61);
+	}
+	VWB_DrawTile8(i, y, 56);
+	VWB_DrawTile8(i, y+h, 62);
+	for (i=y+8; i<=y+h-8; i+=8)
+	{
+		VWB_DrawTile8(x, i, 57);
+		VWB_DrawTile8(x+w, i, 59);
+	}
+	VWB_Bar(72, 24, 176, 136, BACKCOLOR);
+
+	PrintY = 28;
+	WindowX = 80;
+	WindowW = 160;
+	US_CPrint("LOCATION");
+	VWB_Bar(79, 38, 162, 20, TEXTBACK);
+#ifdef KEEN5
+	if (mapon == 0 && player->y > 100*TILEGLOBAL)
+		_fstrcpy(str, levelnames[13]);
+	else
+		_fstrcpy(str, levelnames[gamestate.mapon]);
+#else
+	_fstrcpy(str, levelnames[gamestate.mapon]);
+#endif
+	SizeText(str, &width, &height);
+	PrintY = (20-height)/2+40-2;
+	US_CPrint(str);
+
+	PrintY = 61;
+	WindowX = 80;
+	WindowW = 64;
+	US_CPrint("SCORE");
+	VWB_Bar(79, 71, 66, 10, NUMBERBACK);
+	PrintNumbers(80, 72, 8, 41, gamestate.score);
+
+	PrintY = 61;
+	WindowX = 176;
+	WindowW = 64;
+	US_CPrint("EXTRA");
+	VWB_Bar(175, 71, 66, 10, NUMBERBACK);
+	PrintNumbers(176, 72, 8, 41, gamestate.nextextra);
+
+#if defined KEEN4
+	PrintY = 85;
+	WindowX = 80;
+	WindowW = 64;
+	US_CPrint("RESCUED");
+	VWB_Bar(79, 95, 66, 10, NUMBERBACK);
+	for (i = 0; i < gamestate.rescued; i++, off+=8)
+	{
+		VWB_DrawTile8(i*8 + 80, 96, 40);
+	}
+#elif defined KEEN5
+	PrintY = 92;
+	PrintX = 80;
+	US_Print("KEYCARD");
+	VWB_Bar(135, 91, 10, 10, NUMBERBACK);
+	if (gamestate.keycard)
+	{
+		VWB_DrawTile8(136, 92, 40);
+	}
+#endif
+
+	PrintY = 85;
+	WindowX = 176;
+	WindowW = 64;
+	US_CPrint("LEVEL");
+	VWB_Bar(175, 95, 66, 10, TEXTBACK);
+	PrintY = 96;
+	WindowX = 176;
+	WindowW = 64;
+	switch (gamestate.difficulty)
+	{
+	case gd_Easy:
+		US_CPrint("Easy");
+		break;
+	case gd_Normal:
+		US_CPrint("Normal");
+		break;
+	case gd_Hard:
+		US_CPrint("Hard");
+		break;
+	}
+
+#ifdef KEEN6
+	PrintX = 80;
+	PrintY = 96;
+	US_Print("ITEMS");
+	VWB_Bar(127, 95, 26, 10, NUMBERBACK);
+	if (gamestate.sandwichstate == 1)
+	{
+		VWB_DrawTile8(128, 96, 2);
+	}
+	else
+	{
+		VWB_DrawTile8(128, 96, 1);
+	}
+	if (gamestate.hookstate == 1)
+	{
+		VWB_DrawTile8(136, 96, 4);
+	}
+	else
+	{
+		VWB_DrawTile8(136, 96, 3);
+	}
+	if (gamestate.passcardstate == 1)
+	{
+		VWB_DrawTile8(144, 96, 6);
+	}
+	else
+	{
+		VWB_DrawTile8(144, 96, 5);
+	}
+#endif
+
+	PrintX = 80;
+	PrintY = 112;
+	US_Print("KEYS");
+	VWB_Bar(119, 111, 34, 10, NUMBERBACK);
+	for (i = 0; i < 4; i++)
+	{
+		if (gamestate.keys[i])
+		{
+			VWB_DrawTile8(i*8+120, 112, 36+i);
+		}
+	}
+
+	PrintX = 176;
+	PrintY = 112;
+	US_Print("AMMO");
+	VWB_Bar(215, 111, 26, 10, NUMBERBACK);
+	PrintNumbers(216, 112, 3, 41, gamestate.ammo);
+
+	PrintX = 80;
+	PrintY = 128;
+	US_Print("KEENS");
+	VWB_Bar(127, 127, 18, 10, NUMBERBACK);
+	PrintNumbers(128, 128, 2, 41, gamestate.lives);
+
+	PrintX = 176;
+	PrintY = 128;
+	US_Print(DROPSNAME);
+	VWB_Bar(224, 127, 16, 10, NUMBERBACK);
+	PrintNumbers(224, 128, 2, 41, gamestate.drops);
+
+#ifdef KEEN4
+	VWB_Bar(79, 143, 66, 10, TEXTBACK);
+	PrintY = 144;
+	WindowX = 80;
+	WindowW = 64;
+	if (gamestate.wetsuit)
+	{
+		US_CPrint("Wetsuit");
+	}
+	else
+	{
+		US_CPrint("???");
+	}
+#endif
+
+	// draw the tiles for "PRESS A KEY":
+	for (i = 0; i < 10; i++)
+	{
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X, 140, i+72);
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X, 148, i+82);
+	}*/
+}
+
+/*
+==================
+=
+= ScrollStatusWindow
+=
+==================
+*/
+
+void ScrollStatusWindow(void)
+{/*
+	Uint16 source, dest;
+	Sint16 height;
+
+	if (vislines > 152)
+	{
+		height = vislines - 152;
+		source = windowofs + panadjust + 8;
+		dest = bufferofs + panadjust + 8;
+		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
+		VW_ClipDrawMPic((pansx+136)/BYTEPIXELS, -(16-height)+pansy, METALPOLEPICM);
+		source = windowofs + panadjust + 16*SCREENWIDTH + 8*CHARWIDTH;
+		dest = bufferofs + panadjust + height*SCREENWIDTH + 8;
+		height = 152;
+	}
+	else
+	{
+		source = windowofs + panadjust + (152-vislines)*SCREENWIDTH + 16*SCREENWIDTH + 8*CHARWIDTH;
+		dest = bufferofs + panadjust + 8;
+		height = vislines;
+	}
+	if (height > 0)
+	{
+		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
+	}
+	if (scrollup)
+	{
+		height = 168-vislines;
+		source = masterofs + panadjust + vislines*SCREENWIDTH + 8;
+		dest = bufferofs + panadjust + vislines*SCREENWIDTH + 8;
+		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
+		height = vislines;
+		source = windowofs + panadjust + 8 - 24/BYTEPIXELS;
+		dest = bufferofs + panadjust + 8 - 24/BYTEPIXELS;
+		if (height > 0)
+			VW_ScreenToScreen(source, dest, 24/BYTEPIXELS, height);
+	}
+	else
+	{
+		height = vislines + -72;
+		if (height > 0)
+		{
+			source = windowofs + panadjust + 8 - 24/BYTEPIXELS;
+			dest = bufferofs + panadjust + 8 - 24/BYTEPIXELS;
+			if (height > 0)
+				VW_ScreenToScreen(source, dest, 24/BYTEPIXELS, height);
+		}
+	}
+	if (vislines >= 72)
+	{
+		VW_ClipDrawMPic((pansx+40)/BYTEPIXELS, vislines-168+pansy, CORDPICM);
+	}
+	VW_UpdateScreen();*/
+}
+
+/*
+==================
+=
+= StatusWindow
+=
+==================
+*/
+
+void StatusWindow(void)
+{
+	// TODO:
+	// Draw it like CGA mode???
+	/*
+#if GRMODE == CGAGR
+
+	if (Keyboard[sc_A] && Keyboard[sc_2])
+	{
+		US_CenterWindow(20, 2);
+		PrintY += 2;
+		US_Print("Debug keys active");
+		VW_UpdateScreen();
+		IN_Ack();
+		debugok = true;
+	}
+
+	WindowX = 0;
+	WindowW = 320;
+	WindowY = 0;
+	WindowH = 200;
+	DrawStatusWindow();
+	VW_UpdateScreen();
+	IN_ClearKeysDown();
+	IN_Ack();
+
+#else
+
+	Uint16 oldbufferofs;
+
+	WindowX = 0;
+	WindowW = 320;
+	WindowY = 0;
+	WindowH = 200;
+
+	if (Keyboard[sc_A] && Keyboard[sc_2])
+	{
+		US_CenterWindow(20, 2);
+		PrintY += 2;
+		US_Print("Debug keys active");
+		VW_UpdateScreen();
+		IN_Ack();
+		debugok = true;
+	}
+
+	RF_Refresh();
+	RFL_InitAnimList();
+	oldbufferofs = bufferofs;
+	bufferofs = windowofs = RF_FindFreeBuffer();
+	VW_ScreenToScreen(displayofs, displayofs, 44, 224);	// useless (source and dest offsets are identical)
+	VW_ScreenToScreen(displayofs, masterofs, 44, 224);
+	VW_ScreenToScreen(displayofs, bufferofs, 44, 168);
+	DrawStatusWindow();
+	bufferofs = oldbufferofs;
+	RF_Refresh();
+
+	SD_PlaySound(SND_SHOWSTATUS);
+	vislines = 16;
+	scrollup = false;
+	RF_SetRefreshHook(ScrollStatusWindow);
+
+	while (true)
+	{
+		RF_Refresh();
+		if (vislines == 168)
+			break;
+		vislines = vislines + tics*8;
+		if (vislines > 168)
+			vislines = 168;
+	}
+
+	RF_Refresh();
+	RF_SetRefreshHook(NULL);
+	IN_ClearKeysDown();
+	IN_Ack();
+
+	SD_PlaySound(SND_HIDESTATUS);
+	vislines -= 16;
+	scrollup = true;
+	RF_SetRefreshHook(ScrollStatusWindow);
+
+	while (true)
+	{
+		RF_Refresh();
+		if (vislines == 0)
+			break;
+		vislines = vislines - tics*8;
+		if (vislines < 0)
+			vislines = 0;
+	}
+
+	RF_SetRefreshHook(NULL);
+
+	scoreobj->x = 0;	//force scorebox to redraw?
+
+#endif*/
+}
+
 
 //===========================================================================
 
@@ -551,7 +1015,7 @@ void PollControls(void)
 	if (c.yaxis != -1)
 		upheld = false;
 
-	if (oldshooting || DemoMode)
+	if (DemoMode)
 	{
 		if (c.button0 && c.button1)
 		{
@@ -606,14 +1070,6 @@ void PollControls(void)
 		if (!firebutton)
 			fireheld = false;
 	}
-	if(GBA_TEST_BUTTONS(GBA_BUTTON_LSHOLDER))
-		if (mapon != 0)
-		{
-			SD_PlaySound(SND_LEVELDONE);
-			gamestate.mapon = 0;
-			gamestate.leveldone[mapon] = true;
-			playstate = ex_completed;
-		}
 }
 
 
@@ -872,6 +1328,7 @@ void PlayLoop(void)
         CK_FixCamera();
         CK_RenderLevel();
 		CK_UpdateSprites();
+		VW_UpdateScreen();
 
         RF_CalcTics();
 

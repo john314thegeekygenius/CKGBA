@@ -34,4 +34,10 @@ void SD_PlayMusic(uint32_t chunk, uint32_t asLoop);
 
 void SD_MusicOff();
 
+extern	boolean	SD_MusicPlaying(void),
+				SD_SetSoundMode(SDMode mode),
+				SD_SetMusicMode(SMMode mode);
+extern	word	SD_SoundPlaying(void);
+
+
 #endif

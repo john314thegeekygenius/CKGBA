@@ -42,7 +42,7 @@ typedef	word ScanCode;
 extern	Demo		DemoMode;
 extern GBA_IN_EWRAM byte  DemoBuffer[MAX_DEMO_BUFFER];
 extern word DemoOffset, DemoSize;
-
+extern boolean		Paused;
 
 void IN_ReadControl(int player, ControlInfo *info);
 
@@ -50,6 +50,7 @@ ScanCode IN_WaitForKey(void);
 DONT_OPTIMISE void IN_AckBack(void);
 DONT_OPTIMISE void IN_Ack(void);
 DONT_OPTIMISE boolean IN_UserInput(longword delay,boolean clear);
+bool IN_KeyDown(unsigned int key);
 
 void IN_StartDemoPlayback(byte *buffer,word bufsize);
 void IN_StopDemo(void);

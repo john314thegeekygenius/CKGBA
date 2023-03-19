@@ -90,9 +90,7 @@ void CK_ScrollCamera(signed int x, signed int y );
 
 void CK_UpdateLevel();
 
-
-void CA_UpLevel();
-void CA_DownLevel();
+void CK_SnapScroll();
 
 //==========================================================================
 

@@ -252,7 +252,7 @@ void ClipToSides(objtype *ob)
 {
 	Sint16 move, y, top, bottom;
 	Uint16 *map;
-	
+
 	top = ob->tiletop;
 	if (ob->hitsouth > 1)
 	{
@@ -298,7 +298,7 @@ boolean CheckPosition(objtype *ob)
 	Uint16 tile, x, y;
 	Uint16 *map;
 	Uint16 rowdiff;
-	
+	if(!ob || ob->removed) return false;
 	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tiletop*CK_CurLevelWidth) + ob->tileleft;
 	rowdiff = CK_CurLevelWidth-(ob->tileright-ob->tileleft+1);
 	for (y=ob->tiletop; y<=ob->tilebottom; y++,map+=rowdiff)
@@ -326,7 +326,6 @@ boolean CheckPosition(objtype *ob)
 
 boolean StatePositionOk(objtype *ob, statetype *state)
 {
-	if(!ob || ob->removed) return false;
 	if (ob->xdir > 0)
 	{
 		ob->shapenum = state->rightshapenum;
@@ -335,7 +334,6 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	{
 		ob->shapenum = state->leftshapenum;
 	}
-	if(!ob->sprite) Quit("StatePositionOk () : Bad Obj sprite!");
 	signed short *shape = CK_GetSprShape(ob->sprite);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
@@ -361,7 +359,6 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 
 void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
 {
-	if(!ob || ob->removed) return;
 	signed short *shape = CK_GetSprShape(ob->sprite);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
@@ -390,8 +387,6 @@ void ClipToWalls(objtype *ob)
 	Uint16 y;
 #endif
 	boolean pushed;
-
-	if(!ob || ob->removed) return false;
 
 	oldx = ob->x;
 	oldy = ob->y;
@@ -444,8 +439,9 @@ void ClipToWalls(objtype *ob)
 	ob->y += ytry;
 
 	ob->needtoreact = true;
-
-	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	// TODO: Investigate?
+	// Added !ob->sprite : BUG?
+	if (!ob->shapenum || !ob->sprite)		// can't get a hit rect with no shape!
 	{
 		return;
 	}
@@ -463,7 +459,6 @@ void ClipToWalls(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	if(!ob->sprite) Quit("ClipToWalls : Bad Obj sprite");
 	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	ob->left = ob->x + shape[0] * HITGLOBAL;
@@ -599,7 +594,10 @@ void FullClipToWalls(objtype *ob)
 
 	ob->needtoreact = true;
 
-	if(!ob->sprite) Quit("FullClipToWalls () : Bad Obj sprite!");
+	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	{
+		return;
+	}
 	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	switch (ob->obclass)
@@ -797,6 +795,8 @@ void PushObj(objtype *ob)
 void ClipToSpriteSide(objtype *push, objtype *solid)
 {
 	Sint16 xmove, leftinto, rightinto;
+	if(!push) Quit("ClipToSpriteSide : Bad Push Objectt");
+	if(!solid) Quit("ClipToSpriteSide : Bad Solid Objectt");
 
 	//
 	// amount the push shape can be pushed
@@ -847,6 +847,8 @@ void ClipToSpriteSide(objtype *push, objtype *solid)
 void ClipToSpriteTop(objtype *push, objtype *solid)
 {
 	Sint16 temp, ymove, bottominto;
+	if(!push) Quit("ClipToSprite : Bad Push Objectt");
+	if(!solid) Quit("ClipToSprite : Bad Solid Objectt");
 
 	//
 	// amount the push shape can be pushed
@@ -983,9 +985,8 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 	Sint16 ticcount, usedtics, excesstics;
 	statetype *state;
 
-	if(!ob || ob->removed) Quit("DoActor : Bad object!");
 	state = ob->state;
-	if(!state) Quit("DoActor : Bad state!");
+	if(!state) return 0; // ???
 
 	if (state->progress == think)
 	{
@@ -1071,16 +1072,21 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 				state->think(ob);
 			}
 		}
-
-		if (state == ob->state)
-		{
-			ob->state = state->nextstate;	// go to next state
-		}
-		else if (!ob->state)
+		// Reversed - BUG???
+		if (!ob->state)
 		{
 			return 0;			// object removed itself
 		}
-		return excesstics;
+		else if (state == ob->state)
+		{
+			ob->state = state->nextstate;	// go to next state
+		}
+		// TODO:
+		// This makes the demos play wrong (and normal play?)
+		if(ob->obclass < 2) {
+			excesstics = 0;
+		} // ??
+		return excesstics; // TODO: Bug with excesstics???
 	}
 }
 
@@ -1098,8 +1104,6 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 */
 
 
-// TODO:
-// This function crashes the game???
 void StateMachine(objtype *ob)
 {
 	Sint16 excesstics, oldshapenum;
@@ -1111,16 +1115,16 @@ void StateMachine(objtype *ob)
 	oldshapenum = ob->shapenum;
 
 	state = ob->state;
-	if(!state) Quit("StateMachine : Bad state!");
 
 	excesstics = DoActor(ob, tics);
+
 	if (ob->state != state)
 	{
 		ob->ticcount = 0;		// start the new state at 0, then use excess
 		state = ob->state;
 	}
 
-	while (excesstics)
+	while (excesstics > 0) // Hack???
 	{
 	//
 	// passed through to next state
@@ -1198,7 +1202,10 @@ void StateMachine(objtype *ob)
 void NewState(objtype *ob, statetype *state)
 {
 	Sint16 temp;
-	
+
+	if(!state) Quit("NewState : Bad State");
+	if(!ob) Quit("NewState : Bad obj");
+
 	ob->state = state;
 
 	if (state->rightshapenum)
@@ -1250,6 +1257,9 @@ void NewState(objtype *ob, statetype *state)
 
 void ChangeState(objtype *ob, statetype *state)
 {
+	if(!state) Quit("ChangeState : Bad State");
+	if(!ob) Quit("ChangeState : Bad Obj");
+
 	ob->state = state;
 	ob->ticcount = 0;
 	if (state->rightshapenum)

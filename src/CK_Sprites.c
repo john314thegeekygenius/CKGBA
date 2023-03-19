@@ -9,7 +9,7 @@
 #include "romstuffs/CK_SpriteDefs.h"
 
 GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS+1];
-GBA_IN_EWRAM objsprite CK_SpriteList[MAXACTORS+1];
+GBA_IN_EWRAM objsprite CK_SpriteList[MAXSPRITES];
 unsigned int CK_NumOfSprites = 0;
 
 unsigned int CK_NumOfObjects = 0;
@@ -91,7 +91,7 @@ DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
 
 objsprite *CK_GetNewSprite(){
     objsprite *spr = &CK_SpriteList[CK_NumOfSprites++];
-    if(CK_NumOfSprites > MAXACTORS) Quit("CK_GetNewSprite() : No free sprites!");
+    if(CK_NumOfSprites > MAXSPRITES) Quit("CK_GetNewSprite() : No free sprites!");
     CK_ClearSprite(spr);
     return spr;
 };
@@ -109,7 +109,6 @@ void RemoveObj(objtype *ob){
 		RF_RemoveSprite(&ob->temp3, false);
 	}
     CK_ClearObject(ob, true);
-    ob->removed = true;
 
 };
 
@@ -182,7 +181,7 @@ void CK_UpdateSprites(){
     for(int chkpr = 3; chkpr >= 0; chkpr--){
         for(int i = 0; i < CK_NumOfSprites; i++){
             objsprite *spr = &CK_SpriteList[i];
-            if(spr->priority == chkpr)
+            if(spr->priority == chkpr && spr->drawtype != 0xF)
                 CK_DrawSprite(spr);
         }
     }
@@ -256,6 +255,24 @@ void CK_RemoveSprites(){
 };
 
 
+void CK_RemoveDummySprites(){
+    
+    // Clear any software sprites
+    GBA_ClearSpriteCache();
+
+    for(int i = 0; i < MAXACTORS; i++){
+        CK_ClearSprite(&CK_SpriteList[i]);
+    }
+
+    CK_NumOfSprites = 0;
+
+    // We have no sprites yet!
+    CK_SprGfxOffset = 0;
+    CK_NumOfObjects = 0;
+    CK_SprTileOffset = 0;
+};
+
+
 
 
 //===========================================================================
@@ -313,8 +330,34 @@ DONT_OPTIMISE void RF_CalcTics (void)
 
 
 // Draws the into text screen
-void US_TextScreen(){
-	
+DONT_OPTIMISE void US_TextScreen(){
+    int tick = 0;
+    int nextTic = 0;
+    while(!LastScan){
+        if(tick == 0){
+            US_ShowScreen(0);
+        }
+        else if(tick == 5){
+            US_ShowScreen(1);
+        }
+        else if(tick == 6){
+            US_ShowScreen(2);
+        }
+        else if(tick == 7){
+            US_ShowScreen(1);
+        }
+        else if(tick == 8){
+            tick = 0;
+            continue;
+        }
+        nextTic++;
+        if(nextTic > 1){
+            tick++;
+            nextTic = 0;
+        }
+        RF_CalcTics();
+    }
+    LastScan = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -342,8 +385,8 @@ void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
     signed int dx = globalx;
     signed int dy = globaly;
 
-	dx += shape[4]<<G_P_SHIFT;
-	dy += shape[5]<<G_P_SHIFT;
+	dx += shape[4]*PIXGLOBAL;
+	dy += shape[5]*PIXGLOBAL;
 
     spr->deltax = dx;
     spr->deltay = dy;
@@ -364,6 +407,7 @@ void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
 */
 
 void RF_RemoveSprite (void **user, bool cache){
+    if(user == NULL) return; // ???
     if(*user == NULL) return;
     if(cache) {
         (*(objsprite**)user)->drawtype = 0xF; // Invalid draw type

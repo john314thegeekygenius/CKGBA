@@ -32,28 +32,238 @@ void USL_DrawString(char*pstr){
 	}
 };
 
+extern const unsigned char CK_TEXT_SCREENS[];
+
+void US_ShowScreen(unsigned short screen){
+	// Fix the screen
+	CA_FixGraphics();
+	// Fix the offsets
+	RF_FixOfs(8,0);
+	GBA_DMA_Copy32((unsigned int*)TILESTART_0, (unsigned int*)CK_TEXT_SCREENS+(screen*32*20*8), 32*20*8);
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //      Global variables
-boolean ingame,abortgame,loadedgame;
-GameDiff restartgame = gd_Continue;
-
-boolean         NoWait,
-			HighScoresDirty;
 word            PrintX,PrintY;
 word            WindowX,WindowY,WindowW,WindowH;
 
+boolean         NoWait,
+			HighScoresDirty;
+
+const unsigned short ck_file_slots[] = {
+	CKF_SLOT1, CKF_SLOT2, CKF_SLOT3, 
+	CKF_SLOT4,// CKF_SLOT5, CKF_SLOT6, 
+};
+
+SaveGame        Games[MaxSaveGames];
+HighScore       Scores[MaxScores] =
+			{
+#if defined CAT3D
+				{"Sir Lancelot",500,3},
+				{"",0},
+				{"",0},
+				{"",0},
+				{"",0},
+				{"",0},
+				{"",0},
+#elif defined GOODTIMES
+				{"Id Software",10000,0},
+				{"Adrian Carmack",10000,0},
+				{"John Carmack",10000,0},
+				{"Kevin Cloud",10000,0},
+				{"Shawn Green",10000,0},
+				{"Tom Hall",10000,0},
+				{"John Romero",10000,0},
+				{"Jay Wilbur",10000,0},
+#else
+				{"Id Software - '91",10000,0},
+				{"",10000,0},
+				{"Jason Blochowiak",10000,0},
+				{"Adrian Carmack",10000,0},
+				{"John Carmack",10000,0},
+				{"Tom Hall",10000,0},
+				{"John Romero",10000,0},
+				{"John314",10000,0}, // Added for clout
+#endif
+			};
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      USL_ReadConfig() - Reads the configuration file, if present, and sets
+//              things up accordingly. If it's not present, uses defaults. This file
+//              includes the high scores.
+//
+///////////////////////////////////////////////////////////////////////////
+static void
+USL_ReadConfig(void)
+{
+	bool gotit = false;
+	word            version;
+	FileHandle      file;
+	SDMode          sd;
+	SMMode          sm;
+	word 			pal;
+	word 			sbox;
+
+	if ((file = openHandle(CKF_CONFIG, FileIO_Read, CKFB_CONFIG_S)) != -1)
+	{
+		readHandle(&file, &version, sizeof(version));
+		if (version != ConfigVersion)
+		{
+			goto rcfailed;
+		}
+		readHandle(&file,Scores,sizeof(HighScore) * MaxScores);
+		readHandle(&file,&sd,sizeof(sd));
+		readHandle(&file,&sm,sizeof(sm));
+		readHandle(&file,&pal,sizeof(pal));
+		readHandle(&file,&sbox,sizeof(sbox));
+				
+// TODO:
+// Store quiet Adlib sounds
+// Store button reconfig?
+//		readHandle(file,&ctl,sizeof(ctl));
+//		readHandle(file,&(KbdDefs[0]),sizeof(KbdDefs[0]));
+		readHandle(&file,&showscorebox,sizeof(showscorebox));
+//		readHandle(file,&compatability,sizeof(compatability));
+//		readHandle(file,&QuietFX,sizeof(QuietFX));
+//		readHandle(file,&hadAdLib,sizeof(hadAdLib));
+//		readHandle(file,&jerk,sizeof(jerk));
+//#ifdef KEEN
+//		readHandle(file,&oldshooting,sizeof(oldshooting));
+//		readHandle(file,&firescan,sizeof(firescan));
+//#endif
+
+		HighScoresDirty = false;
+		gotit = true;
+	}
+	else
+	{
+rcfailed:
+		sd = sdm_AdLib;
+		sm = sdm_AdLib;
+		pal = 0;
+		sbox = 2;
+
+		gotit = false;
+		HighScoresDirty = true;
+	}
+
+	SD_SetMusicMode(sm);
+	SD_SetSoundMode(sd);
+	CK_PaletteSet = pal;
+	showscorebox = sbox;
+
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      USL_WriteConfig() - Writes out the current configuration, including the
+//              high scores.
+//
+///////////////////////////////////////////////////////////////////////////
+static void
+USL_WriteConfig(void)
+{
+	word    version;
+	FileHandle             file;
+
+	version = ConfigVersion;
+	file = openHandle(CKF_CONFIG, FileIO_Read | FileIO_Write, CKFB_CONFIG_S);
+	if (file != -1)
+	{
+		writeHandle(&file,&version,sizeof(version));
+		writeHandle(&file,Scores,sizeof(HighScore) * MaxScores);
+		writeHandle(&file,&SoundMode,sizeof(SoundMode));
+		writeHandle(&file,&MusicMode,sizeof(MusicMode));
+		writeHandle(&file,&CK_PaletteSet,sizeof(CK_PaletteSet));
+		writeHandle(&file,&showscorebox,sizeof(showscorebox));
+		
+//		write(file,&(Controls[0]),sizeof(Controls[0]));
+//		write(file,&(KbdDefs[0]),sizeof(KbdDefs[0]));
+//		write(file,&compatability,sizeof(compatability));
+//		write(file,&QuietFX,sizeof(QuietFX));
+//		write(file,&AdLibPresent,sizeof(AdLibPresent));
+//		write(file,&jerk,sizeof(jerk));
+//#ifdef KEEN
+//		write(file,&oldshooting,sizeof(oldshooting));
+//		write(file,&firescan,sizeof(firescan));
+//#endif
+//		write(file,&GravisGamepad,sizeof(GravisGamepad));
+//		write(file,&GravisMap,sizeof(GravisMap));
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      USL_CheckSavedGames() - Checks to see which saved games are present
+//              & valid
+//
+///////////////////////////////////////////////////////////////////////////
+#ifdef KEEN
+void
+#else
+static void
+#endif
+USL_CheckSavedGames(void)
+{
+	boolean         ok;
+	char            *filename;
+	word            i;
+	FileHandle		file;
+	SaveGame        *game;
+
+	for (i = 0,game = Games;i < MaxSaveGames;i++,game++)
+	{
+		ok = false;
+		if ((file = openHandle(ck_file_slots[i], FileIO_Read, CKFB_SLOT_S)) != -1)
+		{
+			if( (readHandle(&file,game,sizeof(*game)) == sizeof(*game)) /*&&
+				(game->oldtest == &PrintX)*/ )
+				ok = true;
+		}
+
+		if (ok)
+			game->present = true;
+		else
+		{
+			game->present = false;
+			strcpy(game->name,"Empty");
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      US_Setup() - Does the disk access part of the User Mgr's startup
+//
+///////////////////////////////////////////////////////////////////////////
 
 void US_Setup(){
 	WindowX = 0;
 	WindowY = 0;
+	USL_ReadConfig();               // Read config file
+	USL_CheckSavedGames();  // Check which saved games are present
 };
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      US_Shutdown() - Shuts down the User Mgr
+//
+///////////////////////////////////////////////////////////////////////////
+void US_Shutdown(void){
+	USL_WriteConfig();
+}
+
 
 void USL_MeasureString(char *str, word *w, word *h){
 	*h = 8;
-	*w=0;
+	*w = 0;
 	while(*str){
 		str++;
 		*w+=8;
@@ -66,27 +276,33 @@ void USL_MeasureString(char *str, word *w, word *h){
 //              supported.
 //
 ///////////////////////////////////////////////////////////////////////////
+
+char printbuffer[256];
+
 void
 US_Print(char *s)
 {
 	char    c,*se;
 	word    w,h;
 
-	while (*s)
+	char *sbuff = printbuffer;
+	_ck_strcpy(sbuff, s);
+
+	while (*sbuff)
 	{
-		se = s;
+		se = sbuff;
 		while ((c = *se) && (c != '\n'))
 			se++;
 		*se = '\0';
 
-		USL_MeasureString(s,&w,&h);
-		USL_DrawString(s);
+		USL_MeasureString(sbuff,&w,&h);
+		USL_DrawString(sbuff);
 
-		s = se;
+		sbuff = se;
 		if (c)
 		{
 			*se = c;
-			s++;
+			sbuff++;
 
 			PrintX = WindowX;
 			PrintY += h;
@@ -107,9 +323,13 @@ US_SafePrint(char *s)
 {
 	char    c,*se;
 	word    w,h;
-	while (*s)
+	char *sbuff = printbuffer;
+	_ck_strcpy(sbuff, s);
+
+	while (*sbuff)
 	{
-		se = s;
+		se = sbuff;
+
 		int chcount = PrintX/8;
 		while ((c = *se) && (c != '\n') && chcount < 30){
 			se++;
@@ -117,14 +337,14 @@ US_SafePrint(char *s)
 		}
 		*se = '\0';
 
-		USL_MeasureString(s,&w,&h);
-		USL_DrawString(s);
+		USL_MeasureString(sbuff,&w,&h);
+		USL_DrawString(sbuff);
 
-		s = se;
+		sbuff = se;
 		if (c)
 		{
 			*se = c;
-			s++;
+			sbuff++;
 
 			PrintX = WindowX;
 			PrintY += h;
@@ -215,8 +435,10 @@ char *_ck_ltoa(int n, char*buff, int mode){
 };
 
 int _ck_strcpy(char *dest, char *src){
-	while(*(src++))
-		*dest = *src;
+	while(*src){
+		*(dest++) = *(src++);
+	}
+	*dest = 0; // Add end byte
 	return 0;
 };
 
@@ -260,7 +482,7 @@ US_PrintSigned(long n)
 ///////////////////////////////////////////////////////////////////////////
 void
 USL_PrintInCenter(char *s,Rect r)
-{/*
+{
 	word    w,h,
 			rw,rh;
 
@@ -268,9 +490,9 @@ USL_PrintInCenter(char *s,Rect r)
 	rw = r.lr.x - r.ul.x;
 	rh = r.lr.y - r.ul.y;
 
-	px = r.ul.x + ((rw - w) / 2);
-	py = r.ul.y + ((rh - h) / 2);
-	USL_DrawString(s);*/
+	PrintX = r.ul.x + ((rw - w) / 2);
+	PrintY = r.ul.y + ((rh - h) / 2);
+	USL_DrawString(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -299,17 +521,16 @@ US_PrintCentered(char *s)
 ///////////////////////////////////////////////////////////////////////////
 void
 US_CPrintLine(char *s)
-{/*
+{
 	word    w,h;
 
 	USL_MeasureString(s,&w,&h);
+	//if (w > WindowW) Quit(s);
+//		Quit("US_CPrintLine() - String exceeds width");
 
-	if (w > WindowW)
-		Quit("US_CPrintLine() - String exceeds width");
-	px = WindowX + ((WindowW - w) / 2);
-	py = PrintY;
+	PrintX = WindowX + ((WindowW - w) / 2);
 	USL_DrawString(s);
-	PrintY += h;*/
+	PrintY += h;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -320,25 +541,27 @@ US_CPrintLine(char *s)
 ///////////////////////////////////////////////////////////////////////////
 void
 US_CPrint(char *s)
-{/*
+{
 	char    c,*se;
+	char *sbuff = printbuffer;
+	_ck_strcpy(sbuff, s);
 
-	while (*s)
+	while (*sbuff)
 	{
-		se = s;
+		se = sbuff;
 		while ((c = *se) && (c != '\n'))
 			se++;
 		*se = '\0';
 
-		US_CPrintLine(s);
+		US_CPrintLine(sbuff);
 
-		s = se;
+		sbuff = se;
 		if (c)
 		{
 			*se = c;
-			s++;
+			sbuff++;
 		}
-	}*/
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -350,9 +573,10 @@ US_CPrint(char *s)
 void
 US_ClearWindow(void)
 {
-	/*VWB_Bar(WindowX,WindowY,WindowW,WindowH,WHITE);
+//	VW_FixNeededTiles();
+	VWB_Bar(WindowX,WindowY,WindowW,WindowH,WHITE); // spawn white tiles
 	PrintX = WindowX;
-	PrintY = WindowY;*/
+	PrintY = WindowY;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -362,22 +586,30 @@ US_ClearWindow(void)
 ///////////////////////////////////////////////////////////////////////////
 void
 US_DrawWindow(word x,word y,word w,word h)
-{/*
+{
 	word    i,
 			sx,sy,sw,sh;
+
+	// Hide all the sprites
+	GBA_HideSprites();
+	// Fix the scroll
+	CK_SnapScroll();
 
 	WindowX = x * 8;
 	WindowY = y * 8;
 	WindowW = w * 8;
 	WindowH = h * 8;
 
-	PrintX = WindowX;
-	PrintY = WindowY;
+	WindowX += CK_CameraX;
+	WindowY += CK_CameraY;
 
 	sx = (x - 1) * 8;
 	sy = (y - 1) * 8;
 	sw = (w + 1) * 8;
 	sh = (h + 1) * 8;
+
+	sx += CK_CameraX;
+	sy += CK_CameraY;
 
 	US_ClearWindow();
 
@@ -387,7 +619,8 @@ US_DrawWindow(word x,word y,word w,word h)
 	VWB_DrawTile8M(i,sy,2),VWB_DrawTile8M(i,sy + sh,8);
 
 	for (i = sy + 8;i <= sy + sh - 8;i += 8)
-		VWB_DrawTile8M(sx,i,3),VWB_DrawTile8M(sx + sw,i,5);*/
+		VWB_DrawTile8M(sx,i,3),VWB_DrawTile8M(sx + sw,i,5);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -399,10 +632,8 @@ US_DrawWindow(word x,word y,word w,word h)
 void
 US_CenterWindow(word w,word h)
 {
-//	US_DrawWindow(((MaxX / 8) - w) / 2,((MaxY / 8) - h) / 2,w,h);
+	US_DrawWindow(((MaxX / 8) - w) / 2,((MaxY / 8) - h) / 2,w,h);
 }
-
-
 
 
 
@@ -413,13 +644,78 @@ long		lasttimecount = 0;
 
 // From ID_IN.C
 int LastScan;
+int CurScan;
 
+// From Game.c
+extern bool fadeinhook;
+extern Uint16 fadecount;
+// From 
+extern bool screenchanged;
+// Sound
+bool soundtick = 0;
 
-void GBA_UserIRQ(){
+extern unsigned char *PC_SoundPtr;
+extern unsigned int PC_SoundLen;
+extern unsigned int PC_SoundCount;
+
+GBA_ARM void GBA_UserIRQ2(){
+	
+	if(PC_SoundPtr){
+		if(PC_SoundLen){
+			unsigned short fq = 0;
+			unsigned int f = PC_SoundPtr[PC_SoundCount]*60;
+			if(f > 0){
+				unsigned short fd = f/9;
+				if(fd > 2048){
+					fd = 2048;
+				}
+				if(fd<1){
+					fd = 1;
+				}
+				fq = 2048-fd;
+				
+				//enable sound 1 to left and right
+				*(volatile uint16_t*)GBA_SOUNDCNT_L |= GBA_SND_1L | GBA_SND_1R ;
+
+				// set the frequency
+				*(volatile uint16_t*)GBA_SOUND1_X = fq | GBA_RESET_SOUND;
+			}else{
+				//disable sound 1 to left and right
+				*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
+			}
+
+			PC_SoundCount ++;
+			if(PC_SoundCount > PC_SoundLen){
+				// done
+				PC_SoundCount = 0;
+				PC_SoundLen = 0;
+				PC_SoundPtr = NULL;
+				//disable sound 1 to left and right
+				*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
+			}
+		}
+	}
+};
+
+GBA_ARM void GBA_UserIRQ(){
+
+	if(screenchanged){
+		if(fadeinhook){
+			if(++fadecount == 2){
+				VW_FadeIn();
+				fadeinhook = false;
+			}
+		}
+		screenchanged = false;
+	}
+	if(gamestate.fastticks)
+		TimeCount += 99;
 	TimeCount += 1;
 
-	LastScan = GBA_INV_BUTTONS;
-
+	// Makes the user have to release the button???
+	if(CurScan != GBA_INV_BUTTONS)
+		LastScan = CurScan;
+	CurScan = GBA_INV_BUTTONS;
 };
 
 

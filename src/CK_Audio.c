@@ -16,13 +16,33 @@ SMMode MusicMode;
 longword TimeCount;
 static	word SoundNumber,SoundPriority;
 
+unsigned char *PC_SoundPtr = NULL;
+unsigned int PC_SoundLen = 0;
+unsigned int PC_SoundCount = 0;
+
+
 void SD_InitAudio(){
     GBA_InitAudio();
+	GBA_SetSoundSqWav(1);
 	// Default to adlib sound / music
     SoundMode = sdm_AdLib;
     MusicMode = smm_AdLib;
     SoundNumber = SoundPriority = 0;
+
+	PC_SoundPtr = NULL;
+	PC_SoundCount = 0;
+	PC_SoundLen = 0;
+
+	// Setup interupt to play sounds
+    *(volatile uint16_t*)GBA_INT_SELECT |= GBA_INT_TIMER2;
+
+	// Make it update every 1/140 of a second
+	*(volatile unsigned short*)GBA_TIMER2_DATA = 0xFF8C;
+	*(volatile unsigned short*)GBA_TIMER2_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_256 | GBA_TIMER_INTERUPT;
+
 };
+
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -32,16 +52,13 @@ void SD_InitAudio(){
 void
 SD_PlaySound(soundnames sound)
 {
-	unsigned short s_priority = 0;
 #ifndef CK_DISABLE_SOUND	
-	// Check if a sound is playing
-	if(GBA_SamplePlaying(GBA_CHANNEL_B) == 0){
-		GBA_StopChannel(GBA_CHANNEL_B);
-	    SoundNumber = SoundPriority = 0;
-	}
-
+	if(!SD_SoundPlaying())
+		SoundPriority = 0;
 	if ((SoundMode == sdm_Off) || (sound == -1))
 		return;
+
+	unsigned short s_priority = *CKS_SamplePriorities[sound];
 
 	if (s_priority < SoundPriority)
 		return;
@@ -49,7 +66,9 @@ SD_PlaySound(soundnames sound)
 	switch (SoundMode)
 	{
 	case sdm_PC:
-		//SDL_PCPlaySound((void far *)s);
+		PC_SoundPtr = CKS_PC_Samples[sound];
+		PC_SoundCount = 0;
+		PC_SoundLen = *CKS_PC_SampleLens[sound];
 		break;
 	case sdm_AdLib:
 		GBA_StopChannel(GBA_CHANNEL_B);
@@ -76,7 +95,7 @@ SD_SoundPlaying(void)
 	switch (SoundMode)
 	{
 	case sdm_PC:
-		//result = pcSound? true : false;
+		result = (PC_SoundPtr&&PC_SoundLen)? true : false;
 		break;
 	case sdm_AdLib:
 		result = GBA_SamplePlaying(GBA_CHANNEL_B)? true : false;
@@ -103,8 +122,8 @@ SD_StopSound(void)
 	switch (SoundMode)
 	{
 	case sdm_PC:
-    // Handle GBA square wave here???
-//		SDL_PCStopSound();
+		//disable sound 1 to left and right
+		*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);		
 		break;
 	case sdm_AdLib:
     	GBA_StopChannel(GBA_CHANNEL_B);
@@ -135,8 +154,152 @@ void SD_PlayMusic(uint32_t chunk, uint32_t asLoop){
 #endif
 };
 
-void SD_MusicOff(){
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_MusicOn() - turns on the sequencer
+//
+///////////////////////////////////////////////////////////////////////////
+void
+SD_MusicOn(void)
+{
+	GBA_PlayChannel(GBA_CHANNEL_A);
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_MusicOff() - turns off the sequencer and any playing notes
+//
+///////////////////////////////////////////////////////////////////////////
+void
+SD_MusicOff(void)
+{
+	word	i;
+
+	switch (MusicMode)
+	{
+	case smm_AdLib:
 #ifndef CK_DISABLE_MUSIC
-    GBA_StopChannel(GBA_CHANNEL_A);
+    GBA_PauseChannel(GBA_CHANNEL_A);
 #endif    
-};
+		break;
+	}
+	
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_FadeOutMusic() - starts fading out the music. Call SD_MusicPlaying()
+//		to see if the fadeout is complete
+//
+///////////////////////////////////////////////////////////////////////////
+void
+SD_FadeOutMusic(void)
+{
+	switch (MusicMode)
+	{
+	case smm_AdLib:
+		#ifndef CK_DISABLE_MUSIC
+			GBA_StopChannel(GBA_CHANNEL_A);
+		#endif    
+		break;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_MusicPlaying() - returns true if music is currently playing, false if
+//		not
+//
+///////////////////////////////////////////////////////////////////////////
+boolean
+SD_MusicPlaying(void)
+{
+	boolean	result;
+
+	switch (MusicMode)
+	{
+	case smm_AdLib:
+		result = false;
+		// DEBUG - not written in original (will break?)
+		result = GBA_SamplePlaying(GBA_CHANNEL_A)? true : false;
+		break;
+	default:
+		result = false;
+	}
+
+	return(result);
+}
+
+
+
+//	Public routines
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_SetSoundMode() - Sets which sound hardware to use for sound effects
+//
+///////////////////////////////////////////////////////////////////////////
+boolean
+SD_SetSoundMode(SDMode mode)
+{
+	boolean	result;
+	word	tableoffset;
+
+	SD_StopSound();
+
+	switch (mode)
+	{
+	case sdm_Off:
+		result = true;
+		break;
+	case sdm_PC:
+		result = true;
+		break;
+	case sdm_AdLib:
+		result = true;
+		break;
+	default:
+		result = false;
+		break;
+	}
+
+	if (result && (mode != SoundMode)) {
+		SoundMode = mode;
+	}
+
+	return(result);
+}
+
+///////////////////////////////////////////////////////////////////////////
+//
+//	SD_SetMusicMode() - sets the device to use for background music
+//
+///////////////////////////////////////////////////////////////////////////
+boolean
+SD_SetMusicMode(SMMode mode)
+{
+	boolean	result;
+
+	SD_FadeOutMusic();
+	while (SD_MusicPlaying());
+
+	switch (mode)
+	{
+	case smm_Off:
+		result = true;
+		break;
+	case smm_AdLib:
+		result = true;
+		break;
+	default:
+		result = false;
+		break;
+	}
+
+	if (result)
+		MusicMode = mode;
+
+	return(result);
+}

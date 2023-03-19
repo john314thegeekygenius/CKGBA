@@ -112,15 +112,7 @@ void SlideLetters(){
 
 	// Clear the second layer
 	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x2000, 0x0, 32*20*8);
-	// Change the palette so it looks nicer
 
-#ifdef CK4
-	*((uint16_t*)GBA_PAL_BG_START+7) = COMMANDER_KEEN_PALETTE[8]; // Dark grey
-	*((uint16_t*)GBA_PAL_BG_START+15) = COMMANDER_KEEN_PALETTE[7]; // Light grey
-
-	*((uint16_t*)GBA_PAL_BG_START+3) = COMMANDER_KEEN_PALETTE[9]; // Blue
-	*((uint16_t*)GBA_PAL_BG_START+4) = COMMANDER_KEEN_PALETTE[11]; // Light blue
-#endif
 	int getx, getx2;
 
 	// Copy the text blocks over
@@ -325,8 +317,12 @@ void Terminator(void)
 	// Remove the second background
 	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 
+	// Reset the scroll pos
+	VW_ClearScroll();
+
+	// Fix the palette
 	for(int i = 0; i < 16; i++)
-		*((uint16_t*)GBA_PAL_BG_START+i) = COMMANDER_KEEN_PALETTE[CK_TERM_PAL[i]];
+		*((uint16_t*)GBA_PAL_BG_START+i) = COMMANDER_KEEN_PALETTE[CK_TERM_PAL[i]+(CK_PaletteSet*16)];
 
 	//
 	// play the animation
@@ -356,14 +352,12 @@ void Terminator(void)
 	//
 	if (LastScan == 0)
 	{
-	//	return;
+		return;
 	}
 #ifndef KEEN6
 	if (LastScan == (GBA_BUTTON_LSHOLDER | GBA_BUTTON_RSHOLDER))
 	{
-		// TODO:
-		// Add Help!
-		//HelpScreens();
+		HelpScreens();
 		return;
 	}
 #endif
@@ -392,6 +386,8 @@ void Terminator(void)
 
 		IN_Ack();
 	}
+	// Fix the graphics??
+	CA_FixGraphics();
 
 	US_ControlPanel();
 	if (restartgame)
@@ -439,6 +435,8 @@ const uint32_t CK_StoryHeight = 400/8;
 
 const uint32_t *CK_TXTVRAM = (uint32_t*)(GBA_VRAM+(0x8000));
 const uint32_t *CK_STORYTXT32 = (uint32_t*)CK_STORYTXT;
+
+const unsigned int CK_STAR_PAL[] = STARPALETTE;
 
 /*
 ============================
@@ -520,14 +518,16 @@ void StarWars(void)
 	// Finish the render of the background
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | TILEMAP_MAP_0 | TILEMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
 	GBA_FINISH_BG1_4BIT(GBA_BG_FRONT | TILEMAP_MAP_1 | SWMAP_BLOCK | GBA_BG_SIZE_32x32);
+	// Remove the second background
 	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 
+	// Reset the scroll pos
+	VW_ClearScroll();
 
-	// Set the GBA scroll
-	*(volatile uint32_t*)GBA_REG_BG0HOFS = 0;
-	*(volatile uint32_t*)GBA_REG_BG0HOFS = 0;
-	*(volatile uint32_t*)GBA_REG_BG1VOFS = 8;
-	*(volatile uint32_t*)GBA_REG_BG1HOFS = 0;
+	// Fix the palette
+	for(int i = 0; i < 16; i++)
+		*((uint16_t*)GBA_PAL_BG_START+i) = COMMANDER_KEEN_PALETTE[CK_STAR_PAL[i]+(CK_PaletteSet*16)];
+
 
 	// Copy the story pic over slowly to simulate the original game
 	for(int i = 0; i < 160; i++){
@@ -567,6 +567,9 @@ void StarWars(void)
 
 void ShowTitle(void)
 {
+	// Reset the scroll pos
+	VW_ClearScroll();
+
 	// Copy the title screen over 
 	GBA_DMA_Copy32((uint32_t*)GBA_VRAM, (uint32_t*)CK_TITLESCREEN, (32*20*8));
 
@@ -576,6 +579,8 @@ void ShowTitle(void)
 	// Move the screen over a bit
 	*(volatile uint32_t*)GBA_REG_BG0HOFS = 8;
 	*(volatile uint32_t*)GBA_REG_BG0VOFS = 0;
+	*(volatile uint32_t*)GBA_REG_BG1HOFS = 8;
+	*(volatile uint32_t*)GBA_REG_BG1VOFS = 0;
 
 	IN_UserInput(6*TickBase, false);
 	CheckLastScan();
@@ -733,6 +738,7 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 #ifdef KEEN5
 	fontcolor = 15;	// back to default color (white)
 #endif*/
+	scorescreenkludge = false;
 }
 
 //===========================================================================
@@ -748,7 +754,7 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 void ShowHighScores(void)
 {
 	scorescreenkludge = true;
-//	IN_ClearKeysDown();
+	IN_ClearKeysDown();
 	RunDemo(4);
 	scorescreenkludge = false;
 }

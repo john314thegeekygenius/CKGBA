@@ -472,6 +472,27 @@ void CK_UpdateLevel(){
 
 };
 
+
+void CK_SnapScroll(){
+    // We moved the camera a bit
+    CK_CameraMoved = true;
+    // Find closest 8x8 chunk
+    CK_CameraX >>= 3;
+    CK_CameraX <<= 3;
+
+    CK_CameraY >>= 3;
+    CK_CameraY <<= 3;
+
+    *(volatile uint16_t*)GBA_REG_BG0HOFS = (uint16_t)CK_CameraX&0x1FF;
+    *(volatile uint16_t*)GBA_REG_BG0VOFS = (uint16_t)CK_CameraY&0x1FF;
+
+    *(volatile uint16_t*)GBA_REG_BG1HOFS = (uint16_t)CK_CameraX&0x1FF;
+    *(volatile uint16_t*)GBA_REG_BG1VOFS = (uint16_t)CK_CameraY&0x1FF;
+
+    *(volatile uint16_t*)GBA_REG_BG2HOFS = (uint16_t)CK_CameraX&0x1FF;
+    *(volatile uint16_t*)GBA_REG_BG2VOFS = (uint16_t)CK_CameraY&0x1FF;    
+}
+
 //==========================================================================
 
 /*
@@ -710,19 +731,3 @@ void RFL_BoundNewOrigin (unsigned orgx,unsigned orgy)
 }
 
 
-// These don't do what the original code did,
-// These functions reposition the screen for optimum
-// dialog viewing
-
-void CA_UpLevel(){
-    // TODO:
-    // Make this do somthing
-
-};
-
-void CA_DownLevel(){
-    // TODO:
-    // Make this do somthing
-    
-
-};

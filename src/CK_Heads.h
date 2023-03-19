@@ -7,10 +7,10 @@
 #define __CK_HEADS__
 
 
-#define CK_DISABLE_SOUND
-#define CK_DISABLE_MUSIC
+//#define CK_DISABLE_SOUND
+//#define CK_DISABLE_MUSIC
 #define CK4
-
+#define KEEN
 
 //
 //	ID Engine
@@ -45,7 +45,7 @@ typedef boolean bool; // For sanity
 
 
 #include "GBA_Defs.h"
-
+#include "GBA_File.h"
 #include "CK_Input.h"
 
 

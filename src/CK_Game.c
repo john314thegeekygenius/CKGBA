@@ -19,6 +19,7 @@
 */
 
 Uint16 fadecount;
+bool fadeinhook;
 Sint16 levelcompleted;
 Sint32 chunkcount, chunkmax, handpic;
 
@@ -89,11 +90,6 @@ void NewGame(void)
 	gamestate.nextextra = 20000;
 	gamestate.lives = 3;
 	gamestate.ammo = 5;
-	// TODO:
-	// Remove this
-	gamestate.wetsuit = 1;
-	gamestate.scoreboxdisp = CK_DISP_SCORE_GBA;
-	gamestate.difficulty = gd_Easy;
 }
 
 //===========================================================================
@@ -109,16 +105,13 @@ void NewGame(void)
 
 void GameOver(void)
 {
-    // TODO:
-    // Make this display a game over screen
-    /*
-	VW_FixRefreshBuffer();
+//	VW_FixRefreshBuffer();
 	US_CenterWindow(16, 3);
 	US_PrintCentered("Game Over!");
-	VW_UpdateScreen();
+
 	IN_ClearKeysDown();
 	IN_UserInput(4*TickBase, false);
-*/}
+}
 #endif
 
 //===========================================================================
@@ -134,14 +127,13 @@ void GameOver(void)
 boolean SaveTheGame(Sint16 handle){
     // TODO:
     // Make this compress & save all game data
-    /*
+
 	Uint16	i,compressed,expanded;
 	objtype	*ob;
-	memptr	bigbuffer;
 
 	gamestate.riding = NULL;
 
-	if (!CA_FarWrite(handle, (byte far *)&gamestate, sizeof(gamestate)))
+/*	if (!CA_FarWrite(handle, (byte far *)&gamestate, sizeof(gamestate)))
 		return false;
 
 	expanded = mapwidth * mapheight * 2;
@@ -164,8 +156,7 @@ boolean SaveTheGame(Sint16 handle){
 			MM_FreePtr(&bigbuffer);
 			return false;
 		}
-	}
-	MM_FreePtr(&bigbuffer);*/
+	}*/
 	return true;
 }
 
@@ -184,6 +175,7 @@ boolean LoadTheGame(Sint16 handle)
 {
     // TODO:
     // Make this compress & save all game data
+	return false;
     /*
 	Uint16	i;
 	objtype	*prev,*next,*followed;
@@ -213,7 +205,7 @@ boolean LoadTheGame(Sint16 handle)
 		US_CenterWindow(20, 8);
 		PrintY += 20;
 		US_CPrint("Not enough memory\nto load game!");
-		VW_UpdateScreen();
+
 		IN_Ack();
 		return false;
 	}
@@ -230,7 +222,7 @@ boolean LoadTheGame(Sint16 handle)
 		US_CenterWindow(20, 8);
 		PrintY += 20;
 		US_CPrint("Not enough memory\nto load game!");
-		VW_UpdateScreen();
+
 		IN_Ack();
 		return false;
 	}
@@ -408,14 +400,10 @@ void PatchWorldMap(void)
 
 void DelayedFade(void)
 {
-    // TODO:
-    // Make this fade out
-    /*
-
 	VW_FadeOut();
 	fadecount = 0;
-	RF_SetRefreshHook(&FadeAndUnhook);
-    */
+	FadeAndUnhook();
+//	RF_SetRefreshHook(&FadeAndUnhook);
 }
 
 /*
@@ -432,16 +420,8 @@ void DelayedFade(void)
 
 void FadeAndUnhook(void)
 {
-    // TODO:
-    // Make this do somthing??
-    /*
-
-	if (++fadecount == 2)
-	{
-		VW_FadeIn();
-		RF_SetRefreshHook(NULL);
-		TimeCount = lasttimecount;	// don't adaptively time the fade
-	}*/
+	fadeinhook = true;
+	TimeCount = lasttimecount;	// don't adaptively time the fade
 }
 
 //===========================================================================
@@ -456,6 +436,8 @@ void FadeAndUnhook(void)
 =
 ==========================
 */
+
+extern const char *levelenter[GAMELEVELS];
 
 void SetupGameLevel(boolean loadnow)
 {
@@ -476,6 +458,8 @@ void SetupGameLevel(boolean loadnow)
 	}
 
 	// Handle invalid map id's here:
+	if(gamestate.mapon < 0) gamestate.mapon = 0;
+	if(gamestate.mapon > GAMELEVELS) gamestate.mapon = 0;
 	mapon = gamestate.mapon;
 
 //
@@ -489,6 +473,28 @@ void SetupGameLevel(boolean loadnow)
 		PatchWorldMap();
 	}
 
+	if (loadnow)
+	{
+		if (scorescreenkludge)
+		{
+			CA_CacheMarks(NULL);
+		}
+		else if (DemoMode)
+		{
+			CA_CacheMarks("DEMO");
+		}
+#ifdef KEEN5
+		else if (mapon == 0 && player->tiletop > 100)
+		{
+			CA_CacheMarks("Keen steps out\nonto Korath III");
+		}
+#endif
+		else
+		{
+			if(mapon < GAMELEVELS)
+				CA_CacheMarks(levelenter[mapon]);
+		}
+	}
 	if (loadnow)
 	{
 		DelayedFade();
@@ -506,64 +512,25 @@ void SetupGameLevel(boolean loadnow)
 ==========================
 */
 
-void DialogDraw(char *title, Uint16 numcache)
+void DialogDraw(char *title)
 {
-    // TODO:
-    // Make this do somthing??
-    /*
 
 	Sint16 i;
 	Uint16 width, height;
-	Sint32 totalfree;
 
-	totalfree = MM_TotalFree();
-	if (totalfree < 2048)
-	{
-		handpic = 5;
-	}
-	else
-	{
-		handpic = 0;
-		for (i = 0; i < 6; i++)
-		{
-			CA_CacheGrChunk(i+KEENCOUNT1PIC);
-			CA_UnmarkGrChunk(i+KEENCOUNT1PIC);
-			if (grsegs[i+KEENCOUNT1PIC])
-			{
-				MM_SetPurge(&grsegs[i+KEENCOUNT1PIC], PURGE_FIRST);
-			}
-			else
-			{
-				mmerror = false;
-				handpic = 5;
-				break;
-			}
-		}
-	}
+	handpic = 0;
+
+	VW_FixGraphics();
+
 	US_CenterWindow(26, 8);
-	if (grsegs[KEENCOUNT1PIC])
-	{
-		VWB_DrawPic(WindowX, WindowY, KEENCOUNT1PIC);
-	}
-	else
-	{
-		handpic = 5;
-	}
-	CA_UnmarkGrChunk(KEENCOUNT1PIC);	//redundant
+
+	VWB_DrawPic(WindowX, WindowY, KEENCOUNT1PIC);
+
 	WindowW -= 48;
 	WindowX += 48;
 	SizeText(title, &width, &height);
 	PrintY += (WindowH-height)/2 - 4;
 	US_CPrint(title);
-	VW_UpdateScreen();
-	chunkmax = chunkcount = numcache / 6;
-	if (!chunkmax && !handpic)
-	{
-		handpic = 5;
-		if (grsegs[KEENCOUNT6PIC])
-			VWB_DrawPic(WindowX-24, WindowY+40, KEENCOUNT6PIC);
-		VW_UpdateScreen();
-	}*/
 }
 
 /*
@@ -576,19 +543,10 @@ void DialogDraw(char *title, Uint16 numcache)
 
 void DialogUpdate(void)
 {
-    // TODO:
-    // Make this do somthing??
-    /*
-	if (--chunkcount || handpic > 4)
+	if (handpic > 4)
 		return;
-
-	chunkcount = chunkmax;
-	if (grsegs[handpic+KEENCOUNT2PIC])
-	{
-		VWB_DrawPic(WindowX-24, WindowY+40, handpic+KEENCOUNT2PIC);
-	}
-	VW_UpdateScreen();
-	handpic++;*/
+	VWB_DrawPic(WindowX-24, WindowY+40, handpic+KEENCOUNT2PIC);
+	handpic++;
 }
 
 /*
@@ -604,6 +562,44 @@ void DialogFinish(void)
 	//this is empty
 }
 
+
+
+
+/*
+======================
+=
+= CA_CacheMarks
+=
+======================
+*/
+#define MAXEMPTYREAD	1024
+
+void CA_CacheMarks (char *title)
+{
+	if(title == NULL) return;
+
+	DialogDraw(title);
+
+//
+// go through and load in anything still needed
+//
+
+	for (int i=0;i<6*3;i++){
+//
+// update thermometer
+//
+		DialogUpdate();
+		// Add some simulated delay
+		GBA_Delay(250);
+	}
+
+//
+// finish up any thermometer remnants
+//
+	DialogFinish();
+};
+
+
 //==========================================================================
 
 /*
@@ -616,34 +612,32 @@ void DialogFinish(void)
 
 void HandleDeath(void)
 {
-    // TODO:
-    // Make this do somthing??
-    /*
 
-	Uint16 y, color, top, bottom, selection, w, h;
+	Uint16 y, color, top, bottom, selection, selectionl, w, h;
 
-	_fstrcpy(str, levelnames[mapon]);
-	SizeText(str, &w, &h);
+	SizeText(levelnames[mapon], &w, &h);
 
 	memset(gamestate.keys, 0, sizeof(gamestate.keys));
 	gamestate.lives--;
+
 	if (gamestate.lives >= 0)
 	{
-		VW_FixRefreshBuffer();
-		US_CenterWindow(20, 8);
+//		VW_FixRefreshBuffer();
+		US_CenterWindow(24, 8);
 		PrintY += 3;
 		US_CPrint("You didn't make it past");
-		top = PrintY+22;
+		top = PrintY+19;
 		if (h < 15)
 			PrintY += 4;
-		US_CPrint(str);
+		US_CPrint(levelnames[mapon]);
 		PrintY = top+2;
 		US_CPrint("Try Again");
-		PrintY += 4;
-		bottom = PrintY-2;
+		PrintY += 8;
+		bottom = PrintY-3;
 		US_CPrint("Exit to "WORLDMAPNAME);
 
 		IN_ClearKeysDown();
+		selectionl = 0;
 		selection = 0;
 		while (true)
 		{
@@ -665,6 +659,7 @@ void HandleDeath(void)
 			{
 				color = FIRSTCOLOR;
 			}
+
 			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y, color);
 			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+1, color);
 			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+12, color);
@@ -674,19 +669,8 @@ void HandleDeath(void)
 			VWB_Vlin(y+1, y+11, WindowX+WindowW-4, color);
 			VWB_Vlin(y+1, y+11, WindowX+WindowW-5, color);
 
-			VW_UpdateScreen();
 
-// erase select bar
-			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y, WHITE);
-			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+1, WHITE);
-			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+12, WHITE);
-			VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+13, WHITE);
-			VWB_Vlin(y+1, y+11, WindowX+4, WHITE);
-			VWB_Vlin(y+1, y+11, WindowX+5, WHITE);
-			VWB_Vlin(y+1, y+11, WindowX+WindowW-4, WHITE);
-			VWB_Vlin(y+1, y+11, WindowX+WindowW-5, WHITE);
-
-			if (LastScan == sc_Escape)
+			if (c.button1)
 			{
 				gamestate.mapon = 0;		// exit to world map
 				IN_ClearKeysDown();
@@ -694,22 +678,35 @@ void HandleDeath(void)
 			}
 
 			IN_ReadControl(0, &c);
-			if (c.button0 || c.button1 || LastScan == sc_Return || LastScan == sc_Space)
+			if (c.button0 )
 			{
 				if (selection)
 					gamestate.mapon = 0;		// exit to world map
 				return;
 			}
-			if (c.yaxis == -1 || LastScan == sc_UpArrow)
+			if (c.yaxis == -1)
 			{
 				selection = 0;
 			}
-			else if (c.yaxis == 1 || LastScan == sc_DownArrow)
+			else if (c.yaxis == 1)
 			{
 				selection = 1;
 			}
+			// erase select bar
+			if(selectionl != selection){
+				selectionl = selection;
+				VWB_Hlin(WindowX+4, WindowX+WindowW-4, y, WHITE);
+				VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+1, WHITE);
+				VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+12, WHITE);
+				VWB_Hlin(WindowX+4, WindowX+WindowW-4, y+13, WHITE);
+				VWB_Vlin(y+1, y+11, WindowX+4, WHITE);
+				VWB_Vlin(y+1, y+11, WindowX+5, WHITE);
+				VWB_Vlin(y+1, y+11, WindowX+WindowW-4, WHITE);
+				VWB_Vlin(y+1, y+11, WindowX+WindowW-5, WHITE);
+			}
+
 		}
-	}*/
+	}
 	gamestate.mapon = 0;		// exit to world map
 	IN_ClearKeysDown();
 }
@@ -746,6 +743,9 @@ void GameLoop(void)
 	}
 #endif
 
+	// Uh
+	scorescreenkludge = false;
+
 	if (playstate == ex_loadedgame)
 	{
 		goto loaded;
@@ -760,16 +760,14 @@ startlevel:
 
 loaded:
 		keenkilled = false;
-		//SD_WaitSoundDone();
+		SD_WaitSoundDone();
 
 		PlayLoop();
 
 		if (playstate != ex_loadedgame)
 		{
-			// TODO:
-			// Make this 0
-			
-			gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 99;
+			// DEBUG : Gem Count / Keys
+			gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
 #ifdef KEEN5
 			gamestate.keycard = false;
 #endif
@@ -796,18 +794,16 @@ loaded:
 			}
 			levelcompleted = mapon;
 			gamestate.leveldone[mapon] = true;
-			//RescuedMember();
+			RescuedMember();
 			if (gamestate.rescued != 8)
 			{
 				gamestate.mapon = 0;
 			}
 			else
-			{/*
-				FreeGraphics();
-				RF_FixOfs();
-				VW_FixRefreshBuffer();
+			{
+				RF_FixOfs(0,0);
 				FinaleLayout();
-				CheckHighScore(gamestate.score, gamestate.rescued);*/
+				CheckHighScore(gamestate.score, gamestate.rescued);
 				return;
 			}
 			break;
@@ -823,7 +819,7 @@ loaded:
 
 		case ex_qedbroke:
 			FreeGraphics();
-			RF_FixOfs();
+			RF_FixOfs(0,0);
 			VW_FixRefreshBuffer();
 			FinaleLayout();
 			CheckHighScore(gamestate.score, 0);
@@ -844,7 +840,7 @@ loaded:
 
 		case ex_molly:
 			FreeGraphics();
-			RF_FixOfs();
+			RF_FixOfs(0,0);
 			VW_FixRefreshBuffer();
 			FinaleLayout();
 			goto check_score;
@@ -863,23 +859,23 @@ completed:
 			}
 			else
 			{
-/*				US_CenterWindow(26, 8);
+				US_CenterWindow(26, 8);
 				PrintY += 25;
-				US_CPrint("One moment");*/
+				US_CPrint("One moment");
 			}
 			break;
 
 		case ex_abortgame:
-			//IN_ClearKeysDown();
+			IN_ClearKeysDown();
 			return;
 		}
 	} while (gamestate.lives >= 0);
 
-//	GameOver();
+GameOver();
 
 check_score:
 #if defined KEEN4
-//	CheckHighScore(gamestate.score, gamestate.rescued);
+CheckHighScore(gamestate.score, gamestate.rescued);
 ;
 #else
 	temp = 0;

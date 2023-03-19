@@ -11,6 +11,7 @@ unsigned short ck_def_button0 = GBA_BUTTON_A, ck_def_button1 = GBA_BUTTON_RSHOLD
 Demo	DemoMode;
 GBA_IN_EWRAM byte  DemoBuffer[MAX_DEMO_BUFFER];
 word DemoOffset, DemoSize;
+boolean		Paused;
 
 const static Direction	DirTable[] =		// Quick lookup for total direction
 					{
@@ -18,6 +19,7 @@ const static Direction	DirTable[] =		// Quick lookup for total direction
 						dir_West,		dir_None,	dir_East,
 						dir_SouthWest,	dir_South,	dir_SouthEast
 					};
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -210,6 +212,11 @@ DONT_OPTIMISE boolean IN_UserInput(longword delay,boolean clear)
 	} while (TimeCount - lasttime < delay);
 	return(false);
 }
+
+bool IN_KeyDown(unsigned int key){
+	if(GBA_TEST_BUTTONS(key)) return true;
+	return false;
+};
 
 
 ///////////////////////////////////////////////////////////////////////////

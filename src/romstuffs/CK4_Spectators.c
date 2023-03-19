@@ -37,7 +37,7 @@ const char l14e[] = "Keen hesitantly crosses\ninto the Pyramid of the\nForbidden
 const char l15e[] = "Keen mucks along the\nIsle of Tar";
 const char l16e[] = "Keen blazes across the\nIsle of Fire";
 const char l17e[] = "Keen hopefully enters\nthe Well of Wishes";
-const char l18e[] = "Keen launches into the\nBean-with-Bacon\nMegarocket";
+const char l18e[] = "Keen launches\ninto the\nBean-with-Bacon\nMegarocket";
 
 const char *levelnames[GAMELEVELS] = {
 	l0n,
@@ -376,15 +376,12 @@ const char *klindseytext[2] =
 };
 
 void PrincessLindsey(void)
-{/*
+{
 	SD_WaitSoundDone();
 	StopMusic();
-	CA_UpLevel();
-	CA_MarkGrChunk(LINDSEYPIC);
-	CA_MarkGrChunk(KEENTALK1PIC);
-	CA_MarkGrChunk(KEENTALK2PIC);
+
 	CA_CacheMarks(NULL);
-	VW_FixRefreshBuffer();
+//	VW_FixRefreshBuffer();
 
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX, WindowY, LINDSEYPIC);
@@ -400,7 +397,7 @@ void PrincessLindsey(void)
 	{
 		US_CPrint(lindseytext[1]);
 	}
-	VW_UpdateScreen();
+
 	SD_PlaySound(SND_MAKEFOOT);
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
@@ -418,25 +415,24 @@ void PrincessLindsey(void)
 	{
 		US_CPrint(klindseytext[1]);
 	}
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
 	VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
-	CA_DownLevel();
 	StartMusic(gamestate.mapon);
 
 	//reset scorebox (sprite may have been re-cached by CA_DownLevel)
 	scoreobj->temp2 = -1;
 	scoreobj->temp1 = -1;
 	scoreobj->temp3 = -1;
-	scoreobj->temp4 = -1;*/
+	scoreobj->temp4 = -1;
 }
 
 //============================================================================
@@ -469,16 +465,10 @@ const char jantext3[] =
 	"mad, are you?";
 
 void RescueJanitor(void)
-{/*
-	char str[200];
-
+{
 	SD_WaitSoundDone();
-	CA_UpLevel();
-	CA_MarkGrChunk(ORACLEPIC);
-	CA_MarkGrChunk(KEENTALK1PIC);
-	CA_MarkGrChunk(KEENMADPIC);
 	CA_CacheMarks(NULL);
-	VW_FixRefreshBuffer();
+//	VW_FixRefreshBuffer();
 	StartMusic(-1);
 	
 	US_CenterWindow(26, 8);
@@ -486,9 +476,8 @@ void RescueJanitor(void)
 	PrintY += 6;
 	WindowW -= 48;
 	WindowX += 48;
-	_fstrcpy(str, jantext1);
-	US_CPrint(str);
-	VW_UpdateScreen();
+	US_CPrint(jantext1);
+
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
@@ -498,9 +487,9 @@ void RescueJanitor(void)
 	PrintY += 6;
 	WindowW -= 48;
 	WindowX += 48;
-	_fstrcpy(str, jantext2);
-	US_CPrint(str);
-	VW_UpdateScreen();
+
+	US_CPrint(jantext2);
+
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
@@ -509,9 +498,9 @@ void RescueJanitor(void)
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	WindowW -= 48;
 	PrintY += 12;
-	_fstrcpy(str, keenjantext);
-	US_CPrint(str);
-	VW_UpdateScreen();
+
+	US_CPrint(keenjantext);
+
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
@@ -521,9 +510,9 @@ void RescueJanitor(void)
 	PrintY += 6;
 	WindowW -= 48;
 	WindowX += 48;
-	_fstrcpy(str, jantext3);
-	US_CPrint(str);
-	VW_UpdateScreen();
+
+	US_CPrint(jantext3);
+
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
@@ -531,15 +520,15 @@ void RescueJanitor(void)
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	VWB_DrawPic(WindowX+WindowW-40, WindowY+24, KEENMADPIC);
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
 	StopMusic();
-	CA_DownLevel();
+
 	StartMusic(gamestate.mapon);
-*/
+
 	//BUG: scorebox needs to be reset here (sprite may have been re-cached by CA_DownLevel)
 }
 
@@ -554,22 +543,19 @@ void RescueJanitor(void)
 */
 
 void CantSwim(void)
-{/*
+{
 	SD_WaitSoundDone();
-	CA_UpLevel();	// kinda useless without CA_CacheMarks or CA_SetGrPurge
 	// BUG: haven't made anything purgable here, caching the pic may cause an "out of memory" crash
-	CA_CacheGrChunk(KEENTALK1PIC);
+//	CA_CacheGrChunk(KEENTALK1PIC);
 
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	WindowW -= 48;
 	PrintY += 12;
 	US_CPrint("I can't swim!");
-	VW_UpdateScreen();
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
-	CA_DownLevel();*/
 
 	//Note: scorebox sprite has not been re-cached here (didn't use CA_CacheMarks or anything else that would have made the sprite purgable)
 }
@@ -585,11 +571,9 @@ void CantSwim(void)
 */
 
 void GotScuba(void)
-{/*
+{
 	SD_WaitSoundDone();
-	CA_UpLevel();
-	CA_MarkGrChunk(KEENTALK1PIC);
-	CA_MarkGrChunk(KEENTALK2PIC);
+
 	CA_CacheMarks(NULL);
 
 	US_CenterWindow(26, 8);
@@ -600,18 +584,16 @@ void GotScuba(void)
 		"Cool!  I can breathe\n"
 		"under water now!"
 		);
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
 	VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
-
-	CA_DownLevel();*/
 
 	//Note: scorebox sprite may have been re-cached by CA_DownLevel, but the level ends after this anyway
 }
@@ -657,14 +639,9 @@ const char *keentext[] = {
 void RescuedMember(void)
 {
 	SD_WaitSoundDone();
-	CA_UpLevel();
-/*	CA_MarkGrChunk(ORACLEPIC);
-	CA_MarkGrChunk(KEENTALK1PIC);
-	CA_MarkGrChunk(KEENTALK2PIC);
-	CA_CacheMarks(NULL);
-*/
+
 	StartMusic(-1);
-/*	VW_FixRefreshBuffer();
+//	VW_FixRefreshBuffer();
 
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX, WindowY, ORACLEPIC);
@@ -691,29 +668,27 @@ void RescuedMember(void)
 			"immediately."
 			);
 	}
-	VW_UpdateScreen();*/
+
 	VW_WaitVBL(60);
 	IN_ClearKeysDown();
 	IN_Ack();
-/*
+
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	WindowW -= 48;
 	PrintY += 12;
 	US_CPrint(keentext[gamestate.rescued]);
-	VW_UpdateScreen();
+
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
 	VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
-	VW_UpdateScreen();*/
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();
 
 	gamestate.rescued++;
-	CA_DownLevel();
 	StopMusic();
 
 	//Note: scorebox sprite may have been re-cached by CA_DownLevel, but the level ends after this anyway

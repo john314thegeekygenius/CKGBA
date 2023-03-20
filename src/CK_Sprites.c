@@ -52,6 +52,7 @@ static void CK_ClearObject(objtype *obj,bool overwrite){
 	//struct objstruct *next, *prev; // Originally used for saveing / loading
     ///////////////////////////////////////////////////
     // Added for GBA port
+    obj->curSprType = CKS_EOL;
     if(overwrite){
         obj->uuid = 0;
         obj->removed = true;
@@ -120,6 +121,7 @@ const unsigned int CK_SpriteSizes[] = {
 };
 
 void CK_SetSprite(objsprite **sprite, CK_SpriteType type){
+    if(type == CKS_EOL) return; // Uhh
     if(!(*sprite)) {
         *sprite = CK_GetNewSprite();
     }

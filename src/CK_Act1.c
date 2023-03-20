@@ -554,6 +554,7 @@ void R_Mushroom(objtype *ob)
 		}
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -839,14 +840,14 @@ void R_Eggbird(objtype *ob)
 		ob->x -= ob->xmove;
 		ob->xdir = -1;
 		ob->nothink = US_RndT() >> 5;
-		ChangeState(ob, ob->state);
+		ChangeState(ob, ob->state); // ???
 	}
 	else if (ob->xdir == -1 && ob->hiteast)
 	{
 		ob->x -= ob->xmove;
 		ob->xdir = 1;
 		ob->nothink = US_RndT() >> 5;
-		ChangeState(ob, ob->state);
+		ChangeState(ob, ob->state); // ???
 	}
 	if (!ob->hitnorth)
 	{
@@ -856,6 +857,7 @@ void R_Eggbird(objtype *ob)
 		CK_RemakeSprite(&ob->sprite, CKS_BBIRDFLY);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -873,6 +875,7 @@ void R_EggbirdDrop(objtype *ob)	//never actually used
 		ChangeState(ob, &s_eggbirdwalk1);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -889,6 +892,7 @@ void R_Chip(objtype *ob)
 		ob->xspeed = ob->yspeed = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -932,6 +936,7 @@ void R_Eggbirdfly(objtype *ob)
 		ob->temp1 = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -1229,5 +1234,6 @@ void R_Pest(objtype *ob)
 		ob->xdir = 1;
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 

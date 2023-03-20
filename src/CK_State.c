@@ -1742,6 +1742,7 @@ void C_Lethal(objtype *ob, objtype *hit)
 void R_Draw(objtype *ob)
 {
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -1777,6 +1778,7 @@ void R_Walk(objtype *ob)
 		ChangeState(ob, ob->state);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -1814,6 +1816,7 @@ void R_WalkNormal(objtype *ob)
 		ChangeState(ob, ob->state);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -1842,6 +1845,7 @@ void R_Stunned(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 
 	starx = stary = 0;
 	switch (ob->temp4)
@@ -1929,6 +1933,7 @@ done:
 		CK_SetSprite((objsprite**)(&ob->temp3), CKS_STARS);
 	}
 	RF_PlaceSprite((objsprite**)(&ob->temp3), ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
+	
 }
 
 

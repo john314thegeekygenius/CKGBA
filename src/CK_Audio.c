@@ -163,7 +163,14 @@ void SD_PlayMusic(uint32_t chunk, uint32_t asLoop){
 void
 SD_MusicOn(void)
 {
+	switch (MusicMode)
+	{
+	case smm_AdLib:
+#ifndef CK_DISABLE_MUSIC
 	GBA_PlayChannel(GBA_CHANNEL_A);
+#endif    
+		break;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////

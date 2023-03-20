@@ -176,6 +176,7 @@ void UpdateScore(objtype *ob)
 				RF_PlaceSprite(&ob->sprite, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
 			break;
 		};
+		
 	}
 
 	gamestate.scoreboxdisp = showscorebox;
@@ -330,6 +331,7 @@ void DrawDemoPlaque(objtype *ob){
 		ob->x = originxglobal;
 		ob->y = originyglobal;
 		RF_PlaceSprite(&ob->sprite, ob->x + 120*PIXGLOBAL - 32*PIXGLOBAL, ob->y + 4*PIXGLOBAL, DEMOPLAQUESPR, spritedraw, 3);
+		
 	}
 
 }
@@ -383,6 +385,11 @@ const Sint16 tiledir[4] = {dir_South, dir_West, dir_North, dir_East};
 =
 ======================
 */
+
+
+void FixState(objtype * ob){
+	NewState(ob,&s_worldkeen );
+};
 
 void SpawnWorldKeen(Sint16 x, Sint16 y)
 {
@@ -708,6 +715,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 
 		ob->shapenum = ((TimeCount >> 3) % 3) + WORLDKEENU1SPR;
 		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		
 
 		tile = ((TimeCount >> 2) & TELEPORERTILEMASK) + TELEPORTERTILE1;
 		RF_MemToMap(&tile, 1, tileX, tileY, 1, 1);
@@ -742,6 +750,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 			o->needtoreact = true;
 			o->active = ac_yes;
 			RF_PlaceSprite(&o->sprite, o->x, o->y, o->shapenum, spritedraw, o->priority);
+			
 		}
 	}
 	UpdateScore(scoreobj);
@@ -761,6 +770,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 
 		ob->shapenum = ((TimeCount >> 3) % 3) + WORLDKEEND1SPR;
 		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		
 
 		tile = ((TimeCount >> 2) & TELEPORERTILEMASK) + TELEPORTERTILE3;
 		RF_MemToMap(&tile, 1, tileX, tileY, 1, 1);
@@ -843,6 +853,7 @@ void T_Elevate(objtype *ob)
 
 	ob->y -= TILEGLOBAL;
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 
 	//
 	// open the elevator door
@@ -870,6 +881,7 @@ void T_Elevate(objtype *ob)
 		ob->y += 8;	// move half a pixel every frame for 32 frames -> move down 16 pixels total
 		ob->shapenum = (y / 4) % 3 + WORLDKEEND1SPR;
 		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		
 		RF_Refresh();
 	}
 	ob->needtoclip = cl_midclip;	// redundant, but doesn't do any harm
@@ -937,6 +949,7 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 
 		ob->shapenum = ((duration / 8) % 3) + WORLDKEENU1SPR;
 		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		
 	}
 
 	//
@@ -1478,6 +1491,7 @@ void R_Shot(objtype *ob)
 		ExplodeShot(ob);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 

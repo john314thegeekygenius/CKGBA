@@ -877,10 +877,25 @@ void GBA_PlayChannel(char channel){
 	#ifndef GBA_MIX_MY_AUDIO
 	if(channel==GBA_CHANNEL_A){
 		GBA_Channel_A_Paused = 0;
+
+		// Enable FIFO audio
+	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_A_RIGHT | GBA_DSND_A_LEFT | GBA_DSND_A_FIFO_RESET | GBA_DSND_TIMER0 | GBA_DSND_A_RATIO;
+
+		*(volatile unsigned int*)GBA_DMA1_SRC   = (unsigned int) GBA_Channel_A_Src;
+		*(volatile unsigned int*)GBA_DMA1_DEST  = (unsigned int) GBA_FIFO_BUFF_A;
+		*(volatile unsigned int*)GBA_DMA1_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
 	}
 	#endif
 	if(channel==GBA_CHANNEL_B){
 		GBA_Channel_B_Paused = 0;
+
+		// Enable FIFO audio
+	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_B_RIGHT | GBA_DSND_B_LEFT | GBA_DSND_B_FIFO_RESET | GBA_DSND_TIMER1 | GBA_DSND_B_RATIO;
+
+		*(volatile unsigned int*)GBA_DMA2_SRC   = (unsigned int) GBA_Channel_B_Src;
+		*(volatile unsigned int*)GBA_DMA2_DEST  = (unsigned int) GBA_FIFO_BUFF_B;
+		*(volatile unsigned int*)GBA_DMA2_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
+
 	}
 };
 

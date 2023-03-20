@@ -25,7 +25,7 @@ typedef enum {
 
 typedef enum {
 	CKFB_CONFIG_S = 0x240, // bytes for the config file
-	CKFB_SLOT_S = 16000, // bytes for save file (16K)
+	CKFB_SLOT_S = 0x3E80, // bytes for save file (16K)
 } CK_FILE_BLOCKS_SIZES;
 
 

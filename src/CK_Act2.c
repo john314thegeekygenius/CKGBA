@@ -320,6 +320,7 @@ void R_Cloud(objtype *ob)
 		ob->xdir = 1;
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -557,6 +558,7 @@ void FireReact(objtype *ob)
 		ChangeState(ob, &s_fireland1);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -583,6 +585,7 @@ void BerkeDrawReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y+ob->temp1, ob->shapenum, spritedraw, 0);
+	
 }
 
 /*
@@ -946,6 +949,7 @@ void R_Bounder(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -1101,6 +1105,7 @@ void LickAirReact(objtype *ob)
 		ChangeState(ob, &s_lick4);
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -1254,6 +1259,7 @@ void R_Platform(objtype *ob)
 
 	//place platform sprite:
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 
 	// Generate the sprites if needed
 	if(!ob->temp2){

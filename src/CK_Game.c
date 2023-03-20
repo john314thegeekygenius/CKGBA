@@ -116,6 +116,13 @@ void GameOver(void)
 
 //===========================================================================
 
+// RLEW Stuffs
+#define WORDSIZE    2
+#define CARMACK_MAGIC 0xABCD
+
+// State stuff
+extern const statetype* CK_StateList[];
+
 /*
 ============================
 =
@@ -124,39 +131,102 @@ void GameOver(void)
 ============================
 */
 
-boolean SaveTheGame(Sint16 handle){
-    // TODO:
-    // Make this compress & save all game data
+boolean SaveTheGame(FileHandle handle){
 
 	Uint16	i,compressed,expanded;
 	objtype	*ob;
 
 	gamestate.riding = NULL;
 
-/*	if (!CA_FarWrite(handle, (byte far *)&gamestate, sizeof(gamestate)))
+	if (writeHandle(&handle, &gamestate, sizeof(gamestate)) == File_WriteFail)
 		return false;
 
-	expanded = mapwidth * mapheight * 2;
-	MM_GetPtr(&bigbuffer, expanded);
+	for (i = 0; i < 2; i++) {
+		// Do Carmack RLEW
+		// To not need a buffer, we write directly to the SRAM
 
-	for (i = 0; i < 3; i++)
-	{
-		compressed = CA_RLEWCompress(mapsegs[i], expanded, (Uint16 huge *)bigbuffer+1, RLETAG);
-		*(Uint16 huge *)bigbuffer = compressed;
-		if (!CA_FarWrite(handle, bigbuffer, compressed+2))
-		{
-			MM_FreePtr(&bigbuffer);
+		unsigned short *dataptr = CK_CurLevelData + (i*CK_CurLevelSize);
+		unsigned short first, second, count, flag = CARMACK_MAGIC;
+
+		first = *(dataptr++);
+		second = *(dataptr++);
+
+		expanded = CK_CurLevelWidth * CK_CurLevelHeight * WORDSIZE;
+
+		// Write all the data
+		while(expanded){
+			if(first != second){
+				// Write the first word
+				if(writeHandle(&handle, &first, sizeof(Uint16)) == File_WriteFail)
+					return false;
+				expanded -= WORDSIZE;
+				first = second;
+				second = *(dataptr++);
+				continue;
+			}
+			// Continue until a different word is found
+			count = 1;
+			while(first == second){
+				second = *(dataptr++);
+				count++;
+			}
+			// Write the magic tag
+			if(writeHandle(&handle, &flag, sizeof(Uint16)) == File_WriteFail)
+				return false;
+			// Write the count
+			if(writeHandle(&handle, &count, sizeof(Uint16)) == File_WriteFail)
+				return false;
+			// Write the value
+			if(writeHandle(&handle, &first, sizeof(Uint16)) == File_WriteFail)
+				return false;
+			first = second;
+			second = *(dataptr++);
+			expanded -= count*WORDSIZE;
+		}
+	}
+	// store infoblocks
+	if(writeHandle(&handle, &CK_InfoPlaneBlockCount, sizeof(CK_InfoPlaneBlockCount)) == File_WriteFail)
+		return false;
+
+	for(int i = 0; i < CK_InfoPlaneBlockCount; i++){
+		if(writeHandle(&handle, &CK_InfoPlaneBlocks[i], sizeof(struct CK_InfoBlock)) == File_WriteFail){
+			return false;
+		}
+    }
+
+	// store the objects
+	unsigned short objectcount = 0;
+	for (int i = 0; i < CK_NumOfObjects; i++){
+		objtype *ob = &CK_ObjectList[i];
+		if(ob->removed || ob->state == NULL) continue;
+		objectcount++;
+	}
+	writeHandle(&handle, &objectcount, sizeof(Uint16));
+
+	for (int i = 0; i < CK_NumOfObjects; i++){
+		objtype *ob = &CK_ObjectList[i];
+		if(ob->removed || ob->state == NULL) continue;
+		// Fix the object
+		if(ob->sprite) ob->curSprType = ((objsprite*)ob->sprite)->ck_sprType;
+		else ob->curSprType = CKS_EOL;
+		if (writeHandle(&handle, ob, sizeof(objtype)) == File_WriteFail) {
+			return false;
+		}
+		Uint16 stateid = 0;
+		// Find the state
+		while(CK_StateList[stateid]){
+			if(ob->state == CK_StateList[stateid]){
+				break;
+			}
+			stateid++;
+		}
+		if(CK_StateList[stateid] == NULL){
+			Quit("SaveTheGame : Need to add obj state!");
+		}
+		if (writeHandle(&handle, &stateid, sizeof(Uint16)) == File_WriteFail) {
 			return false;
 		}
 	}
-	for (ob = player; ob; ob=ob->next)
-	{
-		if (!CA_FarWrite(handle, (byte far *)ob, sizeof(objtype)))
-		{
-			MM_FreePtr(&bigbuffer);
-			return false;
-		}
-	}*/
 	return true;
 }
 
@@ -171,21 +241,15 @@ boolean SaveTheGame(Sint16 handle){
 ============================
 */
 
-boolean LoadTheGame(Sint16 handle)
+boolean LoadTheGame(FileHandle handle)
 {
-    // TODO:
-    // Make this compress & save all game data
-	return false;
-    /*
-	Uint16	i;
-	objtype	*prev,*next,*followed;
+	Uint16	i, stateid;
 	Uint16	compressed,expanded;
-	memptr	bigbuffer;
 #ifdef KEEN5
 	Sint16	numfuses;
 #endif
 
-	if (!CA_FarRead(handle, (byte far *)&gamestate, sizeof(gamestate)))
+	if (readHandle(&handle, &gamestate, sizeof(gamestate)) == File_ReadFail)
 		return false;
 
 #ifdef KEEN5
@@ -196,103 +260,112 @@ boolean LoadTheGame(Sint16 handle)
 	numfuses = gamestate.numfuses;
 #endif
 
-	ca_levelbit >>= 1;
-	ca_levelnum--;
 	SetupGameLevel(false);
-	if (mmerror)
-	{
-		mmerror = false;
-		US_CenterWindow(20, 8);
-		PrintY += 20;
-		US_CPrint("Not enough memory\nto load game!");
+	
+	for (i = 0; i < 2; i++) {
+		// Do Carmack RLEW
+		// To not need a buffer, we write directly to the level
+		unsigned short *dataptr = CK_CurLevelData + (i*CK_CurLevelSize);
+		unsigned short flag, count;
 
-		IN_Ack();
+		expanded = CK_CurLevelWidth * CK_CurLevelHeight * WORDSIZE;
+
+		// Write all the data
+		while(expanded){
+			if(readHandle(&handle, &flag, sizeof(Uint16))== File_ReadFail)
+				return false;
+			if(flag == CARMACK_MAGIC){
+				if(readHandle(&handle, &count, sizeof(Uint16))== File_ReadFail)
+					return false;
+				if(readHandle(&handle, &flag, sizeof(Uint16))== File_ReadFail)
+					return false;
+				expanded -= count*WORDSIZE;
+				while(count--){
+					*(dataptr++) = flag;
+				}
+			}else{
+				*(dataptr++) = flag;
+				expanded -= WORDSIZE;
+			}
+		}
+	}
+	CK_FixAnimationBlocks();
+
+	// read infoblocks
+	if(readHandle(&handle, &CK_InfoPlaneBlockCount, sizeof(CK_InfoPlaneBlockCount)) == File_ReadFail) {
 		return false;
 	}
-	ca_levelbit <<= 1;
-	ca_levelnum++;
 
-	expanded = mapwidth * mapheight * 2;
-	MM_BombOnError(true);	//BUG: this should use false to avoid an instant crash
-	MM_GetPtr(&bigbuffer, expanded);
-	MM_BombOnError(false);	//BUG: this should use true to force an instant crash
-	if (mmerror)
-	{
-		mmerror = false;
-		US_CenterWindow(20, 8);
-		PrintY += 20;
-		US_CPrint("Not enough memory\nto load game!");
-
-		IN_Ack();
-		return false;
-	}
-	for (i = 0; i < 3; i++)
-	{
-		if (!CA_FarRead(handle, (byte far *)&compressed, sizeof(compressed)))
-		{
-			MM_FreePtr(&bigbuffer);
+	for(int i = 0; i < CK_InfoPlaneBlockCount; i++){
+		if(readHandle(&handle, &CK_InfoPlaneBlocks[i], sizeof(struct CK_InfoBlock)) == File_ReadFail) {
 			return false;
 		}
-		if (!CA_FarRead(handle, (byte far *)bigbuffer, compressed))
-		{
-			MM_FreePtr(&bigbuffer);
-			return false;
-		}
-		CA_RLEWexpand(bigbuffer, mapsegs[i], expanded, RLETAG);
-	}
-	MM_FreePtr(&bigbuffer);
+    }
 
 	InitObjArray();
-	new = player;
-	prev = new->prev;
-	next = new->next;
-	if (!CA_FarRead(handle, (byte far *)new, sizeof(objtype)))
-	{
+	unsigned short objectCount = 0;
+	
+	if (readHandle(&handle, &objectCount, sizeof(Uint16)) == File_ReadFail) {
 		return false;
 	}
-	new->prev = prev;
-	new->next = next;
-	new->needtoreact = true;
-	new->sprite = NULL;
-	new = scoreobj;
-	while (true)
-	{
-		prev = new->prev;
-		next = new->next;
-		if (!CA_FarRead(handle, (byte far *)new, sizeof(objtype)))
-		{
+	if(objectCount > MAXACTORS) return false; // Uhhh
+
+	// Load the objects
+	ck_newobj = player;
+	
+	if (readHandle(&handle, ck_newobj, sizeof(objtype))== File_ReadFail) {
+		return false;
+	}
+	if (readHandle(&handle, &stateid, sizeof(Uint16))== File_ReadFail) {
+		return false;
+	}
+
+	ck_newobj->needtoreact = true;
+	ck_newobj->sprite = NULL;
+	CK_SetSprite(&ck_newobj->sprite, ck_newobj->curSprType);
+	ck_newobj->state = CK_StateList[stateid];
+
+	ck_newobj = scoreobj;
+
+	for (int i = scoreobj->uuid; i < objectCount; i++){
+		if (readHandle(&handle, ck_newobj, sizeof(objtype))== File_ReadFail) {
 			return false;
 		}
-		followed = new->next;
-		new->prev = prev;
-		new->next = next;
-		new->needtoreact = true;
-		new->sprite = NULL;
-		if (new->obclass == stunnedobj)
+		if (readHandle(&handle, &stateid, sizeof(Uint16))== File_ReadFail) {
+			return false;
+		}
+		
+		ck_newobj->needtoreact = true;
+		ck_newobj->sprite = NULL; // Sprite is bad
+		CK_SetSprite(&ck_newobj->sprite, ck_newobj->curSprType);
+
+		ck_newobj->state = CK_StateList[stateid];
+
+		if (ck_newobj->obclass == stunnedobj)
 		{
-			new->temp3 = 0;	//clear sprite ptr for the stars
+			ck_newobj->temp3 = 0;	//clear sprite ptr for the stars
 		}
 #if defined KEEN4
-		else if (new->obclass == platformobj)
+		else if (ck_newobj->obclass == platformobj)
 		{
-			new->temp2 = new->temp3 = 0;	//clear sprite ptrs
+			ck_newobj->temp2 = ck_newobj->temp3 = 0;	//clear sprite ptrs
 		}
 #elif defined KEEN5
-		else if (new->obclass == mineobj)
+		else if (ck_newobj->obclass == mineobj)
 		{
-			new->temp4 = 0;	//clear sprite ptr
+			ck_newobj->temp4 = 0;	//clear sprite ptr
 		}
-		else if (new->obclass == spherefulobj)
+		else if (ck_newobj->obclass == spherefulobj)
 		{
-			new->temp1 = new->temp2 = new->temp3 = new->temp4 = 0;	//clear sprite ptrs
+			ck_newobj->temp1 = ck_newobj->temp2 = ck_newobj->temp3 = ck_newobj->temp4 = 0;	//clear sprite ptrs
 		}
 #elif defined KEEN6
-		else if (new->obclass == platformobj)
+		else if (ck_newobj->obclass == platformobj)
 		{
-			new->temp3 = 0;	//clear sprite ptr
+			ck_newobj->temp3 = 0;	//clear sprite ptr
 		}
 #endif
-		if (followed)
+		if (i < objectCount) // TODO: Bug here??
 		{
 			GetNewObj(false);
 		}
@@ -307,7 +380,7 @@ boolean LoadTheGame(Sint16 handle)
 	scoreobj->temp4 = -1;
 #ifdef KEEN5
 	gamestate.numfuses = numfuses;	// put value from saved game back in place 
-#endif*/
+#endif
 	return true;
 }
 
@@ -443,7 +516,6 @@ void SetupGameLevel(boolean loadnow)
 {
 	CK_SetupLevelGBAMaps();
 
-
 //
 // randomize if not a demo
 //
@@ -468,6 +540,7 @@ void SetupGameLevel(boolean loadnow)
 	CK_LoadLevel(mapon);
 
 	ScanInfoPlane();
+	
 	if (mapon == 0)
 	{
 		PatchWorldMap();

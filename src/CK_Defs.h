@@ -325,6 +325,7 @@ typedef struct objstruct
 	//struct objstruct *next, *prev; // Originally used for saveing / loading
     ///////////////////////////////////////////////////
     // Added for GBA port
+    CK_SpriteType curSprType;
     unsigned char isFree;
 	unsigned int uuid;
 	bool removed;

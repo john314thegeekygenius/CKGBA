@@ -297,6 +297,7 @@ void R_EaterAir(objtype *ob)
 		ob->yspeed = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -469,6 +470,7 @@ void R_MimAir(objtype *ob)
 		ob->yspeed = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -494,6 +496,7 @@ void R_MimBounce(objtype *ob)
 		ob->yspeed = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -827,6 +830,7 @@ void R_Fish(objtype *ob)	//for Dopefish and Schoolfish
 		ob->temp1 = 0;
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -1024,6 +1028,7 @@ void R_Mshot(objtype *ob)
 	else
 	{
 		RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+		
 	}
 }
 
@@ -1264,6 +1269,7 @@ void T_DartShoot(objtype *ob)
 void R_DartThrower(objtype *ob)	//never used
 {
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*

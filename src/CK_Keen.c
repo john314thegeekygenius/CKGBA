@@ -2083,6 +2083,7 @@ void CheckInTiles(objtype *ob)
 void KeenSimpleReact(objtype *ob)
 {
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -2127,6 +2128,7 @@ void KeenStandReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 
 }
 
@@ -2178,6 +2180,7 @@ void KeenWalkReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 
 }
 
@@ -2328,6 +2331,7 @@ void KeenAirReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 #ifdef KEEN5
@@ -2427,6 +2431,7 @@ void KeenPogoReact(objtype *ob)
 				{
 					BreakFuse(ob->tilemidx, ob->tilebottom);
 					RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+					
 					return;
 				}
 			}
@@ -2459,6 +2464,7 @@ void KeenPogoReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 /*
@@ -2486,5 +2492,6 @@ void KeenPoleReact(objtype *ob)
 	}
 
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 

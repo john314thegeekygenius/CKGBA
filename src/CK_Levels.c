@@ -59,10 +59,6 @@ struct CK_TileAnimation {
     bool active;
 };
 
-struct CK_InfoBlock {
-    uint16_t map_offset;
-    uint16_t new_tile;
-};
 
 // Must be in External Work Ram or else it's too much for the 32K on board
 GBA_IN_EWRAM uint16_t CK_CurLevelData[32768]; // Use 64K of memory for the levels (Max level size of 128x128)
@@ -129,29 +125,17 @@ void CK_ForceLevelRedraw(){
     CK_UpdateSprites();
 };
 
-void CK_LoadLevel(unsigned short lvlNumber){
-	int lvloff = lvlNumber*3;
-	CK_CurLevelIndex = lvlNumber;
-	CK_CurLevelWidth = *CK_LevelInfo[lvloff];
-	CK_CurLevelHeight = *CK_LevelInfo[lvloff+1];
-	// Precalculate the level size for SPEEEEEEED!!!!
-	CK_CurLevelSize = CK_CurLevelWidth * CK_CurLevelHeight;
-
+void CK_FixAnimationBlocks(){
     // Remove any animations
     CK_NumOfAnimations[0] = CK_NumOfAnimations[1] = 0;
-
-    GBA_DMA_MemSet16((uint16_t*)CK_CurLevelAnimations, 0, sizeof(CK_CurLevelAnimations));
-//    GBA_DMA_MemSet16((uint16_t*)CK_UpdatePOI, 0, sizeof(CK_UpdatePOI));
-//    CK_POICount = 0;
-
-    CK_InfoPlaneBlockCount = 0;
+    GBA_DMA_MemSet16((uint16_t*)CK_CurLevelAnimations, 0, 2048);
 
     for(int p = 0; p < 2; p++){
         for(int y = 0; y < CK_CurLevelHeight; y++){
             for(int x = 0; x < CK_CurLevelWidth; x++){
                 const uint32_t offset = (y*CK_CurLevelWidth)+x+(CK_CurLevelSize*p);
                 // Copy the level data over
-                uint32_t tileoff = CK_CurLevelData[offset] = CK_LevelInfo[lvloff+2][offset];
+                uint32_t tileoff = CK_CurLevelData[offset];
                 // Setup any animations 
                 uint8_t animation_time;
                 if(p==0) {
@@ -178,6 +162,30 @@ void CK_LoadLevel(unsigned short lvlNumber){
             }
         }
     }
+
+};
+
+void CK_LoadLevel(unsigned short lvlNumber){
+    if(lvlNumber > GAMELEVELS) lvlNumber = 0;
+	int lvloff = lvlNumber*3;
+	CK_CurLevelIndex = lvlNumber;
+	CK_CurLevelWidth = *CK_LevelInfo[lvloff];
+	CK_CurLevelHeight = *CK_LevelInfo[lvloff+1];
+	// Precalculate the level size for SPEEEEEEED!!!!
+	CK_CurLevelSize = CK_CurLevelWidth * CK_CurLevelHeight;
+
+    CK_InfoPlaneBlockCount = 0;
+
+    for(int y = 0; y < CK_CurLevelHeight; y++){
+        for(int x = 0; x < CK_CurLevelWidth; x++){
+            const uint32_t offset = (y*CK_CurLevelWidth)+x;
+            // Copy the level data over
+            CK_CurLevelData[offset] = CK_LevelInfo[lvloff+2][offset];
+            CK_CurLevelData[offset+CK_CurLevelSize] = CK_LevelInfo[lvloff+2][offset+CK_CurLevelSize];
+        }
+    }
+    
+    CK_FixAnimationBlocks();
 
     // Tell the engine to render the level
     CK_UpdateRendering = true;

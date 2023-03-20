@@ -45,6 +45,14 @@ extern const char *CK_TileInfo[2];
 extern const uint16_t CK_TileInfo_BGTiles ;
 extern const uint16_t CK_TileInfo_FGTiles ;
 
+struct CK_InfoBlock {
+    uint16_t map_offset;
+    uint16_t new_tile;
+};
+
+extern GBA_IN_EWRAM struct CK_InfoBlock CK_InfoPlaneBlocks[512]; // Use 1K of memory for the info plane updation
+extern unsigned int CK_InfoPlaneBlockCount;
+
 extern signed int CK_GlobalCameraX ;
 extern signed int CK_GlobalCameraY ;
 
@@ -62,9 +70,12 @@ extern uint32_t CK_CameraY;
 
 // Functions
 
+
 void CK_SetupLevelGBAMaps();
 
 void CK_ForceLevelRedraw();
+
+void CK_FixAnimationBlocks();
 
 unsigned short CK_GetInfo(unsigned int offset);
 

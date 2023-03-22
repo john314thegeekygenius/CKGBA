@@ -7,7 +7,7 @@
 #ifndef __CK_UNIVERSAL__
 #define __CK_UNIVERSAL__
 
-#define ConfigVersion 0x0101 // v.0.1.0.1
+#define ConfigVersion 0x0110 // v.0.1.1.0
 
 // GBA File Blocks
 typedef enum {
@@ -24,8 +24,8 @@ typedef enum {
 // GBA has a max of 64 KBytes in SRAM - 8bit Bus width
 
 typedef enum {
-	CKFB_CONFIG_S = 0x240, // bytes for the config file
-	CKFB_SLOT_S = 0x3E80, // bytes for save file (16K)
+	CKFB_CONFIG_S = 0x300, // bytes for the config file
+	CKFB_SLOT_S = 0x3000, // bytes for save file (12K)
 } CK_FILE_BLOCKS_SIZES;
 
 

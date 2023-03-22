@@ -248,6 +248,8 @@ void US_Setup(){
 	WindowY = 0;
 	USL_ReadConfig();               // Read config file
 	USL_CheckSavedGames();  // Check which saved games are present
+	// Hmmm
+	scorescreenkludge = false;
 };
 
 
@@ -652,70 +654,70 @@ extern Uint16 fadecount;
 // From 
 extern bool screenchanged;
 // Sound
-bool soundtick = 0;
+bool irqcount = 0;
 
 extern unsigned char *PC_SoundPtr;
 extern unsigned int PC_SoundLen;
 extern unsigned int PC_SoundCount;
 
-GBA_ARM void GBA_UserIRQ2(){
-	
-	if(PC_SoundPtr){
-		if(PC_SoundLen){
-			unsigned short fq = 0;
-			unsigned int f = PC_SoundPtr[PC_SoundCount]*60;
-			if(f > 0){
-				unsigned short fd = f/9;
-				if(fd > 2048){
-					fd = 2048;
-				}
-				if(fd<1){
-					fd = 1;
-				}
-				fq = 2048-fd;
-				
-				//enable sound 1 to left and right
-				*(volatile uint16_t*)GBA_SOUNDCNT_L |= GBA_SND_1L | GBA_SND_1R ;
+void GBA_UserIRQ(){
+	if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_TIMER2) == GBA_INT_TIMER2) {
+		if(PC_SoundPtr){
+			if(PC_SoundLen){
+				unsigned short fq = 0;
+				unsigned int f = PC_SoundPtr[PC_SoundCount]*60;
+				if(f > 0){
+					unsigned short fd = f/9;
+					if(fd > 2048){
+						fd = 2048;
+					}
+					if(fd<1){
+						fd = 1;
+					}
+					fq = 2048-fd;
+					
+					//enable sound 1 to left and right
+					*(volatile uint16_t*)GBA_SOUNDCNT_L |= GBA_SND_1L | GBA_SND_1R ;
 
-				// set the frequency
-				*(volatile uint16_t*)GBA_SOUND1_X = fq | GBA_RESET_SOUND;
-			}else{
-				//disable sound 1 to left and right
-				*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
-			}
+					// set the frequency
+					*(volatile uint16_t*)GBA_SOUND1_X = fq | GBA_RESET_SOUND;
+				}else{
+					//disable sound 1 to left and right
+					*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
+				}
 
-			PC_SoundCount ++;
-			if(PC_SoundCount > PC_SoundLen){
-				// done
-				PC_SoundCount = 0;
-				PC_SoundLen = 0;
-				PC_SoundPtr = NULL;
-				//disable sound 1 to left and right
-				*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
+				PC_SoundCount ++;
+				if(PC_SoundCount > PC_SoundLen){
+					// done
+					PC_SoundCount = 0;
+					PC_SoundLen = 0;
+					PC_SoundPtr = NULL;
+					//disable sound 1 to left and right
+					*(volatile uint16_t*)GBA_SOUNDCNT_L &= ~(GBA_SND_1L | GBA_SND_1R);
+				}
 			}
 		}
-	}
-};
-
-GBA_ARM void GBA_UserIRQ(){
-
-	if(screenchanged){
-		if(fadeinhook){
-			if(++fadecount == 2){
-				VW_FadeIn();
-				fadeinhook = false;
-			}
+		if((++irqcount)&0x1){
+			TimeCount += 1;
 		}
-		screenchanged = false;
-	}
-	if(gamestate.fastticks)
-		TimeCount += 99;
-	TimeCount += 1;
 
-	// Makes the user have to release the button???
-	if(CurScan != GBA_INV_BUTTONS)
-		LastScan = CurScan;
-	CurScan = GBA_INV_BUTTONS;
+		// Makes the user have to release the button???
+		if(CurScan != GBA_INV_BUTTONS)
+			LastScan = CurScan;
+		CurScan = GBA_INV_BUTTONS;
+
+		if(screenchanged){
+			if(fadeinhook){
+				if(++fadecount == 2){
+					VW_FadeIn(); // Might cause problems?? DMA
+					fadeinhook = false;
+				}
+			}
+			screenchanged = false;
+		}
+
+	}
+
 };
 
 

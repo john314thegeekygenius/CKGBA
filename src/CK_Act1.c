@@ -651,7 +651,7 @@ void SpawnEggbirdOut(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_BBIRDWALK);
+	CK_SetSprite(&ck_newobj->sprite, CKS_BBIRD);
 	NewState(ck_newobj, &s_eggbirdpause);
 
 }
@@ -689,7 +689,7 @@ void C_Egg(objtype *ob, objtype *hit)
 			ck_newobj->xdir = -1;
 		}
 		ck_newobj->ydir = 1;
-		CK_SetSprite(&ck_newobj->sprite, CKS_EGGPARTICLES);
+		CK_SetSprite(&ck_newobj->sprite, CKS_BBIRD);
 		NewState(ck_newobj, &s_eggbirdpause);
 
 		GetNewObj(true);
@@ -723,6 +723,8 @@ void C_Egg(objtype *ob, objtype *hit)
 		NewState(ck_newobj, &s_eggchip3);
 	}
 }
+
+
 
 /*
 ===========================
@@ -834,7 +836,6 @@ void C_EggbirdStun(objtype *ob, objtype *hit)
 
 void R_Eggbird(objtype *ob)
 {
-	Quit("R_EggBird() : TODO: Fix This");
 	if (ob->xdir == 1 && ob->hitwest)
 	{
 		ob->x -= ob->xmove;
@@ -854,7 +855,6 @@ void R_Eggbird(objtype *ob)
 		ob->yspeed = -16;
 		ob->needtoclip = cl_fullclip;
 		ChangeState(ob, &s_eggbirdfly1);
-		CK_RemakeSprite(&ob->sprite, CKS_BBIRDFLY);
 	}
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
 	
@@ -917,7 +917,6 @@ void R_Eggbirdfly(objtype *ob)
 	}
 	if (ob->hitnorth == 1 && player->bottom - ob->bottom < 8*PIXGLOBAL)	// BUG? unsigned comparison!
 	{
-		Quit("R_Eggbirdfly() : TODO: Fix This!");
 		oldstate = ob->state;
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_eggbirdwalk1);

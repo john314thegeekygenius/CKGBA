@@ -20,7 +20,6 @@ unsigned char *PC_SoundPtr = NULL;
 unsigned int PC_SoundLen = 0;
 unsigned int PC_SoundCount = 0;
 
-
 void SD_InitAudio(){
     GBA_InitAudio();
 	GBA_SetSoundSqWav(1);
@@ -33,13 +32,16 @@ void SD_InitAudio(){
 	PC_SoundCount = 0;
 	PC_SoundLen = 0;
 
-	// Setup interupt to play sounds
-    *(volatile uint16_t*)GBA_INT_SELECT |= GBA_INT_TIMER2;
+	// Setup interupt to do other thing
+	*(volatile uint16_t*)GBA_INT_ENABLE = 0;
+    *(volatile uint16_t*)GBA_INT_SELECT |= GBA_INT_TIMER2; // Enable the timer interupt
+	*(volatile uint16_t*)GBA_INT_ENABLE = 1;
 
 	// Make it update every 1/140 of a second
-	*(volatile unsigned short*)GBA_TIMER2_DATA = 0xFF8C;
-	*(volatile unsigned short*)GBA_TIMER2_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_256 | GBA_TIMER_INTERUPT;
+	*(volatile unsigned short*)GBA_TIMER2_DATA = _140_HZ;
+	*(volatile unsigned short*)GBA_TIMER2_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_64 | GBA_TIMER_INTERUPT;
 
+	
 };
 
 

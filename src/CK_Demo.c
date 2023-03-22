@@ -264,6 +264,7 @@ void FinishPage(){
 			return;
 		}
 	}
+
 	// Clear any remaining bits
 	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x2000, 0x00, 32*20*8);
 
@@ -567,6 +568,12 @@ void StarWars(void)
 
 void ShowTitle(void)
 {
+	// Remove any sprites
+	CK_RemoveSprites();
+
+	// Clear the second layer to black
+	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x2000, 0x11111111, 32*20*8);
+
 	// Reset the scroll pos
 	VW_ClearScroll();
 
@@ -574,13 +581,15 @@ void ShowTitle(void)
 	GBA_DMA_Copy32((uint32_t*)GBA_VRAM, (uint32_t*)CK_TITLESCREEN, (32*20*8));
 
 	// Clear the second layer
-	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x2000, 0x11111111, 32*20*8);
+	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x1600, 0x00000000, 32*32*8);
 
 	// Move the screen over a bit
 	*(volatile uint32_t*)GBA_REG_BG0HOFS = 8;
 	*(volatile uint32_t*)GBA_REG_BG0VOFS = 0;
 	*(volatile uint32_t*)GBA_REG_BG1HOFS = 8;
 	*(volatile uint32_t*)GBA_REG_BG1VOFS = 0;
+	*(volatile uint32_t*)GBA_REG_BG2HOFS = 8;
+	*(volatile uint32_t*)GBA_REG_BG2VOFS = 0;
 
 	IN_UserInput(6*TickBase, false);
 	CheckLastScan();
@@ -691,11 +700,13 @@ void DrawHighScores(void)
 */
 
 void CheckHighScore(Sint32 score, Sint16 completed)
-{/*
+{
 	Uint16 i, n;
 	Sint16 index;
 	HighScore entry;
-	
+	// TODO:
+	// Make this work
+	/*
 	strcpy(entry.name, "");	//Note: 'entry.name[0] = 0;' would be more efficient
 	entry.score = score;
 	entry.completed = completed;
@@ -716,12 +727,12 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 		}
 	}
 	if (index != -1)
-	{
+	{*/
 		scorescreenkludge = true;
 		gamestate.mapon = HIGHSCORE_MAP;
 		SetupGameLevel(true);
 		DrawHighScores();
-#ifdef KEEN5
+/*#ifdef KEEN5
 #if GRMODE == CGAGR
 		fontcolor = 2;
 #else
@@ -737,7 +748,8 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 	}
 #ifdef KEEN5
 	fontcolor = 15;	// back to default color (white)
-#endif*/
+#endif
+		*/
 	scorescreenkludge = false;
 }
 

@@ -338,6 +338,7 @@ typedef struct objsprite {
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
     CK_SpriteType ck_sprType;
+    CK_SpriteType ck_prevType;
 	Uint16 spritenum;
 	Sint32 deltax, deltay;
 	uint8_t drawtype;
@@ -367,10 +368,6 @@ typedef struct
 	Sint16 lives;
 	Sint16 difficulty;
 	objtype *riding;
-	// added
-	Sint16 scoreboxdisp; // how to display the scorebox
-	bool fastticks; // do we run at a fast tick rate?
-
 } gametype;
 
 
@@ -450,7 +447,7 @@ void Terminator(void);
 =============================================================================
 */
 
-#define CK_HALF_SCREENY 140
+#define CK_HALF_SCREENY 105 // 140
 
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;

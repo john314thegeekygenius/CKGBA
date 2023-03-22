@@ -57,6 +57,35 @@ const statetype* CK_StateList[] = {
 	nil // Needed for end of list
 };
 
+// Dynamic Palettes - Number of levels + default
+
+const unsigned short CK_DYNAMIC_PALS[] = {
+	// Normal EGA palette 0
+	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x0000aa), RGBCONV(0x00aa00), RGBCONV(0x00aaaa), RGBCONV(0xaa0055), RGBCONV(0xaa5500), RGBCONV(0xaaaaaa), RGBCONV(0x555555), RGBCONV(0x5555ff), RGBCONV(0x55ff55), RGBCONV(0x55ffff), RGBCONV(0xff5555), RGBCONV(0xff55ff), RGBCONV(0xffff55), RGBCONV(0xffffff), 
+	// Shade (Green)      1
+	RGBCONV(0xccffcc), RGBCONV(0x44a1a), RGBCONV(0x44a7d), RGBCONV(0x48d1a), RGBCONV(0x48d7d), RGBCONV(0x7b4a42), RGBCONV(0x7b5f1a), RGBCONV(0x7b8d7d), RGBCONV(0x3c5f42), RGBCONV(0x3c5fbb), RGBCONV(0x3cc542), RGBCONV(0x3cc5bb), RGBCONV(0xb95f42), RGBCONV(0xb95fbb), RGBCONV(0xb9c542), RGBCONV(0xb9c5bb), 
+	// Shade (Blue)       2
+	RGBCONV(0xccffcc), RGBCONV(0x4a8ca0), RGBCONV(0x4a8cc3), RGBCONV(0x4ab4a0), RGBCONV(0x4ab4c3), RGBCONV(0x8d8ca9), RGBCONV(0x8d96a0), RGBCONV(0x8db4c3), RGBCONV(0x5f96a9), RGBCONV(0x5f96ec), RGBCONV(0x5fe0a9), RGBCONV(0x5fe0ec), RGBCONV(0xc596a9), RGBCONV(0xc596ec), RGBCONV(0xc5e0a9), RGBCONV(0xc5e0ec), 
+	// UnderGround        3
+	RGBCONV(0xccffcc), RGBCONV(0xa133e), RGBCONV(0xa1388), RGBCONV(0xa7c3e), RGBCONV(0xa7c88), RGBCONV(0x7b1356), RGBCONV(0x7b403e), RGBCONV(0x7b7c88), RGBCONV(0x3d4056), RGBCONV(0x3d40c1), RGBCONV(0x3dba56), RGBCONV(0x3dbac1), RGBCONV(0xba4056), RGBCONV(0xba40c1), RGBCONV(0xbaba56), RGBCONV(0xbabac1), 
+	// Temple             4
+	RGBCONV(0xccffcc), RGBCONV(0x411403), RGBCONV(0x41147b), RGBCONV(0x417c03), RGBCONV(0x417c7b), RGBCONV(0x89143c), RGBCONV(0x894003), RGBCONV(0x897c7b), RGBCONV(0x58403c), RGBCONV(0x5840b9), RGBCONV(0x58ba3c), RGBCONV(0x58bab9), RGBCONV(0xc2403c), RGBCONV(0xc240b9), RGBCONV(0xc2ba3c), RGBCONV(0xc2bab9), 
+	// Water              5
+	RGBCONV(0xccffcc), RGBCONV(0x233298), RGBCONV(0x2332bd), RGBCONV(0x238398), RGBCONV(0x2383bd), RGBCONV(0x7f32a1), RGBCONV(0x7f4e98), RGBCONV(0x7f83bd), RGBCONV(0x464ea1), RGBCONV(0x464ee7), RGBCONV(0x46bfa1), RGBCONV(0x46bfe7), RGBCONV(0xbc4ea1), RGBCONV(0xbc4ee7), RGBCONV(0xbcbfa1), RGBCONV(0xbcbfe7), 
+	// Fire / Hot         6
+	RGBCONV(0xccffcc), RGBCONV(0x7e380a), RGBCONV(0x7e387b), RGBCONV(0x7e850a), RGBCONV(0x7e857b), RGBCONV(0xab383d), RGBCONV(0xab520a), RGBCONV(0xab857b), RGBCONV(0x8a523d), RGBCONV(0x8a52ba), RGBCONV(0x8ac03d), RGBCONV(0x8ac0ba), RGBCONV(0xd9523d), RGBCONV(0xd952ba), RGBCONV(0xd9c03d), RGBCONV(0xd9c0ba),
+};
+
+const unsigned short CK_DynamicPalIndex[GAMELEVELS+1] = {
+	0, // Default (CWrist / Help)
+	0, 1, 1, 
+	1, 3, 3, 
+	2, 1, 6, 
+	2, 4, 4, 
+	4, 4, 1, 
+	6, 5, 1, 
+	0, 0, 0, 0, 0, 0, 0, // Unused
+};
 
 
 // From orginial
@@ -80,6 +109,8 @@ const char l15n[] = "Isle of Tar";
 const char l16n[] = "Isle of Fire";
 const char l17n[] = "Well of Wishes";
 const char l18n[] = "Bean-with-Bacon\nMegarocket";
+
+
 
 const char l0e[] = "Keen enters the\nShadowlands";
 const char l1e[] = "Keen makes a run for\nthe Border Village";
@@ -607,9 +638,6 @@ void RescueJanitor(void)
 void CantSwim(void)
 {
 	SD_WaitSoundDone();
-	// BUG: haven't made anything purgable here, caching the pic may cause an "out of memory" crash
-//	CA_CacheGrChunk(KEENTALK1PIC);
-
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
 	WindowW -= 48;
@@ -671,8 +699,8 @@ void GotScuba(void)
 */
 
 const char *keentext[] = {
-	"No sweat, oh guardian\n"
-	"of wisdom!"
+	"No sweat, oh\n"
+	"guardian of wisdom!"
 	,
 	"Sounds like a plan,\n"
 	"bearded one!"

@@ -3,7 +3,6 @@
 #define __CK4_DEFS__
 
 
-
 // K4_DEF.H stuff
 
 // ???
@@ -33,6 +32,12 @@
 #define INACTIVATEDIST 4
 
 // Graphics Stuff
+
+#define UMTILESET_WIDTH_VAL (288)
+#define MTILESET_WIDTH_VAL (288)
+
+#define TILESET_TILES 1296
+#define MTILESET_TILES 2916
 
 #include "CK4_GFX.h"
 

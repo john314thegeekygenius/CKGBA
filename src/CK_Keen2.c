@@ -56,14 +56,13 @@ void SpawnScore(void)
 	scoreobj->temp3 = -1;
 	scoreobj->temp4 = -1;
 
-	gamestate.scoreboxdisp = showscorebox;
 	if (scorescreenkludge)
 	{
 		scoreobj->state = &sc_deadstate;
 	}
 	else if (!DemoMode)
 	{
-		switch(gamestate.scoreboxdisp){
+		switch(showscorebox){
 			case CK_DISP_SCORE_DOS:
 			    CK_SetSprite(&scoreobj->sprite, CKS_SCOREBOXDOS);
 				break;
@@ -137,8 +136,6 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
-	gamestate.scoreboxdisp = showscorebox;
-
 	if (!showscorebox)
 		return;
 
@@ -168,7 +165,7 @@ void UpdateScore(objtype *ob)
 		changed = true;
 	}
 	if (changed){
-		switch(gamestate.scoreboxdisp){
+		switch(showscorebox){
 			case CK_DISP_SCORE_DOS:
 				RF_PlaceSprite(&ob->sprite, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
 			break;
@@ -178,8 +175,6 @@ void UpdateScore(objtype *ob)
 		};
 		
 	}
-
-	gamestate.scoreboxdisp = showscorebox;
 
 //code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
 
@@ -199,7 +194,7 @@ void UpdateScore(objtype *ob)
 		ch = str;
 		i = 9-length;
 		while (*ch ){
-			switch(gamestate.scoreboxdisp){
+			switch(showscorebox){
 				case CK_DISP_SCORE_DOS:
 					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
@@ -238,7 +233,7 @@ void UpdateScore(objtype *ob)
 		ch = str;
 
 		while (*ch ){
-			switch(gamestate.scoreboxdisp){
+			switch(showscorebox){
 				case CK_DISP_SCORE_DOS:
 					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
@@ -275,7 +270,7 @@ void UpdateScore(objtype *ob)
 		ch = str;
 
 		while (*ch ){
-			switch(gamestate.scoreboxdisp){
+			switch(showscorebox){
 				case CK_DISP_SCORE_DOS:
 					vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_ScoreBoxNumPos[i*2]) + (CK_ScoreBoxNumPos[(i*2)+1]>>2);
 					break;
@@ -300,7 +295,7 @@ void UpdateScore(objtype *ob)
 	// includes:
 	// -- gem display
 	// -- oricale member display
-	if(gamestate.scoreboxdisp == CK_DISP_SCORE_GBA){
+	if(showscorebox == CK_DISP_SCORE_GBA){
 		for(i = 13; i < 17; i++){
 			if(!gamestate.keys[i-13]) continue;
 			vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);			

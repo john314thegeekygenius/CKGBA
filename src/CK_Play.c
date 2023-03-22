@@ -576,23 +576,23 @@ void CenterActor(objtype *ob)
 	Uint16 orgx, orgy;
 
 	centerlevel = CK_HALF_SCREENY;
-	if (ob->x < 152*PIXGLOBAL)
+	if (ob->x < 114*PIXGLOBAL) // 152
 	{
 		orgx = 0;
 	}
 	else
 	{
-		orgx = ob->x - 152*PIXGLOBAL;
+		orgx = ob->x - 114*PIXGLOBAL; // 152
 	}
 	if (mapon == 0)
 	{
-		if (ob->y < 80*PIXGLOBAL)
+		if (ob->y < 60*PIXGLOBAL) // 80
 		{
 			orgy = 0;
 		}
 		else
 		{
-			orgy = ob->y - 80*PIXGLOBAL;
+			orgy = ob->y - 60*PIXGLOBAL; // 80
 		}
 	}
 	else

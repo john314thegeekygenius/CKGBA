@@ -52,8 +52,7 @@ typedef enum CK_SpriteType{
 	CKS_CMEMBER,
 	CKS_EGG,
 	CKS_EGGPARTICLES,
-	CKS_BBIRDWALK,
-	CKS_BBIRDFLY,
+	CKS_BBIRD,
 	CKS_DART,
 	CKS_MIMROCK,
 	CKS_DOPEFISH,
@@ -76,6 +75,6 @@ typedef enum CK_SpriteType{
 	CKS_LIGHTNINGBOLT,
 	CKS_BERKELOID,
 	CKS_FLAME,
-	CKS_EOL // End of list
+	CKS_EOL,
 }CK_SpriteType;
 #endif

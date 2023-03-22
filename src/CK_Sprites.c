@@ -18,7 +18,7 @@ unsigned int CK_SprTileOffset = 0;
 
 const unsigned int CK_GFX_NULL = 0xDEADBEEF;
 
-static void CK_ClearSprite(objsprite *spr){
+static void CK_ClearSprite(objsprite *spr, bool overwrite){
     if(spr==NULL) return;
     spr->deltax = spr->deltay = 0;
     spr->drawtype = 0xF;
@@ -26,7 +26,9 @@ static void CK_ClearSprite(objsprite *spr){
     spr->gbaSpriteCount = 0;
     for(int i = 0; i < 16; i++)
         spr->sprsizes[i] = 0;
-    spr->gfxoffset = CK_GFX_NULL;
+    if(overwrite){
+        spr->gfxoffset = CK_GFX_NULL;
+    }
     spr->ck_sprType = CKS_EOL;
 };
 
@@ -62,6 +64,14 @@ static void CK_ClearObject(objtype *obj,bool overwrite){
 };
 
 DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
+    // Find an old object to use
+    for(int i = 0; i < CK_NumOfObjects; i++){
+        ck_newobj = &CK_ObjectList[i];
+        if(ck_newobj->removed && ck_newobj->isFree && ck_newobj->curSprType == CKS_EOL){
+            goto foundObj;
+        }
+    }
+
     // Ummm... Will break if more than MAXACTORS are spawned... :S
     if(CK_NumOfObjects >= MAXACTORS-1){
         if (usedummy){
@@ -77,6 +87,7 @@ DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
         Quit("GetNewObj: No free spots in objarray!");
     }
     ck_newobj = &CK_ObjectList[CK_NumOfObjects++];
+foundObj:
     ck_newobj->sprite = NULL;
     ck_newobj->uuid = CK_NumOfObjects-1;
 
@@ -90,10 +101,21 @@ DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     return ck_newobj;
 };
 
-objsprite *CK_GetNewSprite(){
-    objsprite *spr = &CK_SpriteList[CK_NumOfSprites++];
+objsprite *CK_GetNewSprite(CK_SpriteType type){
+    objsprite *spr ;
+    // Find any similar sprites already alocated
+    for(int si = 0; si < CK_NumOfSprites; si++){
+        spr = &CK_SpriteList[si];
+        if(spr->ck_prevType == type && spr->gbaSpriteCount==0 && spr->ck_sprType == CKS_EOL){
+            CK_ClearSprite(spr, false);
+            spr->ck_prevType = type;
+            return spr;
+        }
+    }
+    spr = &CK_SpriteList[CK_NumOfSprites++];
     if(CK_NumOfSprites > MAXSPRITES) Quit("CK_GetNewSprite() : No free sprites!");
-    CK_ClearSprite(spr);
+    CK_ClearSprite(spr, true);
+    spr->ck_prevType = type;
     return spr;
 };
 
@@ -121,22 +143,34 @@ const unsigned int CK_SpriteSizes[] = {
 };
 
 void CK_SetSprite(objsprite **sprite, CK_SpriteType type){
+    bool spriteHadGfx = false;
     if(type == CKS_EOL) return; // Uhh
     if(!(*sprite)) {
-        *sprite = CK_GetNewSprite();
+        *sprite = CK_GetNewSprite(type);
     }
     objsprite *spr = *sprite;
 
-    spr->ck_sprType = type;
     spr->gbaSpriteCount = *CK_SpritePtrs[(type*5)+1];
-    spr->gfxoffset = CK_SprGfxOffset;
+
+    spriteHadGfx = false;
+
+    if(spr->gfxoffset != CK_GFX_NULL && spr->ck_prevType == type){
+        spriteHadGfx = true;
+    }else{
+        spr->gfxoffset = CK_SprGfxOffset;        
+    }
+
+    spr->ck_prevType = type;
+    spr->ck_sprType = type;
+
     if(CK_SprGfxOffset >= 0x8000){
         Quit("CK_SetSprite : No free graphics space left!");
     }
     for(int i = 0; i < spr->gbaSpriteCount; i++){
         spr->sprsizes[i] = CK_SpritePtrs[(spr->ck_sprType*5)][(i*4)];
     }
-    CK_SprGfxOffset += (*CK_SpritePtrs[(spr->ck_sprType*5)+3])>>3;
+    if(!spriteHadGfx)
+        CK_SprGfxOffset += (*CK_SpritePtrs[(spr->ck_sprType*5)+3])>>3;
 
 };
 
@@ -144,7 +178,7 @@ void CK_SetSprite(objsprite **sprite, CK_SpriteType type){
 void CK_RemakeSprite(objsprite **spr, CK_SpriteType type){
     if(!spr || !(*spr)) return;
     // Remove sprite
-    CK_ClearSprite(*spr);
+    CK_ClearSprite(*spr, false);
     // Create new one
     CK_SetSprite(spr, type);
 };
@@ -241,11 +275,11 @@ void CK_RemoveSprites(){
     GBA_ResetSprites();
 
     // Clear the sprite memory???
-    GBA_DMA_MemSet32(GBA_VSRAM,0,32*32*4);
+    GBA_DMA_MemSet32(GBA_VSRAM,0x44444444,32*32*8);
 
     for(int i = 0; i < MAXACTORS; i++){
         CK_ClearObject(&CK_ObjectList[i], true);
-        CK_ClearSprite(&CK_SpriteList[i]);
+        CK_ClearSprite(&CK_SpriteList[i], true);
     }
 
     CK_NumOfSprites = 0;
@@ -263,7 +297,7 @@ void CK_RemoveDummySprites(){
     GBA_ClearSpriteCache();
 
     for(int i = 0; i < MAXACTORS; i++){
-        CK_ClearSprite(&CK_SpriteList[i]);
+        CK_ClearSprite(&CK_SpriteList[i], false);
     }
 
     CK_NumOfSprites = 0;
@@ -370,8 +404,9 @@ void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
     objsprite *spr = *((objsprite**)user);
     
     if(!spr) {
+        Quit("RF_PlaceSprite : Invalid Sprite!");
         // Get a new one!
-        *(objsprite**)user = CK_GetNewSprite();
+        *(objsprite**)user = CK_GetNewSprite(CKS_EOL);
         spr = *((objsprite**)user);
     }
 	if (spritenumber == -1){
@@ -415,7 +450,7 @@ void RF_RemoveSprite (void **user, bool cache){
         (*(objsprite**)user)->drawtype = 0xF; // Invalid draw type
         return;
     }
-    CK_ClearSprite(*user);
+    CK_ClearSprite(*user, false);
     *user = NULL; // :D
 //    Quit("RF_RemoveSprite() : Removed Sprite!");
 };

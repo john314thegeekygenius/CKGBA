@@ -694,9 +694,10 @@ void GBA_SetSoundFreq(short id, int freq);
 
 /* make defines for the bit positions of the control register */
 #define GBA_TIMER_FREQ_1    0x00
-#define GBA_TIMER_FREQ_64   0x02
-#define GBA_TIMER_FREQ_256  0x03
-#define GBA_TIMER_FREQ_1024 0x04
+#define GBA_TIMER_FREQ_64   0x01
+#define GBA_TIMER_FREQ_256  0x02
+#define GBA_TIMER_FREQ_1024 0x03
+
 #define GBA_TIMER_ENABLE    0x80
 
 #define GBA_TIMER_INTERUPT  0x40

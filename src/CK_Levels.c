@@ -213,8 +213,8 @@ void CK_LoadLevel(unsigned short lvlNumber){
 	RF_SetScrollBlock (MAPBORDER-1,0,false);
 	RF_SetScrollBlock (CK_CurLevelWidth-MAPBORDER,0,false);
 
-
-    tics = 1;
+	lasttimecount = TimeCount;		// setup for adaptive timing
+	tics = 1;
 
 };
 
@@ -258,9 +258,6 @@ void CK_FixCamera(){
 void CK_ScrollCamera(signed int x, signed int y ){
     RFL_BoundScroll(x,y);
 };
-
-#define UMTILESET_WIDTH_VAL (288)
-#define MTILESET_WIDTH_VAL (288)
 
 #define UMTILESET_WIDTH_VALD (UMTILESET_WIDTH_VAL<<1)
 #define MTILESET_WIDTH_VALD (MTILESET_WIDTH_VAL<<1)

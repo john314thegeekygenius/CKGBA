@@ -6,8 +6,6 @@
 
 #include "CK_Heads.h"
 
-#define RGBCONV(x) ((((x)>>16)>>3) | (((((x)>>8)&0xFF)>>3)<<5) | ((((x)&0xFF)>>3)<<10))
-
 // GB Palette defs
 #define GB_COL_0 RGBCONV(0x081820)
 #define GB_COL_1 RGBCONV(0x346856)
@@ -34,17 +32,41 @@ const unsigned short PALETTE_SHIFT[] = {
 	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
+// Palettes are 0-4, dynamic palette is 5
 unsigned short CK_PaletteSet = 0;
 
+extern const unsigned short CK_DynamicPalIndex[GAMELEVELS+1];
+extern const unsigned short CK_DYNAMIC_PALS[];
+extern boolean 				CtlPanelDone;
 
 void CK_FixPalette(){
-	// Copy the palette
-	for(int i = 0; i < 16; i++)
-		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);
+	if(CK_PaletteSet == 5){
+		unsigned short dynamicIndex = 0;
+		// Handle the dynamic palette
+		if( CtlPanelDone && (ingame || DemoMode == demo_Playback) ){
+			dynamicIndex = CK_DynamicPalIndex[gamestate.mapon+1];
+		}else{
+			dynamicIndex = CK_DynamicPalIndex[0];
+		}
 
+		// Copy the palette
+		for(int i = 0; i < 16; i++){
+			GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16),16);
+		// Copy the palette (foreground / sprites)
+			GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16),16);
+		}
+		// Copy over a completely white palette for sprite flashing
+		for(int i = 0; i < 16; i++){
+			*((uint16_t*)GBA_PAL_SPR_START+(16)+i) = CK_DYNAMIC_PALS[(dynamicIndex*16)+15];
+		}
+		return;
+	}
+	// Copy the palette
+	for(int i = 0; i < 16; i++){
+		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);
 	// Copy the palette (foreground / sprites)
-	for(int i = 0; i < 16; i++)
 		GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);
+	}
 
 	// Copy over a completely white palette for sprite flashing
 	for(int i = 0; i < 16; i++){
@@ -59,6 +81,16 @@ void VW_FadeIn(){
 	for(int fade = 3; fade >= 0; fade--){
 		for(int i = 0; i < 16; i++){
 			uint16_t* keenpalette = (uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16);
+			if(CK_PaletteSet == 5){
+				unsigned short dynamicIndex = 0;
+				// Handle the dynamic palette
+				if( CtlPanelDone && (ingame || DemoMode == demo_Playback) ){
+					dynamicIndex = CK_DynamicPalIndex[gamestate.mapon+1];
+				}else{
+					dynamicIndex = CK_DynamicPalIndex[0];
+				}
+				keenpalette = (uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16);
+			}
 			for(int e = 0; e < 16; e++){
 				*paletteA = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
 				*paletteB = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
@@ -78,6 +110,16 @@ void VW_FadeOut(){
 	for(int fade = 0; fade < 4; fade++){
 		for(int i = 0; i < 16; i++){
 			uint16_t* keenpalette = (uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16);
+			if(CK_PaletteSet == 5){
+				unsigned short dynamicIndex = 0;
+				// Handle the dynamic palette
+				if( CtlPanelDone && (ingame || DemoMode == demo_Playback) ){
+					dynamicIndex = CK_DynamicPalIndex[gamestate.mapon+1];
+				}else{
+					dynamicIndex = CK_DynamicPalIndex[0];
+				}
+				keenpalette = (uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16);
+			}
 			for(int e = 0; e < 16; e++){
 				*paletteA = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
 				*paletteB = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
@@ -160,13 +202,7 @@ void VW_ClearScroll(){
 	*(volatile uint16_t*)GBA_REG_BG2VOFS = 0;
 };
 
-void RF_FixOfs(int x, int y){
-	originxglobal = CONVERT_PIXEL_TO_GLOBAL(x);
-	originyglobal = CONVERT_PIXEL_TO_GLOBAL(y);
-
-	CK_CameraX = x;
-	CK_CameraY = y;
-
+void RF_SetOfs(int x, int y){
 	*(volatile uint16_t*)GBA_REG_BG0HOFS = x;
 	*(volatile uint16_t*)GBA_REG_BG0VOFS = y;
 
@@ -175,6 +211,16 @@ void RF_FixOfs(int x, int y){
 
 	*(volatile uint16_t*)GBA_REG_BG2HOFS = x;
 	*(volatile uint16_t*)GBA_REG_BG2VOFS = y;
+};
+
+void RF_FixOfs(int x, int y){
+//	originxglobal = CONVERT_PIXEL_TO_GLOBAL(x);
+//	originyglobal = CONVERT_PIXEL_TO_GLOBAL(y);
+
+	CK_CameraX = x;
+	CK_CameraY = y;
+
+	RF_SetOfs(x,y);
 };
 
 extern const unsigned char TIL_8_UNMASKED[];
@@ -332,17 +378,14 @@ int vw_sprcnt = 0;
 void VWB_ClearSpriteCache(){
 	vw_sprcnt = 0;
 	CK_RemoveDummySprites();
-
-	originxglobal = 0;
-	originyglobal = 0;
 };
 
 void VWB_DrawSprite(int x, int y, int chunknum, CK_SpriteType type){
 	VW_DummySprites[vw_sprcnt] = CK_GetNewSprite();
 	CK_SetSprite(&VW_DummySprites[vw_sprcnt], type);
 
-	x = CONVERT_PIXEL_TO_GLOBAL(x);
-	y = CONVERT_PIXEL_TO_GLOBAL(y);
+	x = CONVERT_PIXEL_TO_GLOBAL(x)+originxglobal;
+	y = CONVERT_PIXEL_TO_GLOBAL(y)+originyglobal;
 
 	x+=CK_CameraX;
 	y+=CK_CameraY;

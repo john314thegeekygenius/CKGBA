@@ -27,11 +27,11 @@ void	USL_CheckSavedGames(void);
 //      Global variables
 		boolean         ingame,abortgame,loadedgame;
 		GameDiff        restartgame = gd_Continue;
+boolean 				CtlPanelDone; // Moved from internal
 
 //      Internal variables
 static  boolean         GameIsDirty,
-					QuitToDos,
-					CtlPanelDone;
+					QuitToDos;
 
 #ifdef KEEN6
 	int		listindex = -1;
@@ -65,6 +65,8 @@ typedef enum
 			uc_SEasy,
 			uc_SNormal,
 			uc_SHard,
+			// Added
+			uc_WipeRom,
 		} UComm;
 typedef enum
 		{
@@ -143,6 +145,7 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 				USL_TwoCustom(UserCall call,struct UserItem *item),
 #endif
 				USL_PongCustom(UserCall call,struct UserItem *item),
+				USL_ResetCustom(UserCall call,struct UserItem *item),
 				USL_VideoCustom(UserCall call,struct UserItem *item);
 
 
@@ -274,6 +277,7 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{DefRButton(0,"GB PALETTE")},
 		{DefRButton(0,"BRIGHT PALETTE")},
 		{DefRButton(0,"C64 PALETTE")},
+		{DefRButton(0,"DYNAMIC PALETTE")},
 		{uii_Bad}
 	};
 	UserItemGroup  videogroup = {8,8,CP_VIDEOMOVEMENTPIC,0,videoi,USL_VideoCustom};
@@ -285,6 +289,8 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{uii_Bad}
 	};
 	UserItemGroup   keysgroup = {8,8,CP_KEYBOARDMENUPIC,0,keysi,USL_KeySCustom};
+
+	UserItemGroup  resetgroup = {0,0,0,0,0,USL_ResetCustom};
 
 	// Joystick #1 & #2
 	UserItemGroup   joy1group = {CustomGroup(CP_JOYSTICKMENUPIC,0,USL_Joy1Custom)};
@@ -298,6 +304,7 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{DefFolder(0,"MUSIC",&musicgroup)},
 		{DefFolder(0,"OPTIONS",&optionsgroup)},
 		{DefFolder(0,"VIDEO",&videogroup)},
+		{uii_Folder,ui_Separated,0,"RESET ROM",uc_None,&resetgroup},
 		{uii_Bad}
 	};
 #ifdef CAT3D
@@ -610,6 +617,12 @@ USL_ConfirmComm(UComm comm)
 		s2 = "PRESS A FOR NEW GAME";
 		if (ingame && GameIsDirty)
 			dialog = true;
+		break;
+	// Added
+	case uc_WipeRom:
+		s1 = "THIS WILL REMOVE ALL";
+		s2 = "SAVES AND CONFIGS";
+		dialog = true;
 		break;
 	}
 
@@ -1248,7 +1261,7 @@ USL_LoadCustom(UserCall call,UserItem *item)
 
 		i = item - loadsavegamei;
 		if (Games[i].present)
-			PrintX = item->x + 2;
+			PrintX = item->x + 24;
 		else
 			PrintX = item->x + 60;
 		PrintY = item->y+4;
@@ -1571,6 +1584,17 @@ USL_PongCustom(UserCall call,struct UserItem *item)
 	return(true);
 }
 
+static boolean
+USL_ResetCustom(UserCall call,struct UserItem *item)
+{
+	if (!USL_ConfirmComm(uc_WipeRom))
+		return (true);
+
+	WipeSRam();
+
+	return(true);
+}
+
 //      Flag management stuff
 static void
 USL_ClearFlags(UserItemGroup *node)
@@ -1806,6 +1830,7 @@ USL_SetUpCtlPanel(void)
 	CA_CacheMarks("Control Panel");
 	// Move this here?
 	CA_FixGraphics();
+	CK_FixPalette();
 
 	// Do some other setup
 	fontcolor = F_BLACK;
@@ -1814,7 +1839,7 @@ USL_SetUpCtlPanel(void)
 #else
 //	VW_ClearVideo(3);
 #endif
-	RF_FixOfs(8,0);
+	RF_SetOfs(8,0);
 
 	Communication = uc_None;
 	USL_ClearFlags(&rootgroup);
@@ -1835,6 +1860,7 @@ USL_HandleComm(UComm comm)
 	{
 	case uc_Loaded:
 	case uc_Return:
+	case uc_WipeRom:
 		break;
 	case uc_Abort:
 		abortgame = true;
@@ -2028,7 +2054,9 @@ extern void HelpScreens(void);
 			}
 
 			IN_ClearKeysDown();
-		}/*
+		}
+
+		/*
 		else
 		{
 			IN_ReadCursor(&cursorinfo);

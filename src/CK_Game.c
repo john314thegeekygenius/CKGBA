@@ -123,6 +123,11 @@ void GameOver(void)
 // State stuff
 extern const statetype* CK_StateList[];
 
+struct CK_MapBlock {
+	unsigned short offset;
+	unsigned short newtile;
+};
+
 /*
 ============================
 =
@@ -140,11 +145,10 @@ boolean SaveTheGame(FileHandle handle){
 
 	if (writeHandle(&handle, &gamestate, sizeof(gamestate)) == File_WriteFail)
 		return false;
-
+/*
 	for (i = 0; i < 2; i++) {
 		// Do Carmack RLEW
 		// To not need a buffer, we write directly to the SRAM
-
 		unsigned short *dataptr = CK_CurLevelData + (i*CK_CurLevelSize);
 		unsigned short first, second, count, flag = CARMACK_MAGIC;
 
@@ -183,7 +187,26 @@ boolean SaveTheGame(FileHandle handle){
 			second = *(dataptr++);
 			expanded -= count*WORDSIZE;
 		}
+	}*/
+	struct CK_MapBlock tempblock;
+	for(int p = 0; p < 2; p++){
+		for(int o = 0; o < CK_CurLevelSize; o++){
+			if(CK_CurLevelData[o] != CK_LevelInfo[(CK_CurLevelIndex*3)+2][o]){
+				// Set the info
+				tempblock.offset = o;
+				tempblock.newtile = CK_CurLevelData[o];
+				// Write that block down
+				if(writeHandle(&handle, &tempblock, sizeof(tempblock)) == File_WriteFail)
+					return false;
+			}
+		}
 	}
+	// Write ending token
+	tempblock.offset = 0x8080; // Bad level offset, so end of list
+	// Write only one word
+	if(writeHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_WriteFail)
+		return false;
+
 	// store infoblocks
 	if(writeHandle(&handle, &CK_InfoPlaneBlockCount, sizeof(CK_InfoPlaneBlockCount)) == File_WriteFail)
 		return false;
@@ -261,7 +284,7 @@ boolean LoadTheGame(FileHandle handle)
 #endif
 
 	SetupGameLevel(false);
-	
+	/*
 	for (i = 0; i < 2; i++) {
 		// Do Carmack RLEW
 		// To not need a buffer, we write directly to the level
@@ -288,7 +311,19 @@ boolean LoadTheGame(FileHandle handle)
 				expanded -= WORDSIZE;
 			}
 		}
+	}*/
+	struct CK_MapBlock tempblock;
+	while(1){
+		if(readHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_WriteFail)
+			return false;		
+		if(tempblock.offset == 0x8080){
+			break; // End of list
+		}
+		if(readHandle(&handle, &tempblock.newtile, sizeof(unsigned short)) == File_WriteFail)
+			return false;
+		CK_CurLevelData[tempblock.offset] = tempblock.newtile;
 	}
+
 	CK_FixAnimationBlocks();
 
 	// read infoblocks
@@ -815,9 +850,6 @@ void GameLoop(void)
 		}
 	}
 #endif
-
-	// Uh
-	scorescreenkludge = false;
 
 	if (playstate == ex_loadedgame)
 	{

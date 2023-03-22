@@ -289,14 +289,9 @@ const unsigned int CKS_EggParticles_SprCount = 1;
 const unsigned int CKS_EggParticles_SprData[] = {
 	0, 0, 0, 0, // 
 };
-const unsigned int CKS_BBirdWalk_SprSize = 1024;
-const unsigned int CKS_BBirdWalk_SprCount = 1;
-const unsigned int CKS_BBirdWalk_SprData[] = {
-	2, 0, 0, 0, // 
-};
-const unsigned int CKS_BBirdFly_SprSize = 2048;
-const unsigned int CKS_BBirdFly_SprCount = 1;
-const unsigned int CKS_BBirdFly_SprData[] = {
+const unsigned int CKS_BBird_SprSize = 2048;
+const unsigned int CKS_BBird_SprCount = 1;
+const unsigned int CKS_BBird_SprData[] = {
 	7, 0, 0, 0, // 
 };
 const unsigned int CKS_Dart_SprSize = 256;

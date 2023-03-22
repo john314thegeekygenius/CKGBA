@@ -48,6 +48,9 @@ typedef boolean bool; // For sanity
 #include "GBA_File.h"
 #include "CK_Input.h"
 
+// Moved from Graphics.c
+#define RGBCONV(x) ((((x)>>16)>>3) | (((((x)>>8)&0xFF)>>3)<<5) | ((((x)&0xFF)>>3)<<10))
+
 
 
 #ifdef CK4

@@ -28,9 +28,14 @@ typedef enum {
     FileIO_Write = 0x2,
 }FileIOType;
 
+#define FILE_MAX_BLOCKS 16
+
 FileHandle openHandle(unsigned short identifier, FileIOType iotype, BlockSize size);
 // Will return an error code, or size written
 FileErrors readHandle(FileHandle *handle, void *data, unsigned int size);
 FileErrors writeHandle(FileHandle *handle, void *data, unsigned int size);
+
+// Erases the entire SRAM with 0xFF
+void WipeSRam();
 
 #endif

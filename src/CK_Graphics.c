@@ -315,30 +315,45 @@ void VWB_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, uns
 	}
 };
 
-unsigned char * vw_plotplane = NULL;
+unsigned short * vw_plotplane = NULL;
 
 void VWB_Plot (int x, int y, unsigned char color)
 {
 	// Find the block to write to
 	int bx = x>>3;
 	int by = y>>3;
-	int subx = x-(bx<<3);
-	int suby = y-(by<<3);
+	int deltax = x>>2;
+	int deltay = y-(by<<3);
+	int subx = deltax&1;
+	int suby = deltay<<1;
 	// Plot pixels in the backplane
-	unsigned char * tileblock = vw_plotplane + (bx<<5) + (by<<10) + (suby<<2) + (subx>>1);
-
-	if(x&1){
-		*tileblock &= 0xF;
-		*tileblock |= (color&0xF0);
-		return;
+	//                                         bx*16     by*16*32    suby     subx
+	unsigned short * tileblock = vw_plotplane + (bx<<4) + (by<<9) + (suby) + (subx);
+	unsigned short backc = *tileblock;
+	switch(x&3){
+		case 0:
+			backc &= 0xFFF0;
+			*tileblock = backc | (color&0xF);
+			break;
+		case 1:
+			backc &= 0xFF0F;
+			*tileblock = backc | (color&0xF)<<4;
+			break;
+		case 2:
+			backc &= 0xF0FF;
+			*tileblock = backc | (color&0xF)<<8;
+			break;
+		case 3:
+			backc &= 0x0FFF;
+			*tileblock = backc | (color&0xF)<<12;
+			break;
 	}
-	*tileblock &= 0xF0;
-	*tileblock |= (color&0xF);
+	
 }
 
 void VWB_Hlin (int x1, int x2, int y, int color)
 {
-	vw_plotplane = (unsigned char *)TILESTART_0;
+	vw_plotplane = (unsigned short *)TILESTART_0;
 	color &= 0xF;
 	color |= color<<4;
 	for(; x1 <= x2; x1++){
@@ -348,7 +363,7 @@ void VWB_Hlin (int x1, int x2, int y, int color)
 
 void VWB_Vlin (int y1, int y2, int x, int color)
 {
-	vw_plotplane = (unsigned char *)TILESTART_0;
+	vw_plotplane = (unsigned short *)TILESTART_0;
 	color &= 0xF;
 	color |= color<<4;
 	for(; y1 <= y2; y1++){
@@ -358,7 +373,7 @@ void VWB_Vlin (int y1, int y2, int x, int color)
 
 void VWB_Hlin2 (int x1, int x2, int y, int color)
 {
-	vw_plotplane = (unsigned char *)TILESTART_1;
+	vw_plotplane = (unsigned short *)TILESTART_1;
 	color &= 0xF;
 	color |= color<<4;
 	for(; x1 <= x2; x1++){
@@ -368,7 +383,7 @@ void VWB_Hlin2 (int x1, int x2, int y, int color)
 
 void VWB_Vlin2 (int y1, int y2, int x, int color)
 {
-	vw_plotplane = (unsigned char *)TILESTART_1;
+	vw_plotplane = (unsigned short *)TILESTART_1;
 	color &= 0xF;
 	color |= color<<4;
 	for(; y1 <= y2; y1++){

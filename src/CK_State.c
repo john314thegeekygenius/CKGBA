@@ -1583,7 +1583,7 @@ void FrictionX(objtype *ob)
 			ob->xspeed += friction;
 			if ((ob->xspeed & 0x8000) != oldsign)
 			{
-				ob->xspeed = 0;
+//				ob->xspeed = 0; // BUG? Makes keen not jump left correctly?
 			}
 		}
 		xtry += ob->xspeed;

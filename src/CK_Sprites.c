@@ -81,6 +81,7 @@ static void CK_ClearObject(objtype *obj,bool overwrite){
 
 DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     // Find an old object to use
+    
     for(int i = 0; i < CK_NumOfObjects; i++){
         ck_newobj = &CK_ObjectList[i];
         if(ck_newobj->removed && ck_newobj->isFree && ck_newobj->curSprType == CKS_EOL){
@@ -91,6 +92,7 @@ DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     // Ummm... Will break if more than MAXACTORS are spawned... :S
     if(CK_NumOfObjects >= MAXACTORS-1){
         if (usedummy){
+            Quit("GetNewObj: Used Dummy Object!");
             ck_newobj = &CK_ObjectList[MAXACTORS-1]; // Dummy obj stored at end of list???
             ck_newobj->removed = false;
             ck_newobj->sprite = NULL;

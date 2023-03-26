@@ -26,6 +26,11 @@
 
 //#define CK_DISABLE_SOUND
 //#define CK_DISABLE_MUSIC
+//#define CK_INTR_ENDER
+
+// For the EZ Flash cart
+//#define __EZ_FLASH
+
 #define CK4
 #define KEEN
 

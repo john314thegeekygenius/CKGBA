@@ -473,6 +473,8 @@ typedef uint16_t GBA_SpriteIndex_t;
 // Function to create a new sprite in the list
 // returns index into sprite array
 GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
+GBA_SpriteIndex_t GBA_CreateSpriteFast(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
+
 void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
 
 #define GBA_SET_SPRITE_CLEAR(index) \

@@ -240,8 +240,7 @@ void SpawnBonus(Sint16 x, Sint16 y, Sint16 type)
 	ck_newobj->temp1 = type;
 	ck_newobj->temp2 = ck_newobj->shapenum = bonusshape[type];
 	ck_newobj->temp3 = ck_newobj->temp2 + 2;
-	CK_SetSprite(&ck_newobj->sprite, ckbonussprites[type]);
-	NewState(ck_newobj, &s_bonus1);
+	NewState(ck_newobj, &s_bonus1, ckbonussprites[type]);
 }
 
 /*
@@ -260,8 +259,7 @@ void SpawnSplash(Sint16 x, Sint16 y)
 	ck_newobj->obclass = inertobj;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
-	CK_SetSprite(&ck_newobj->sprite, CKS_DROPLETS);
-	NewState(ck_newobj, &s_splash1);
+	NewState(ck_newobj, &s_splash1, CKS_DROPLETS);
 }
 
 /*
@@ -316,8 +314,7 @@ void SpawnCouncil(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_CMEMBER);
-	NewState(ck_newobj, &s_councilwalk1);
+	NewState(ck_newobj, &s_councilwalk1, CKS_CMEMBER);
 }
 
 /*
@@ -384,8 +381,7 @@ void SpawnSlug(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_POISONSLUG);
-	NewState(ck_newobj, &s_slugwalk1);
+	NewState(ck_newobj, &s_slugwalk1, CKS_POISONSLUG);
 }
 
 /*
@@ -430,8 +426,7 @@ void T_SlugPiss(objtype *ob)
 	ck_newobj->priority = 0;
 	ck_newobj->x = ob->x;
 	ck_newobj->y = ob->bottom - 8*PIXGLOBAL;
-	CK_SetSprite(&ck_newobj->sprite, CKS_POISONPOO);
-	NewState(ck_newobj, &s_slugslime);
+	NewState(ck_newobj, &s_slugslime, CKS_POISONPOO);
 }
 
 /*
@@ -495,8 +490,7 @@ void SpawnMadMushroom(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 0xF1;
 	ck_newobj->xdir = 1;
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_MADMUSHROOM);
-	NewState(ck_newobj, &s_mushroom1);
+	NewState(ck_newobj, &s_mushroom1, CKS_MADMUSHROOM);
 }
 
 /*
@@ -630,8 +624,7 @@ void SpawnEggbird(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 0x71;
 	ck_newobj->xdir = 1;
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_EGG);
-	NewState(ck_newobj, &s_egg);
+	NewState(ck_newobj, &s_egg, CKS_EGG);
 }
 
 /*
@@ -672,8 +665,7 @@ void SpawnEggbirdOut(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_BBIRD);
-	NewState(ck_newobj, &s_eggbirdpause);
+	NewState(ck_newobj, &s_eggbirdpause, CKS_BBIRD);
 
 }
 
@@ -710,8 +702,7 @@ void C_Egg(objtype *ob, objtype *hit)
 			ck_newobj->xdir = -1;
 		}
 		ck_newobj->ydir = 1;
-		CK_SetSprite(&ck_newobj->sprite, CKS_BBIRD);
-		NewState(ck_newobj, &s_eggbirdpause);
+		NewState(ck_newobj, &s_eggbirdpause, CKS_BBIRD);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -720,8 +711,7 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = -28;
 		ck_newobj->yspeed = -40;
-		CK_SetSprite(&ck_newobj->sprite, CKS_EGGPARTICLES);
-		NewState(ck_newobj, &s_eggchip1);
+		NewState(ck_newobj, &s_eggchip1, CKS_EGGPARTICLES);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -730,8 +720,7 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = 28;
 		ck_newobj->yspeed = -40;
-		CK_SetSprite(&ck_newobj->sprite, CKS_EGGPARTICLES);
-		NewState(ck_newobj, &s_eggchip2);
+		NewState(ck_newobj, &s_eggchip2, CKS_EGGPARTICLES);
 
 		GetNewObj(true);
 		ck_newobj->obclass = inertobj;
@@ -740,8 +729,7 @@ void C_Egg(objtype *ob, objtype *hit)
 		ck_newobj->y = ob->y;
 		ck_newobj->xspeed = 0;
 		ck_newobj->yspeed = -56;
-		CK_SetSprite(&ck_newobj->sprite, CKS_EGGPARTICLES);
-		NewState(ck_newobj, &s_eggchip3);
+		NewState(ck_newobj, &s_eggchip3, CKS_EGGPARTICLES);
 	}
 }
 
@@ -1002,8 +990,7 @@ void SpawnArachnut(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_ARACHNUT);
-	NewState(ck_newobj, &s_arach1);
+	NewState(ck_newobj, &s_arach1, CKS_ARACHNUT);
 }
 
 /*
@@ -1123,8 +1110,7 @@ void SpawnSkypest(Sint16 x, Sint16 y)
 	{
 		ck_newobj->ydir = -1;
 	}
-	CK_SetSprite(&ck_newobj->sprite, CKS_SKYPEST);
-	NewState(ck_newobj, &s_pestfly1);
+	NewState(ck_newobj, &s_pestfly1, CKS_SKYPEST);
 }
 
 /*

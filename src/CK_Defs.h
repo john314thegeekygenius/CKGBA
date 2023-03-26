@@ -810,7 +810,7 @@ void ClipToSpriteTop(objtype *push, objtype *solid);
 void ClipToSprite(objtype *push, objtype *solid, boolean squish);
 Sint16 DoActor(objtype *ob, Sint16 numtics);
 void StateMachine(objtype *ob);
-void NewState(objtype *ob, statetype *state);
+void NewState(objtype *ob, statetype *state, CK_SpriteType type);
 void ChangeState(objtype *ob, statetype *state);
 boolean OnScreen(objtype *ob);
 void DoGravity(objtype *ob);

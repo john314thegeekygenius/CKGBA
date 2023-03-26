@@ -85,19 +85,18 @@ void SpawnScore(void)
 	else if (!DemoMode)
 	{
 		switch(showscorebox){
+			default:
 			case CK_DISP_SCORE_DOS:
-			    CK_SetSprite(&scoreobj->sprite, CKS_SCOREBOXDOS);
+				NewState(scoreobj, &s_score, CKS_SCOREBOXDOS);
 				break;
 			case CK_DISP_SCORE_GBA:
-			    CK_SetSprite(&scoreobj->sprite, CKS_SCOREBOXGBA);
+				NewState(scoreobj, &s_score, CKS_SCOREBOXGBA);
 				break;
 		}
-		NewState(scoreobj, &s_score);
 	}
 	else
 	{
-	    CK_SetSprite(&scoreobj->sprite, CKS_DEMO);
-		NewState(scoreobj, &s_demo);
+		NewState(scoreobj, &s_demo, CKS_DEMO);
 	}
 }
 
@@ -403,11 +402,6 @@ const Sint16 tiledir[4] = {dir_South, dir_West, dir_North, dir_East};
 ======================
 */
 
-
-void FixState(objtype * ob){
-	NewState(ob,&s_worldkeen );
-};
-
 void SpawnWorldKeen(Sint16 x, Sint16 y)
 {
 
@@ -434,8 +428,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 			player->xspeed = (Sint16)(16*TILEGLOBAL - player->x)/140 + 1;
 			player->yspeed = (Sint16)(47*TILEGLOBAL - player->y)/140 + 1;
 		}
-		CK_SetSprite(&player->sprite, CKS_MAPFOOT);
-		NewState(player, &s_keenonfoot1);
+		NewState(player, &s_keenonfoot1, CKS_MAPFOOT);
 		return;
 	}
 #endif
@@ -459,8 +452,7 @@ void SpawnWorldKeen(Sint16 x, Sint16 y)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	CK_SetSprite(&player->sprite, CKS_MAPKEEN);
-	NewState(player, &s_worldkeen);
+	NewState(player, &s_worldkeen, CKS_MAPKEEN);
 }
 
 #ifdef KEEN5
@@ -485,8 +477,7 @@ void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY)
 	player->temp2 = 3;
 	player->temp3 = 0;
 	player->shapenum = WORLDKEENL3SPR;
-	CK_SetSprite(&player->sprite, CKS_MAPKEEN);
-	NewState(player, &s_worldkeen);
+	NewState(player, &s_worldkeen, CKS_MAPKEEN);
 }
 #endif
 
@@ -618,6 +609,8 @@ void T_FootFly(objtype *ob)
 		ob->temp3 = 0;
 		player->xdir = 0;
 		player->ydir = 0;
+		// Fix the object sprite
+		CK_RemakeSprite(&ob->sprite, CKS_MAPKEEN);
 		ob->state = &s_worldkeen;
 		ob->shapenum = WORLDKEENL3SPR;
 		ob->needtoclip = cl_midclip;
@@ -752,7 +745,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 	ob->xdir = 0;
 	ob->ydir = 1;
 	ob->temp1 = dir_South;
-	NewState(ob, ob->state);
+	NewState(ob, ob->state, ob->sprite->curSprType);
 	CenterActor(ob);
 
 	//
@@ -1179,8 +1172,7 @@ void SpawnFlag(Sint16 x, Sint16 y)
 	}
 #endif
 	ck_newobj->ticcount = US_RndT() / 16;
-	CK_SetSprite(&ck_newobj->sprite, CKS_MAPFLAG);
-	NewState(ck_newobj, &s_flagwave1);
+	NewState(ck_newobj, &s_flagwave1, CKS_MAPFLAG);
 }
 
 #ifndef KEEN5
@@ -1240,8 +1232,7 @@ void SpawnThrowFlag(Sint16 x, Sint16 y)
 			flagpath[i].y -= (29-i)*3*PIXGLOBAL;
 		}
 	}
-	CK_SetSprite(&ck_newobj->sprite, CKS_MAPFLAG);
-	NewState(ck_newobj, &s_throwflag0);
+	NewState(ck_newobj, &s_throwflag0, CKS_MAPFLAG);
 }
 
 /*
@@ -1368,8 +1359,7 @@ void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 		Quit("SpawnShot: Bad dir!");
 		break;
 	}
-	CK_SetSprite(&ck_newobj->sprite, CKS_SHOT);
-	NewState(ck_newobj, &s_stunray1);
+	NewState(ck_newobj, &s_stunray1, CKS_SHOT);
 
 #ifdef KEEN6
 	{
@@ -1449,7 +1439,6 @@ void T_Shot(objtype *ob)
 				ob2->needtoreact = true;
 				ob2->active = ac_yes;
 			}
-
 			if (ob->obclass == nothing)	//BUG: obclass is 'inertobj' for the exploded shot
 				break;
 		}

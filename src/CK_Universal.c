@@ -136,6 +136,8 @@ USL_ReadConfig(void)
 		readHandle(&file, &version, sizeof(version));
 		if (version != ConfigVersion)
 		{
+			// TODO:
+			// Wipe the data here??? :O
 			goto rcfailed;
 		}
 		readHandle(&file,Scores,sizeof(HighScore) * MaxScores);
@@ -192,9 +194,8 @@ USL_WriteConfig(void)
 {
 	word    version;
 	FileHandle             file;
-
 	version = ConfigVersion;
-	file = openHandle(CKF_CONFIG, FileIO_Read | FileIO_Write, CKFB_CONFIG_S);
+	file = openHandle(CKF_CONFIG, FileIO_Write, CKFB_CONFIG_S);
 	if (file != -1)
 	{
 		writeHandle(&file,&version,sizeof(version));
@@ -217,6 +218,10 @@ USL_WriteConfig(void)
 //		write(file,&GravisGamepad,sizeof(GravisGamepad));
 //		write(file,&GravisMap,sizeof(GravisMap));
 	}
+#ifdef __EZ_FLASH
+    // Wait for 1 second
+    GBA_Delay(1000);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////

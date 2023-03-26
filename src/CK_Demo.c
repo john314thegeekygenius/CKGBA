@@ -314,7 +314,7 @@ void Terminator(void)
 	pagefinished = false;
 
 	// Remove any old sprites (???)
-	CK_RemoveSprites();
+	CK_NukeObjectsSprites();
 
 	VW_ClearVideo(BLACK);
 
@@ -525,7 +525,7 @@ void StarWars(void)
 	uint32_t offset;
 
 	// Remove any sprites
-	CK_RemoveSprites();
+	CK_NukeObjectsSprites();
 
 	// Clear the screen to black
 	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM, 0x11111111, GBA_SCREEN_SIZE>>1);
@@ -591,7 +591,7 @@ void StarWars(void)
 void ShowTitle(void)
 {
 	// Remove any sprites
-	CK_RemoveSprites();
+	CK_NukeObjectsSprites();
 
 	// Clear the second layer to black
 	GBA_DMA_MemSet32((uint32_t*)GBA_VRAM+0x2000, 0x11111111, 32*20*8);

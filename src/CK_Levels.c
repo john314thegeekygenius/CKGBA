@@ -387,7 +387,8 @@ void CK_RenderLevel(){
             }
             doffset += (CK_CurLevelWidth-16);
         }
-
+        // TODO:
+        // Make this optional for extra speed???
         GBA_WAIT_FOR_VBLANKN(160)
 
         // Move the camera if need be
@@ -528,6 +529,7 @@ void CK_SnapScroll(){
 */
 
 void ScanInfoPlane(void){
+    CK_NukeObjectsSprites(); // Remove any and all old objects
     InitObjArray(); // start spawning things with a clean slate
     CK_LoadSpectators();
 };

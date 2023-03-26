@@ -9,5 +9,6 @@ More info can be found: https://pckf.com/viewtopic.php?t=11505
 All cases where a new object is created via GetNewObj(), 
 if the object name 'new' it must be changed to 'ck_newobj'
 
-Also, the function CK_SetSprite() must be called after the object is created, but before
-NewState() is called, in order to set the sprite type correctly.
+Also, the function NewState() now takes an extra parameter -
+The type of sprite denoted with 'CKS_'
+

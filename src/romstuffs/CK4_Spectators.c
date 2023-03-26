@@ -220,7 +220,6 @@ void CK_LoadSpectators(){
 					SpawnWorldKeen(x, y);
 					SpawnScore();
 					break;
-
 				case 4:
 					SpawnCouncil(x, y);
 					break;
@@ -423,7 +422,6 @@ void CK_LoadSpectators(){
 				case 68:
 					SpawnBonus(x, y, info-57);
 					break;
-
 				case 69:
 				case 70:
 				case 71:
@@ -844,8 +842,7 @@ void SpawnSwimKeen(Sint16 x, Sint16 y)
 	player->xdir = 1;
 	player->ydir = 1;
 	player->needtoclip = cl_fullclip;
-	CK_SetSprite(&player->sprite, CKS_KEENSWIM);
-	NewState(player, &s_keenswimslow1);
+	NewState(player, &s_keenswimslow1, CKS_KEENSWIM);
 }
 
 /*
@@ -875,20 +872,19 @@ void SpawnKbubble(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->yspeed = -24;
 	ck_newobj->xspeed = 4;
-	CK_SetSprite(&ck_newobj->sprite, CKS_SBUBBLE);
 	switch (US_RndT() / 64)
 	{
 	case 0:
-		NewState(ck_newobj, &s_kbubble1);
+		NewState(ck_newobj, &s_kbubble1, CKS_SBUBBLE);
 		break;
 	case 1:
-		NewState(ck_newobj, &s_kbubble2);
+		NewState(ck_newobj, &s_kbubble2, CKS_SBUBBLE);
 		break;
 	case 2:
-		NewState(ck_newobj, &s_kbubble3);
+		NewState(ck_newobj, &s_kbubble3, CKS_SBUBBLE);
 		break;
 	case 3:
-		NewState(ck_newobj, &s_kbubble4);
+		NewState(ck_newobj, &s_kbubble4, CKS_SBUBBLE);
 		break;
 	}
 	SD_PlaySound(SND_BLUB);

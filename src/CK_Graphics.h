@@ -143,7 +143,8 @@ DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls);
 
 void VW_UpdateScreen();
 void VWB_ClearSpriteCache();
-void VWB_DrawSprite(int x, int y, int chunknum, CK_SpriteType type);
+objsprite *VWB_GetTempSprite(CK_SpriteType type);
+void VWB_DrawSprite(objsprite **sprite, int x, int y, int chunknum);
 
 #define VW_SetDefaultColors() CK_FixPalette()
 

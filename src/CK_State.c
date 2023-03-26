@@ -1094,21 +1094,16 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 				state->think(ob);
 			}
 		}
-		// Reversed - BUG???
-		if (!ob->state)
-		{
-			return 0;			// object removed itself
-		}
-		else if (state == ob->state)
+
+		if (state == ob->state)
 		{
 			ob->state = state->nextstate;	// go to next state
 		}
-		// TODO:
-		// This makes the demos play wrong (and normal play?)
-		if(ob->obclass < 2) {
-			excesstics = 0;
-		} // ??
-		return excesstics; // TODO: Bug with excesstics???
+		else if (!ob->state)
+		{
+			return 0;			// object removed itself
+		}
+		return excesstics;
 	}
 }
 
@@ -1163,6 +1158,10 @@ void StateMachine(objtype *ob)
 		{
 			ob->ticcount = 0;		// start the new state at 0, then use excess
 			state = ob->state;
+			// Bug here : If the state is null, the program breaks?
+			if(state == NULL){
+				excesstics = 0;
+			}
 		}
 	}
 
@@ -1221,12 +1220,12 @@ void StateMachine(objtype *ob)
 ====================
 */
 
-void NewState(objtype *ob, statetype *state)
+void NewState(objtype *ob, statetype *state, CK_SpriteType type)
 {
 	Sint16 temp;
 
 	if(!state) Quit("NewState : Bad State");
-	if(!ob) Quit("NewState : Bad obj");
+	if(!ob || ob->removed) Quit("NewState : Bad obj");
 
 	ob->state = state;
 
@@ -1246,7 +1245,8 @@ void NewState(objtype *ob, statetype *state)
 	{
 		ob->shapenum = 0;
 	}
-
+	// Make the sprite
+	CK_SetSprite(&ob->sprite, type);
 
 	temp = ob->needtoclip;
 	ob->needtoclip = cl_noclip;
@@ -1951,7 +1951,6 @@ done:
 			ob->temp2 = 0;
 	}
 	if(!ob->temp3){
-		ob->temp3 = (Sint32)CK_GetNewSprite();
 		CK_SetSprite((objsprite**)(&ob->temp3), CKS_STARS);
 	}
 	RF_PlaceSprite((objsprite**)(&ob->temp3), ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);

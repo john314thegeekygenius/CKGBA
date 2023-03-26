@@ -96,8 +96,7 @@ void SpawnWormMouth(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_WORMOUTH);
-	NewState(ck_newobj, &s_worm);
+	NewState(ck_newobj, &s_worm, CKS_WORMOUTH);
 }
 
 /*
@@ -270,8 +269,7 @@ void SpawnCloudster(Sint16 x, Sint16 y)
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = ck_newobj->xdir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_THUNDERCLOUD);
-	NewState(ck_newobj, &s_cloudsleep);
+	NewState(ck_newobj, &s_cloudsleep, CKS_THUNDERCLOUD);
 }
 
 /*
@@ -359,8 +357,7 @@ void T_CloudShoot(objtype *ob)
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->x = ob->x + TILEGLOBAL;
 	ck_newobj->y = ob->y + TILEGLOBAL;
-	CK_SetSprite(&ck_newobj->sprite, CKS_LIGHTNINGBOLT);
-	NewState(ck_newobj, &s_bolt1);
+	NewState(ck_newobj, &s_bolt1, CKS_LIGHTNINGBOLT);
 	SD_PlaySound(SND_THUNDER);
 }
 
@@ -446,8 +443,7 @@ void SpawnBerkeloid(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->temp2 = 8;
-	CK_SetSprite(&ck_newobj->sprite, CKS_BERKELOID);
-	NewState(ck_newobj, &s_berkefloat1);
+	NewState(ck_newobj, &s_berkefloat1, CKS_BERKELOID);
 }
 
 
@@ -519,8 +515,7 @@ void BerkeThrowThink(objtype *ob)
 		ck_newobj->x = ob->x - 16*PIXGLOBAL;
 		ck_newobj->xdir = -1;
 	}
-	CK_SetSprite(&ck_newobj->sprite, CKS_FLAME);
-	NewState(ck_newobj, &s_fire1);
+	NewState(ck_newobj, &s_fire1, CKS_FLAME);
 	ob->needtoreact = true;
 }
 
@@ -687,8 +682,7 @@ void SpawnInchworm(Sint16 x, Sint16 y)
 		ck_newobj->xdir = -1;
 	}
 	ck_newobj->ydir = 1;
-	CK_SetSprite(&ck_newobj->sprite, CKS_INCHWORM);
-	NewState(ck_newobj, &s_inch1);
+	NewState(ck_newobj, &s_inch1, CKS_INCHWORM);
 	ck_newobj->ticcount = US_RndT() / 32;
 }
 
@@ -708,8 +702,7 @@ void SpawnFoot(Sint16 x, Sint16 y)
 	ck_newobj->priority = 0;
 	ck_newobj->x = CONVERT_TILE_TO_GLOBAL(x);
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-3);
-	CK_SetSprite(&ck_newobj->sprite, CKS_FOOT);
-	NewState(ck_newobj, &s_footwait);
+	NewState(ck_newobj, &s_footwait, CKS_FOOT);
 }
 
 /*
@@ -756,6 +749,10 @@ void InchContact(objtype *ob, objtype *hit)
 	if (++ob->temp2 != 11)	//11 instead of 12 since the object can't contact itself
 		return;
 
+	ob->temp1 = 0; // Fix? Reset this?
+	ob->temp2 = 0;
+	ob->temp3 = 0;
+
 	//change current inchworm into a foot:
 	SD_PlaySound(SND_MAKEFOOT);
 	ob->y -= 5*TILEGLOBAL;
@@ -772,36 +769,32 @@ void InchContact(objtype *ob, objtype *hit)
 	ck_newobj->x = ob->x -  8*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
-	NewState(ck_newobj, &s_footsmoke1);
+	NewState(ck_newobj, &s_footsmoke1, CKS_TESMOKE);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 16*PIXGLOBAL;
 	ck_newobj->y = ob->y + 24*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
-	NewState(ck_newobj, &s_footsmoke1);
+	NewState(ck_newobj, &s_footsmoke1, CKS_TESMOKE);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x + 40*PIXGLOBAL;
 	ck_newobj->y = ob->y + 16*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
-	NewState(ck_newobj, &s_footsmoke1);
+	NewState(ck_newobj, &s_footsmoke1, CKS_TESMOKE);
 
 	GetNewObj(true);
 	ck_newobj->x = ob->x;
 	ck_newobj->y = ob->y - 8*PIXGLOBAL;
 	ck_newobj->priority = 3;
-	CK_SetSprite(&ck_newobj->sprite, CKS_TESMOKE);
-	NewState(ck_newobj, &s_footsmoke1);
+	NewState(ck_newobj, &s_footsmoke1, CKS_TESMOKE);
 
 	//remove ALL inchworm from the level:
+	
 	for(int i = player->uuid; i < CK_NumOfObjects; i++){
-        ob2 = &CK_ObjectList[i];
-        if(ob2->removed) continue;
-		if (ob2->obclass == inchwormobj)
-			RemoveObj(ob2);
+        if (CK_ObjectList[i].removed) continue;
+		if (CK_ObjectList[i].obclass == inchwormobj)
+			RemoveObj(&CK_ObjectList[i]);
 	}
 }
 
@@ -859,8 +852,7 @@ void SpawnBounder(Sint16 x, Sint16 y)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) - 8*PIXGLOBAL;
 	ck_newobj->ydir = 1;
 	ck_newobj->xdir = 0;
-    CK_SetSprite(&ck_newobj->sprite, CKS_BOUNDER);
-	NewState(ck_newobj, &s_bounderup1);
+	NewState(ck_newobj, &s_bounderup1, CKS_BOUNDER);
 }
 
 /*
@@ -1023,8 +1015,7 @@ void SpawnLick(Sint16 x, Sint16 y)
 	}
 	ck_newobj->ydir = 1;
 	ck_newobj->nothink = US_RndT() / 64;
-	CK_SetSprite(&ck_newobj->sprite, CKS_LICK);
-	NewState(ck_newobj, &s_lick3);
+	NewState(ck_newobj, &s_lick3, CKS_LICK);
 }
 
 /*
@@ -1176,8 +1167,7 @@ void SpawnPlatform(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->ydir = 0;
 		break;
 	}
-	CK_SetSprite(&ck_newobj->sprite, CKS_ELEVATOR);
-	NewState(ck_newobj, &s_platform);
+	NewState(ck_newobj, &s_platform, CKS_ELEVATOR);
 }
 
 /*
@@ -1283,11 +1273,9 @@ void R_Platform(objtype *ob)
 
 	// Generate the sprites if needed
 	if(!ob->temp2){
-		ob->temp2 = (Sint32)CK_GetNewSprite();
 		CK_SetSprite((objsprite**)(&ob->temp2), CKS_EFIRE);
 	}
 	if(!ob->temp3){
-		ob->temp3 = (Sint32)CK_GetNewSprite();
 		CK_SetSprite((objsprite**)(&ob->temp3), CKS_EFIRE);
 	}
 
@@ -1360,8 +1348,7 @@ void SpawnDropPlat(Sint16 x, Sint16 y)
 	ck_newobj->xdir = 0;
 	ck_newobj->ydir = 1;
 	ck_newobj->needtoclip = cl_noclip;
-	CK_SetSprite(&ck_newobj->sprite, CKS_ELEVATOR);
-	NewState(ck_newobj, &s_dropplatsit);
+	NewState(ck_newobj, &s_dropplatsit, CKS_ELEVATOR);
 }
 
 /*

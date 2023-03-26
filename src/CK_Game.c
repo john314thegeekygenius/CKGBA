@@ -160,12 +160,16 @@ struct CK_MapBlock {
 
 boolean SaveTheGame(FileHandle handle){
 
-	Uint16	i,compressed,expanded;
+	Uint16	i,compressed,expanded, version;
 	objtype	*ob;
 
 	gamestate.riding = NULL;
 
 	if (writeHandle(&handle, &gamestate, sizeof(gamestate)) == File_WriteFail)
+		return false;
+
+	version = ConfigVersion;
+	if (writeHandle(&handle, &version, sizeof(version)) == File_WriteFail)
 		return false;
 /*
 	for (i = 0; i < 2; i++) {
@@ -211,21 +215,19 @@ boolean SaveTheGame(FileHandle handle){
 		}
 	}*/
 	struct CK_MapBlock tempblock;
-	for(int p = 0; p < 2; p++){
-		for(int o = 0; o < CK_CurLevelSize; o++){
-			if(CK_CurLevelData[o] != CK_LevelInfo[(CK_CurLevelIndex*3)+2][o]){
-				// Set the info
-				tempblock.offset = o;
-				tempblock.newtile = CK_CurLevelData[o];
-				// Write that block down
-				if(writeHandle(&handle, &tempblock, sizeof(tempblock)) == File_WriteFail)
-					return false;
-			}
+	for(int o = 0; o < CK_CurLevelSize*2; o++){
+		if(CK_CurLevelData[o] != CK_LevelInfo[(CK_CurLevelIndex*3)+2][o]){
+			// Set the info
+			tempblock.offset = o;
+			tempblock.newtile = CK_CurLevelData[o];
+			// Write that block down
+			if(writeHandle(&handle, &tempblock, sizeof(tempblock)) == File_WriteFail)
+				return false;
 		}
 	}
-	// Write ending token
-	tempblock.offset = 0x8080; // Bad level offset, so end of list
-	// Write only one word
+	// Set to bad block
+	tempblock.offset = 0xFFFF;
+	// Write an end block down
 	if(writeHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_WriteFail)
 		return false;
 
@@ -272,6 +274,12 @@ boolean SaveTheGame(FileHandle handle){
 			return false;
 		}
 	}
+
+    // Wait for 3 seconds
+#ifdef __EZ_FLASH
+    GBA_Delay(3000);
+#endif
+
 	return true;
 }
 
@@ -290,12 +298,18 @@ boolean LoadTheGame(FileHandle handle)
 {
 	Uint16	i, stateid;
 	Uint16	compressed,expanded;
+	Uint16            version;
 #ifdef KEEN5
 	Sint16	numfuses;
 #endif
-
 	if (readHandle(&handle, &gamestate, sizeof(gamestate)) == File_ReadFail)
 		return false;
+	if (readHandle(&handle, &version, sizeof(version)) == File_ReadFail)
+		return false;
+	if (version != ConfigVersion){
+		// Bad save file!
+		return false;
+	}
 
 #ifdef KEEN5
 	//
@@ -335,13 +349,12 @@ boolean LoadTheGame(FileHandle handle)
 		}
 	}*/
 	struct CK_MapBlock tempblock;
-	while(1){
-		if(readHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_WriteFail)
-			return false;		
-		if(tempblock.offset == 0x8080){
-			break; // End of list
-		}
-		if(readHandle(&handle, &tempblock.newtile, sizeof(unsigned short)) == File_WriteFail)
+	for(int o = 0; o < CK_CurLevelSize*2; o++){
+		if(readHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_ReadFail)
+			return false;
+		if(tempblock.offset == 0xFFFF)
+			break;
+		if(readHandle(&handle, &tempblock.newtile, sizeof(unsigned short)) == File_ReadFail)
 			return false;
 		CK_CurLevelData[tempblock.offset] = tempblock.newtile;
 	}
@@ -714,7 +727,7 @@ void CA_CacheMarks (char *title)
 // go through and load in anything still needed
 //
 
-	for (int i=0;i<6*3;i++){
+	for (int i=0;i<6;i++){
 //
 // update thermometer
 //
@@ -722,6 +735,9 @@ void CA_CacheMarks (char *title)
 		// Add some simulated delay
 		GBA_Delay(250);
 	}
+
+	// Add some simulated delay
+	GBA_Delay(250);
 
 //
 // finish up any thermometer remnants

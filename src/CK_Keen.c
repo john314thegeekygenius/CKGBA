@@ -269,8 +269,7 @@ void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir)
 
 	player->xdir = dir;
 	player->ydir = 1;
-    CK_SetSprite(&player->sprite, CKS_KEEN);
-	NewState(player, &s_keenstand);
+	NewState(player, &s_keenstand, CKS_KEEN);
 
 }
 
@@ -397,7 +396,7 @@ boolean CheckEnterHouse(objtype *ob)
 				ck_newobj->active = ac_allways;
 				ck_newobj->needtoclip = cl_noclip;
 				ck_newobj->obclass = inertobj;
-				NewState(ck_newobj, &s_carddoor);
+				NewState(ck_newobj, &s_carddoor, CKS_EOL);
 				// Note: no invincibility here - card doors were always used as level exits in Keen 5
 				ob->state = &s_keenenter0;
 				ob->priority = 0;
@@ -1004,7 +1003,7 @@ void KeenKeyThink(objtype *ob)
 	ck_newobj->active = ac_allways;
 	ck_newobj->needtoclip = cl_noclip;
 	ck_newobj->obclass = inertobj;
-	NewState(ck_newobj, &s_door1);
+	NewState(ck_newobj, &s_door1, CKS_EOL);
 }
 
 //===========================================================================
@@ -1968,8 +1967,7 @@ void TileBonus(Uint16 x, Uint16 y, Uint16 bonus)
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y);
 	ck_newobj->ydir = -1;
 	ck_newobj->temp2 = ck_newobj->shapenum = bonussprite[bonus];
-	CK_SetSprite(&ck_newobj->sprite, CK_BonusShadows[bonus]);
-	NewState(ck_newobj, &s_bonusrise);
+	NewState(ck_newobj, &s_bonusrise, CK_BonusShadows[bonus]);
 	ck_newobj->needtoclip = cl_noclip;
 }
 
@@ -1998,8 +1996,7 @@ void GiveDrop(Uint16 x, Uint16 y)
 		ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y-1);
 		ck_newobj->ydir = -1;
 		ck_newobj->temp2 = ck_newobj->shapenum = BONUS100UPSPR;
-		CK_SetSprite(&ck_newobj->sprite, CKS_SHADOWONEUP);
-		NewState(ck_newobj, &s_bonusrise);
+		NewState(ck_newobj, &s_bonusrise, CKS_SHADOWONEUP);
 		ck_newobj->needtoclip = cl_noclip;
 	}
 }

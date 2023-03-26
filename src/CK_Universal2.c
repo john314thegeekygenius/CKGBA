@@ -350,7 +350,9 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 #elif defined CAT3D
 		{DefFolder(0,"SKULL 'N' BONES",&ponggroup)},
 #endif
+#ifdef CK_INTR_ENDER
 		{DefButton(0,"QUIT"),uc_Quit},
+#endif
 		{uii_Bad}
 	};
 	UserItemGroup  rootgroup = {16,8,CP_MAINMENUPIC,0,rooti};
@@ -1430,6 +1432,13 @@ USL_PlayPong(void)
 	done = false;
 	lastscore = false;
 	lasttime = TimeCount;
+
+	// Added:
+	objsprite *ballspr, *kpaddlespr, *cpaddlespr;
+	VWB_ClearSpriteCache();
+	ballspr = VWB_GetTempSprite(CKS_BALL);
+	kpaddlespr = VWB_GetTempSprite(CKS_PADDLE);
+	cpaddlespr = VWB_GetTempSprite(CKS_PADDLE);
 	do
 	{
 
@@ -1564,29 +1573,29 @@ USL_PlayPong(void)
 				}
 			}
 		}
-
-		VWB_ClearSpriteCache();
+	    GBA_ClearSpriteCache();
 
 		if (ball)
 		{
-			VWB_Bar(oldbx,oldby,5,5,BackColor);
+			//VWB_Bar(oldbx,oldby,5,5,BackColor);
 			oldbx = x;
 			oldby = y;
-			VWB_DrawSprite(x-8,y,(x & 1)? BALL1PIXELTOTHERIGHTSPR : BALLSPR, CKS_BALL);
+			VWB_DrawSprite(&ballspr, x-8,y,(x & 1)? BALL1PIXELTOTHERIGHTSPR : BALLSPR);
 		}
-		VWB_Bar(oldcx-3,CPaddleY,16,3,BackColor);
+		//VWB_Bar(oldcx-3,CPaddleY,16,3,BackColor);
 		oldcx = cx;
-		VWB_DrawSprite(cx-8,CPaddleY,PADDLESPR, CKS_PADDLE);
-		VWB_Bar(oldkx-3,KPaddleY,16,3,BackColor);
+		VWB_DrawSprite(&kpaddlespr,cx-8,CPaddleY,PADDLESPR);
+		//VWB_Bar(oldkx-3,KPaddleY,16,3,BackColor);
 		oldkx = kx;
-		VWB_DrawSprite(kx-8,KPaddleY,PADDLESPR, CKS_PADDLE);
+		VWB_DrawSprite(&cpaddlespr,kx-8,KPaddleY,PADDLESPR);
 
-		CK_UpdateSprites();
+		GBA_UPDATE_SPRITES()
 
 	} while ((LastScan != GBA_BUTTON_B) && !done);
 	IN_ClearKeysDown();
 	VWB_ClearSpriteCache();
-	CK_RemoveSprites();
+    // Clear any software sprites
+    GBA_ResetSprites();
 }
 
 #pragma argsused
@@ -1613,6 +1622,13 @@ USL_ResetCustom(UserCall call,struct UserItem *item)
 		return (true);
 
 	WipeSRam();
+
+	CtlPanelDone = false; // Fix the flag???
+
+    // Wait for 3 seconds
+#ifdef __EZ_FLASH
+    GBA_Delay(3000);
+#endif 
 
 	return(true);
 }
@@ -1734,11 +1750,13 @@ USL_DownLevel(UserItemGroup *group)
 static void
 USL_UpLevel(void)
 {
+#ifdef CK_INTR_ENDER
 	if (!cstackptr)
 	{
 		USL_ConfirmComm(uc_Quit);
 		return;
 	}
+#endif
 
 	if (topcard->items)
 		topcard->items[topcard->cursor].flags &= ~ui_Selected;
@@ -1888,7 +1906,9 @@ USL_HandleComm(UComm comm)
 		abortgame = true;
 		break;
 	case uc_Quit:
+#ifdef CK_INTR_ENDER
 		QuitToDos = true;
+#endif
 		break;
 	case uc_SEasy:
 		restartgame = gd_Easy;
@@ -1946,6 +1966,7 @@ USL_TearDownCtlPanel(void)
 	fontcolor = F_BLACK;
 	if (restartgame)
 		ResetGame();
+#ifdef CK_INTR_ENDER
 	else if (QuitToDos)
 	{
 		US_CenterWindow(20,3);
@@ -1955,7 +1976,7 @@ USL_TearDownCtlPanel(void)
 		GBA_Delay(500);
 		Quit(nil);
 	}
-
+#endif
 	IN_ClearKeysDown();
 	SD_WaitSoundDone();
 #ifdef CAT3D
@@ -1964,6 +1985,9 @@ USL_TearDownCtlPanel(void)
 	VW_ClearVideo( CK_TXTCOL(CK_EGA_BLACK)); // BUG ? Should be CK_EGA_CYAN
 #endif
 	CA_FixGraphics();
+
+	// Write the config file now?
+	US_Shutdown();
 }
 
 ///////////////////////////////////////////////////////////////////////////

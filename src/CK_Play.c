@@ -103,6 +103,11 @@ void CheckKeys(void){
 		IN_ClearKeysDown();
 		RF_ForceRefresh();
 		lasttimecount = TimeCount;	// BUG: should be the other way around
+
+		// TODO:
+		// Remove this!
+		playstate = ex_completed;
+		gamestate.mapon = 3;
 	}
 
 //
@@ -987,7 +992,7 @@ void ScrollScreen(objtype *ob)
 void InitObjArray(void) {
 
     // Remove any old objects
-    CK_RemoveSprites();
+    CK_NukeObjectsSprites();
 
 //
 // give the player and score the first free spots
@@ -1210,6 +1215,7 @@ void PlayLoop(void)
 					|| obj->tiletop > inactivatebottom
 					|| obj->tilebottom < inactivatetop)
 				{
+					/*
 					if (obj->active == ac_removable)
 					{
 						RemoveObj(obj);
@@ -1226,7 +1232,7 @@ void PlayLoop(void)
 							obj->active = ac_no;
 							continue;
 						}
-					}
+					}*/
 				}
 				StateMachine(obj);
 			}
@@ -1269,7 +1275,7 @@ void PlayLoop(void)
 						}
 						if (obj->obclass == nothing)	//useless -- obclass is NOT set to nothing by RemoveObj
 						{
-							continue; // Should be break???
+							break;
 						}
 					}
 				}
@@ -1296,6 +1302,7 @@ void PlayLoop(void)
 		{
             objtype *obj = &CK_ObjectList[i];
 			if(obj->removed) continue;
+
 			if (!obj->active)
 			{
 				continue;

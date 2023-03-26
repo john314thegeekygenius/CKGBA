@@ -50,7 +50,9 @@ void InitGame(void)
 	US_InitRndT(true);              // Initialize the random number generator
 	US_Setup();
 	CK_FixPalette();
+#ifdef CK_INTR_ENDER
 	US_TextScreen();
+#endif
 
 	VW_ClearVideo(BLACK);
 };
@@ -109,7 +111,7 @@ void Quit(char *error)
 {
 	gameQuit = true;
 
-	CK_RemoveSprites();
+	CK_NukeObjectsSprites();
 	SD_MusicOff();
 	GBA_StopChannel(GBA_CHANNEL_A);
 	GBA_StopChannel(GBA_CHANNEL_B);
@@ -119,10 +121,11 @@ void Quit(char *error)
 	VW_ClearScroll();
 
 	if (!error || !(*error)){
+#ifdef CK_INTR_ENDER
+		US_ShowScreen(3);
+#endif
 		// Save the config data
 		US_Shutdown();
-
-		US_ShowScreen(3);
 		
 		while(1); // Make the game run forever?
 		return;

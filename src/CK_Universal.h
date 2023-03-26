@@ -29,7 +29,7 @@
 #ifndef __CK_UNIVERSAL__
 #define __CK_UNIVERSAL__
 
-#define ConfigVersion 0x0110 // v.0.1.1.0
+#define ConfigVersion 0x0111 // v.0.1.1.1
 
 // GBA File Blocks
 typedef enum {

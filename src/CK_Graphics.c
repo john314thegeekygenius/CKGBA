@@ -403,24 +403,57 @@ void VW_UpdateScreen(){
 };
 
 // Sprites to be used with DrawSprite
-objsprite *VW_DummySprites[10];
+objsprite VW_DummySprites[10];
 int vw_sprcnt = 0;
 
 void VWB_ClearSpriteCache(){
 	vw_sprcnt = 0;
-	CK_RemoveDummySprites();
+	for(int i = 0; i < 10; i++){
+		objsprite *spr = &VW_DummySprites[i];
+		RF_RemoveSprite(&spr, false);
+	}
 };
 
-void VWB_DrawSprite(int x, int y, int chunknum, CK_SpriteType type){
-	VW_DummySprites[vw_sprcnt] = CK_GetNewSprite();
-	CK_SetSprite(&VW_DummySprites[vw_sprcnt], type);
+objsprite *VWB_GetTempSprite(CK_SpriteType type){
+	objsprite *spr = &VW_DummySprites[vw_sprcnt];
+	
+    CK_ClearSprite(spr, true);
 
-	x = CONVERT_PIXEL_TO_GLOBAL(x)+originxglobal;
-	y = CONVERT_PIXEL_TO_GLOBAL(y)+originyglobal;
-
-	x+=CK_CameraX;
-	y+=CK_CameraY;
-
-	RF_PlaceSprite(&VW_DummySprites[vw_sprcnt], x, y, chunknum, spritedraw, 1);
+	CK_SetSprite(&spr, type);
 	vw_sprcnt++;
+	if(vw_sprcnt >= 10) Quit("VWB_GetTempSprite : Too many sprites!");
+	return spr; 
+};
+
+extern const unsigned int CK_SpriteSizes[];
+extern const unsigned int *CK_SpritePtrs[];
+
+void VWB_DrawSprite(objsprite **spr, int x, int y, int chunknum){
+	objsprite *sprite = *spr;
+
+    sprite->spritenum = chunknum-1;
+
+    signed short *shape = CK_GetSprShape(sprite);
+
+    signed int dx = x;
+    signed int dy = y;
+
+	dx += shape[4];
+	dy += shape[5];
+
+    CK_UpdateSpriteGraphics(sprite);
+
+    uint32_t vidmem = sprite->gfxoffset;
+    for(int i = 0; i < sprite->gbaSpriteCount; i++){
+        signed int chkx = x + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
+        signed int chky = y + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];
+        if(chkx > -64 && chky > -64 && chkx < GBA_SCREEN_WIDTH && chky < GBA_SCREEN_HEIGHT){
+            int gfxtile = vidmem>>3;
+            int gba_prior = GBA_SPRITE_ZTOP;
+            if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
+            int spriteid = GBA_CreateSprite(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
+        }
+        vidmem += CK_SpriteSizes[sprite->sprsizes[i]];
+    }
+
 };

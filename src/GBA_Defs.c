@@ -177,6 +177,36 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 	return index;
 };
 
+// Function to create a new sprite in the list
+// returns index into sprite array
+GBA_SpriteIndex_t GBA_CreateSpriteFast(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer,int palette){
+	uint16_t size_bits = 0, shape_bits = 0;
+	uint16_t index = GBA_SpriteIndex; // Get the current index
+	uint16_t palflags = 0;
+	uint16_t i = 0;
+	
+	if(palette == -1){
+		palflags = GBA_SPRITE_256;
+		palette = 0;
+	}
+
+	// Set the sprite attributes
+	size_bits = size&0x3;//((int)size%4);
+	shape_bits = (size >> 2)&0x3;
+
+	++GBA_SpriteIndex; // Increment the index by one
+	if(GBA_SpriteIndex>127){
+		GBA_SpriteIndex = 127; // lock in place
+	}
+
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
+
+	return index;
+};
+
+
 void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette){
 	uint16_t size_bits = 0, shape_bits = 0;
 	uint16_t palflags = 0;

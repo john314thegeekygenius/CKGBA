@@ -271,6 +271,11 @@ USL_CheckSavedGames(void)
 ///////////////////////////////////////////////////////////////////////////
 
 void US_Setup(){
+	// Fix the ram if needed
+	SetupSRam();
+
+	GBA_InitRumble(); // Oooh!
+
 	WindowX = 0;
 	WindowY = 0;
 	USL_ReadConfig();               // Read config file
@@ -278,7 +283,6 @@ void US_Setup(){
 	// Hmmm
 	scorescreenkludge = false;
 };
-
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -686,6 +690,7 @@ bool irqcount = 0;
 extern unsigned char *PC_SoundPtr;
 extern unsigned int PC_SoundLen;
 extern unsigned int PC_SoundCount;
+extern unsigned short ck_rumbleticks;
 
 void GBA_UserIRQ(){
 	if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_TIMER2) == GBA_INT_TIMER2) {
@@ -726,6 +731,13 @@ void GBA_UserIRQ(){
 		}
 		if((++irqcount)&0x1){
 			TimeCount += 1;
+			// Handle rumble
+			if(ck_rumbleticks) {
+				if(ck_rumbleticks==1){
+					GBA_RumbleOff();
+				}
+				ck_rumbleticks--;
+			}
 		}
 
 		// Makes the user have to release the button???
@@ -745,6 +757,14 @@ void GBA_UserIRQ(){
 
 	}
 
+};
+
+
+// Custom function
+unsigned short ck_rumbleticks = 0;
+void CK_TimedRumble(unsigned short ticks){
+	ck_rumbleticks = ticks;
+	GBA_RumbleOn();
 };
 
 

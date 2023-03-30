@@ -109,7 +109,7 @@ DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     // Ummm... Will break if more than MAXACTORS are spawned... :S
     if(CK_NumOfObjects >= MAXACTORS-1){
         if (usedummy){
-            Quit("GetNewObj: Used Dummy Object!");
+//            Quit("GetNewObj: Used Dummy Object!");
             ck_newobj = &CK_ObjectList[MAXACTORS-1]; // Dummy obj stored at end of list???
             ck_newobj->removed = false;
             ck_newobj->sprite = NULL;

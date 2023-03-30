@@ -32,20 +32,20 @@ typedef unsigned char * FilePtr;
 
 unsigned char *GBA_PakRam = (unsigned char*)0x0E000000;
 unsigned char *GBA_StartFiles = (unsigned char*)0x0E000000 + (FILE_MAX_BLOCKS*6);
-unsigned char *GBA_EndOfSRAM = (unsigned char*)0x0E00FFFF;
+unsigned char *GBA_EndOfSRAM = (unsigned char*)0x0E000000 + SIZE_OF_SRAM;
 
 FileHandle openHandle(unsigned short identifier, FileIOType iotype, BlockSize size){
     unsigned char* file;
     struct F_Block_t tempblock, prevblock;
     FileHandle handleBlock;
 
-    tempblock.identifier = 0xFFFF;
+    tempblock.identifier = 0xFEFE;
     tempblock.block_size = 0;
     tempblock.block_loc = 0;
 
     if(iotype & FileIO_Read) {
         // Find the file
-        file = GBA_PakRam;
+        file = GBA_PakRam+3;
         handleBlock = 1; 
         while(handleBlock <= FILE_MAX_BLOCKS){
             tempblock.identifier = *(file++);
@@ -61,7 +61,7 @@ FileHandle openHandle(unsigned short identifier, FileIOType iotype, BlockSize si
                 }
             }
             // Skip the block size if it's a valid block
-            if(tempblock.identifier == 0xFFFF || file >= GBA_EndOfSRAM){
+            if(tempblock.identifier == 0xFEFE || file >= GBA_EndOfSRAM){
                 // Must be out of valid blocks???
                 return File_OpenFail;
             }
@@ -73,9 +73,9 @@ FileHandle openHandle(unsigned short identifier, FileIOType iotype, BlockSize si
 badfile:
     if(iotype & FileIO_Write) {
         // Write a new file if needed
-        file = GBA_PakRam;
+        file = GBA_PakRam+3;
 
-        handleBlock = 0;
+        handleBlock = 1;
         while(handleBlock < FILE_MAX_BLOCKS){
             prevblock = tempblock;
             tempblock.identifier = *(file++);
@@ -91,7 +91,7 @@ badfile:
                 }
             }
             // Skip the block size if it's a valid block
-            if(tempblock.identifier == 0xFFFF){
+            if(tempblock.identifier == 0xFEFE){
                 // Must be out of valid blocks???
                 if(file >= GBA_EndOfSRAM)
                     return File_OpenFail;
@@ -154,10 +154,22 @@ FileErrors writeHandle(FileHandle *handle, void *data, unsigned int size){
     return writesize;
 };
 
-void WipeSRam(){
+__attribute__((optimize("O0"))) void WipeSRam(){
     unsigned char* sram = (unsigned char*)GBA_PakRam;
-    for(int i = 0; i < 0xFFFF; i++){
-        *(sram++) = 0xFF;
+    *(sram++) = 'C';
+    *(sram++) = 'K';
+    *(sram++) = 'S';
+    for(int i = 3; i < SIZE_OF_SRAM; i++){
+        *(sram++) = 0xFE;
     }
+};
+
+
+__attribute__((optimize("O0")))  void SetupSRam(){
+    unsigned char* sram = (unsigned char*)GBA_PakRam;
+    if(*(sram++) == 'C') return;
+    if(*(sram++) == 'K') return;
+    if(*(sram++) == 'S') return;
+    WipeSRam();
 };
 

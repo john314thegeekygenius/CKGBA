@@ -108,6 +108,16 @@ void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) ;
 //void GBA_ASM_Memset32(uint32_t* dest, uint32_t* source, int amount);
 
 
+// GPIO Stuff
+
+#define GPIO_PORT_DATA      0x80000C4
+#define GPIO_PORT_DIRECTION 0x80000C6
+#define GPIO_PORT_CONTROL   0x80000C8
+
+void GBA_InitRumble();
+void GBA_RumbleOn();
+void GBA_RumbleOff();
+
 /////////// Interupts
 
 

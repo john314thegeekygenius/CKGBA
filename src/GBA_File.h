@@ -30,12 +30,15 @@ typedef enum {
 
 #define FILE_MAX_BLOCKS 16
 
+#define SIZE_OF_SRAM 0x7FFF
+
 FileHandle openHandle(unsigned short identifier, FileIOType iotype, BlockSize size);
 // Will return an error code, or size written
 FileErrors readHandle(FileHandle *handle, void *data, unsigned int size);
 FileErrors writeHandle(FileHandle *handle, void *data, unsigned int size);
 
-// Erases the entire SRAM with 0xFF
+// Erases the entire SRAM with 0xFE
 void WipeSRam();
+void SetupSRam();
 
 #endif

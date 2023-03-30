@@ -94,6 +94,19 @@ copyloop:
 		goto copyloop;	
 };
 
+void GBA_InitRumble(){
+    *(volatile unsigned short*)GPIO_PORT_DIRECTION = (1 << 3);
+    *(volatile unsigned short*)GPIO_PORT_CONTROL = 1;
+};
+
+void GBA_RumbleOn(){
+    *(volatile unsigned short*)GPIO_PORT_DATA |= (1 << 3);
+};
+
+void GBA_RumbleOff(){
+    *(volatile unsigned short*)GPIO_PORT_DATA &= ~(1 << 3);
+};
+
 
 GBA_Sprite GBA_SpriteList[GBA_NUM_SPRITES];
 uint16_t GBA_SpriteIndex = 0;

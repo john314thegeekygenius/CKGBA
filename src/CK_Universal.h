@@ -46,10 +46,12 @@ typedef enum {
 // GBA has a max of 64 KBytes in SRAM - 8bit Bus width
 
 typedef enum {
-	CKFB_CONFIG_S = 0x300, // bytes for the config file
-	CKFB_SLOT_S = 0x3000, // bytes for save file (12K)
+	CKFB_CONFIG_S = 0x240, // bytes for the config file
+	CKFB_SLOT_S = 0x1F00, // bytes for save file (~7K)
 } CK_FILE_BLOCKS_SIZES;
 
+
+void CK_TimedRumble(unsigned short ticks);
 
 // From ID_IN.C
 extern int LastScan;

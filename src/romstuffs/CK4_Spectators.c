@@ -656,6 +656,7 @@ void RescueJanitor(void)
 
 void CantSwim(void)
 {
+	CK_TimedRumble(15); // Rumble for 15 ticks
 	SD_WaitSoundDone();
 	US_CenterWindow(26, 8);
 	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);

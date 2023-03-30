@@ -89,6 +89,7 @@ typedef enum
 			uc_SHard,
 			// Added
 			uc_WipeRom,
+			uc_Saving,
 		} UComm;
 typedef enum
 		{
@@ -631,6 +632,12 @@ USL_ConfirmComm(UComm comm)
 	case uc_Loaded:
 		s1 = "YOU'RE IN A GAME";
 		s2 = "PRESS A TO LOAD GAME";
+		if (ingame && GameIsDirty)
+			dialog = true;
+		break;
+	case uc_Saving:
+		s1 = "OVERWRITE SAVE FILE?";
+		s2 = "PRESS A TO SAVE GAME";
 		if (ingame && GameIsDirty)
 			dialog = true;
 		break;
@@ -1321,13 +1328,14 @@ USL_DoSaveGame(UserItem *item)
 						true,MaxGameName,
 						CtlPanelW - 22);
 	if (!strlen(game->name))*/
-	ok = true;
-	_ck_strcpy(game->name,"SaveGame ");
-	game->name[9] = '1'+n;
-	game->name[10] = 0;
+	ok = USL_ConfirmComm(uc_Saving);
 
 	if (ok)
 	{
+		_ck_strcpy(game->name,"SaveGame ");
+		game->name[9] = '1'+n;
+		game->name[10] = 0;
+
 		USL_ShowLoadSave("Saving",game->name);
 
 		err = 0;
@@ -1771,8 +1779,10 @@ USL_DoItem(void)
 	UserItem                *item;
 
 	item = &topcard->items[topcard->cursor];
-	if (item->flags & ui_Disabled)
+	if (item->flags & ui_Disabled){
 		SD_PlaySound(NOWAYSND);
+		CK_TimedRumble(15); // Rumble for 15 ticks
+	}
 	else
 	{
 		switch (item->type)

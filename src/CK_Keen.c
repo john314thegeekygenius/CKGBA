@@ -406,6 +406,7 @@ boolean CheckEnterHouse(objtype *ob)
 			else
 			{
 				SD_PlaySound(SND_NOWAY);
+				CK_TimedRumble(15); // Rumble for 15 ticks
 				ob->state = &s_keenstand;
 				upheld = true;
 				return false;

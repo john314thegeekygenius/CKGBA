@@ -760,6 +760,8 @@ void InchContact(objtype *ob, objtype *hit)
 	ChangeState(ob, &s_footwait);
 	CK_RemakeSprite(&ob->sprite, CKS_FOOT);
 
+	CK_TimedRumble(30); // 30 ticks
+
 	//Note: It would make more sense to remove the remaining inchworm BEFORE
 	//spawning the smoke, just in case there are not enough free spots in the
 	//objarray to spawn the smoke. The game won't crash either way, though.

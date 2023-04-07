@@ -75,6 +75,11 @@ const statetype* CK_StateList[] = {
 	&s_mimstun2, &s_dopefish1, &s_dopefish2, &s_dopeattack, &s_dopeeat, &s_dopeburp1, &s_dopeburp2, &s_dopereturn, &s_dopefood, &s_keendopefood, &s_keendieslow, &s_bubble1, &s_bubble2, &s_bubble3, &s_bubble4, &s_schoolfish1, 
 	&s_schoolfish2, &s_pixie, &s_pixielook, &s_pixieshoot, &s_pixieshoot2, &s_pixiefire1, &s_pixiefire2, &s_pixiefire3, &s_pixiefire4, &s_mine, &s_mineboom1, &s_mineboom2, &s_lindsey1, &s_lindsey2, &s_lindsey3, &s_lindsey4, 
 	&s_dartthrower, &s_dart1, &s_dart2, &s_dartup1, &s_dartup2, &s_dartdown1, &s_dartdown2, &s_scuba, 
+	// Spectators
+	&s_keenswimslow1, &s_keenswimslow2, &s_keenswim1, &s_keenswim2,
+	&s_kbubble1, &s_kbubble2, &s_kbubble3, &s_kbubble4,
+	// These should never be saved??
+	&sc_deadstate, &sc_badstate,
 	nil // Needed for end of list
 };
 
@@ -132,7 +137,7 @@ const char l17n[] = "Well of Wishes";
 const char l18n[] = "Bean-with-Bacon\nMegarocket";
 
 
-
+// Lines cannot be more than 20 characters in length
 const char l0e[] = "Keen enters the\nShadowlands";
 const char l1e[] = "Keen makes a run for\nthe Border Village";
 const char l2e[] = "Keen slips into\nSlug Village";
@@ -145,12 +150,12 @@ const char l8e[] = "Keen grits his teeth\nand enters Sand Yego";
 const char l9e[] = "Keen disappears into\nMiragia";
 const char l10e[] = "Keen crawls into\nLifewater Oasis";
 const char l11e[] = "Keen backs into the\nPyramid of the Moons";
-const char l12e[] = "Keen move silently in\nthe Pyramid of Shadows";	// sic!
-const char l13e[] = "Keen reverently enters\nthe Pyramid of the\nGnosticene Ancients";
-const char l14e[] = "Keen hesitantly crosses\ninto the Pyramid of the\nForbidden";
+const char l12e[] = "Keen move silently\nin the Pyramid \nof Shadows";	// sic!
+const char l13e[] = "Keen reverently \nenters the Pyramid\nof the\nGnosticene Ancients";
+const char l14e[] = "Keen hesitantly\ncrosses into the\nPyramid of the\nForbidden";
 const char l15e[] = "Keen mucks along the\nIsle of Tar";
-const char l16e[] = "Keen blazes across the\nIsle of Fire";
-const char l17e[] = "Keen hopefully enters\nthe Well of Wishes";
+const char l16e[] = "Keen blazes across\nthe Isle of Fire";
+const char l17e[] = "Keen hopefully\nenters the\nWell of Wishes";
 const char l18e[] = "Keen launches\ninto the\nBean-with-Bacon\nMegarocket";
 
 const char *levelnames[GAMELEVELS] = {
@@ -558,15 +563,17 @@ void PrincessLindsey(void)
 */
 
 const char jantext1[] =
-	"Thanks for going to all\n"
-	"that trouble, but I'm\n"
-	"just the janitor for the\n"
+	"Thanks for going to\n"
+	"all that trouble,\n"
+	"but I'm just the \n"
+	"janitor for the\n"
 	"High Council.";
 
 const char jantext2[] =
 	"I tried to tell the\n"
-	"Shikadi that but they\n"
-	"just wouldn't listen...";
+	"Shikadi that but \n"
+	"they just wouldn't\n"
+	"listen...";
 
 const char keenjantext[] =
 	"This had better\n"
@@ -727,9 +734,9 @@ const char *keentext[] = {
 	,
 	"No problemo."
 	,
-	"Great.  You know, you\n"
+	"Great. You know, you\n"
 	"look a lot like the\n"
-	"last guy I rescued..."
+	"last guy I rescued.." // Should have 3 periods, but so it fits one is removed
 	,
 	"Good idea, Gramps."
 	,
@@ -761,9 +768,10 @@ void RescuedMember(void)
 	if (mapon == 17)
 	{
 		US_CPrint(
-			"Ggoh thig you sogh mg\n"
-			"fgor regscuing mgge!\n"
-			"I'gll regur tgo the\n"
+			"Ggoh thig you sogh\n"
+			"mg fgor regscuing\n"
+			"mgge! I'gll regur\n"
+			"tgo the\n"
 			"Goracle chagber\n"
 			"igmediatggely. Blub."
 			);

@@ -670,6 +670,7 @@ void DrawHighScores(void)
 {
 	CK_MoveCamera(0, 0);
 	CK_ForceLevelRedraw();
+	// TODO:
     /*
 	Uint16 i, n;
 	Uint16 width, height;
@@ -788,7 +789,7 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 */
 
 void ShowHighScores(void)
-{
+{	
 	scorescreenkludge = true;
 	IN_ClearKeysDown();
 	RunDemo(4);

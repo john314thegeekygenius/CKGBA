@@ -106,8 +106,8 @@ void CheckKeys(void){
 
 		// TODO:
 		// Remove this!
-		playstate = ex_completed;
-		gamestate.mapon = 3;
+//		playstate = ex_completed;
+//		gamestate.mapon = 3;
 	}
 
 //
@@ -230,17 +230,17 @@ void PrintNumbers(Sint16 x, Sint16 y, Sint16 maxlen, Sint16 basetile, Sint32 num
 ==================
 */
 
-#define BACKCOLOR LIGHTGRAY
+#define BACKCOLOR CK_EGA_GREY
 #define TEXTBACK WHITE
 #define NUMBERBACK BLACK
 
 void DrawStatusWindow(void)
-{/*
+{
 	Sint16 off, x, y, w, h, i;
 	Uint16 width, height;
-
-	x = 64;
-	y = 16;
+	Sint16 offx = -32, offy = -8;
+	x = 64+offx;
+	y = 16+offy;
 	w = 184;
 	h = 144;
 	VWB_DrawTile8(x, y, 54);
@@ -257,67 +257,69 @@ void DrawStatusWindow(void)
 		VWB_DrawTile8(x, i, 57);
 		VWB_DrawTile8(x+w, i, 59);
 	}
-	VWB_Bar(72, 24, 176, 136, BACKCOLOR);
+	VWB_Bar(72+offx, 24+offy, 176, 136, BACKCOLOR);
 
-	PrintY = 28;
-	WindowX = 80;
+	PrintY = 28+offy;
+	WindowX = 80+offx;
 	WindowW = 160;
 	US_CPrint("LOCATION");
-	VWB_Bar(79, 38, 162, 20, TEXTBACK);
+	VWB_Bar(80+offx, 38+offy, 162, 24, TEXTBACK);
+
+	char str[32];
 #ifdef KEEN5
 	if (mapon == 0 && player->y > 100*TILEGLOBAL)
-		_fstrcpy(str, levelnames[13]);
+		_ck_strcpy(str, levelnames[13]);
 	else
-		_fstrcpy(str, levelnames[gamestate.mapon]);
+		_ck_strcpy(str, levelnames[gamestate.mapon]);
 #else
-	_fstrcpy(str, levelnames[gamestate.mapon]);
+	_ck_strcpy(str, levelnames[gamestate.mapon]);
 #endif
 	SizeText(str, &width, &height);
-	PrintY = (20-height)/2+40-2;
+	PrintY = (20-height)/2+40-2+offy;
 	US_CPrint(str);
 
-	PrintY = 61;
-	WindowX = 80;
+	PrintY = 61+offy;
+	WindowX = 80+offx;
 	WindowW = 64;
-	US_CPrint("SCORE");
-	VWB_Bar(79, 71, 66, 10, NUMBERBACK);
-	PrintNumbers(80, 72, 8, 41, gamestate.score);
+	US_CPrint(" SCORE");
+	VWB_Bar(80+offx, 70+offy, 66, 10, NUMBERBACK);
+	PrintNumbers(80+offx, 70+offy, 8, 41, gamestate.score);
 
-	PrintY = 61;
-	WindowX = 176;
+	PrintY = 61+offy;
+	WindowX = 176+offx;
 	WindowW = 64;
 	US_CPrint("EXTRA");
-	VWB_Bar(175, 71, 66, 10, NUMBERBACK);
-	PrintNumbers(176, 72, 8, 41, gamestate.nextextra);
+	VWB_Bar(175+offx, 71+offy, 66, 10, NUMBERBACK);
+	PrintNumbers(175+offx, 71+offy, 8, 41, gamestate.nextextra);
 
 #if defined KEEN4
-	PrintY = 85;
-	WindowX = 80;
+	PrintY = 80+offy;
+	WindowX = 80+offx;
 	WindowW = 64;
-	US_CPrint("RESCUED");
-	VWB_Bar(79, 95, 66, 10, NUMBERBACK);
+	US_CPrint(" RESCUED");
+	VWB_Bar(80+offx, 95+offy, 66, 10, NUMBERBACK);
 	for (i = 0; i < gamestate.rescued; i++, off+=8)
 	{
-		VWB_DrawTile8(i*8 + 80, 96, 40);
+		VWB_DrawTile8(i*8 + 80+offx, 95+offy, 40);
 	}
 #elif defined KEEN5
-	PrintY = 92;
-	PrintX = 80;
+	PrintY = 92+offy;
+	PrintX = 80+offx;
 	US_Print("KEYCARD");
-	VWB_Bar(135, 91, 10, 10, NUMBERBACK);
+	VWB_Bar(135+offx, 91+offy, 10, 10, NUMBERBACK);
 	if (gamestate.keycard)
 	{
-		VWB_DrawTile8(136, 92, 40);
+		VWB_DrawTile8(136+offx, 92+offy, 40);
 	}
 #endif
 
-	PrintY = 85;
-	WindowX = 176;
+	PrintY = 85+offy;
+	WindowX = 176+offx;
 	WindowW = 64;
-	US_CPrint("LEVEL");
-	VWB_Bar(175, 95, 66, 10, TEXTBACK);
-	PrintY = 96;
-	WindowX = 176;
+	US_CPrint(" LEVEL");
+	VWB_Bar(178+offx, 95+offy, 66, 10, TEXTBACK);
+	PrintY = 90+offy;
+	WindowX = 176+offx;
 	WindowW = 64;
 	switch (gamestate.difficulty)
 	{
@@ -333,70 +335,70 @@ void DrawStatusWindow(void)
 	}
 
 #ifdef KEEN6
-	PrintX = 80;
-	PrintY = 96;
+	PrintX = 80+offx;
+	PrintY = 96+offy;
 	US_Print("ITEMS");
-	VWB_Bar(127, 95, 26, 10, NUMBERBACK);
+	VWB_Bar(127+offx, 95+offy, 26, 10, NUMBERBACK);
 	if (gamestate.sandwichstate == 1)
 	{
-		VWB_DrawTile8(128, 96, 2);
+		VWB_DrawTile8(128+offx, 96+offy, 2);
 	}
 	else
 	{
-		VWB_DrawTile8(128, 96, 1);
+		VWB_DrawTile8(128+offx, 96+offy, 1);
 	}
 	if (gamestate.hookstate == 1)
 	{
-		VWB_DrawTile8(136, 96, 4);
+		VWB_DrawTile8(136+offx, 96+offy, 4);
 	}
 	else
 	{
-		VWB_DrawTile8(136, 96, 3);
+		VWB_DrawTile8(136+offx, 96+offy, 3);
 	}
 	if (gamestate.passcardstate == 1)
 	{
-		VWB_DrawTile8(144, 96, 6);
+		VWB_DrawTile8(144+offx, 96+offy, 6);
 	}
 	else
 	{
-		VWB_DrawTile8(144, 96, 5);
+		VWB_DrawTile8(144+offx, 96+offy, 5);
 	}
 #endif
 
-	PrintX = 80;
-	PrintY = 112;
+	PrintX = 80+offx;
+	PrintY = 110+offy;
 	US_Print("KEYS");
-	VWB_Bar(119, 111, 34, 10, NUMBERBACK);
+	VWB_Bar(120+offx, 108+offy, 34, 10, NUMBERBACK);
 	for (i = 0; i < 4; i++)
 	{
 		if (gamestate.keys[i])
 		{
-			VWB_DrawTile8(i*8+120, 112, 36+i);
+			VWB_DrawTile8(i*8+120+offx, 108+offy, 36+i);
 		}
 	}
 
-	PrintX = 176;
-	PrintY = 112;
+	PrintX = 176+offx;
+	PrintY = 112+offy;
 	US_Print("AMMO");
-	VWB_Bar(215, 111, 26, 10, NUMBERBACK);
-	PrintNumbers(216, 112, 3, 41, gamestate.ammo);
+	VWB_Bar(216+offx, 112+offy, 26, 10, NUMBERBACK);
+	PrintNumbers(216+offx, 112+offy, 3, 41, gamestate.ammo);
 
-	PrintX = 80;
-	PrintY = 128;
+	PrintX = 80+offx;
+	PrintY = 128+offy;
 	US_Print("KEENS");
-	VWB_Bar(127, 127, 18, 10, NUMBERBACK);
-	PrintNumbers(128, 128, 2, 41, gamestate.lives);
+	VWB_Bar(128+offx, 128+offy, 18, 10, NUMBERBACK);
+	PrintNumbers(128+offx, 128+offy, 2, 41, gamestate.lives);
 
-	PrintX = 176;
-	PrintY = 128;
+	PrintX = 176+offx;
+	PrintY = 128+offy;
 	US_Print(DROPSNAME);
-	VWB_Bar(224, 127, 16, 10, NUMBERBACK);
-	PrintNumbers(224, 128, 2, 41, gamestate.drops);
+	VWB_Bar(224+offx, 128+offy, 16, 10, NUMBERBACK);
+	PrintNumbers(224+offx, 128+offy, 2, 41, gamestate.drops);
 
 #ifdef KEEN4
-	VWB_Bar(79, 143, 66, 10, TEXTBACK);
-	PrintY = 144;
-	WindowX = 80;
+	VWB_Bar(80+offx, 144+offy, 66, 10, TEXTBACK);
+	PrintY = 144+offy;
+	WindowX = 80+offx;
 	WindowW = 64;
 	if (gamestate.wetsuit)
 	{
@@ -411,9 +413,9 @@ void DrawStatusWindow(void)
 	// draw the tiles for "PRESS A KEY":
 	for (i = 0; i < 10; i++)
 	{
-		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X, 140, i+72);
-		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X, 148, i+82);
-	}*/
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 140+offy, i+72);
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 148+offy, i+82);
+	}
 }
 
 /*
@@ -490,11 +492,9 @@ void ScrollStatusWindow(void)
 
 void StatusWindow(void)
 {
-	// TODO:
-	// Draw it like CGA mode???
-	/*
-#if GRMODE == CGAGR
-
+	// Draw it like CGA mode
+//#if GRMODE == CGAGR
+/*
 	if (Keyboard[sc_A] && Keyboard[sc_2])
 	{
 		US_CenterWindow(20, 2);
@@ -504,18 +504,25 @@ void StatusWindow(void)
 		IN_Ack();
 		debugok = true;
 	}
+*/
+	// Fix the scroll offsets
+	VW_FixGraphics();
+	// Hide all the sprites
+	GBA_HideSprites();
+	// Fix the scroll
+	CK_SnapScroll();
 
 	WindowX = 0;
-	WindowW = 320;
+	WindowW = 240;
 	WindowY = 0;
-	WindowH = 200;
+	WindowH = 160;
 	DrawStatusWindow();
 	VW_UpdateScreen();
 	IN_ClearKeysDown();
 	IN_Ack();
 
-#else
-
+//#else
+#ifdef STATIS_SCROL
 	Uint16 oldbufferofs;
 
 	WindowX = 0;

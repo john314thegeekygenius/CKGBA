@@ -225,6 +225,13 @@ void CK_RemakeSprite(objsprite **spr, CK_SpriteType type){
     CK_SetSprite(spr, type);
 };
 
+void CK_SetSpriteGfx(objsprite **spr, CK_SpriteType type){
+    if(!spr || !(*spr)) return;
+    // Make sure to fake the last sprite type
+    (*spr)->ck_prevType = type;
+    // Reset the sprite
+    CK_SetSprite(spr, type);
+};
 
 void CK_UpdateSpriteGraphics(objsprite *sprite){
     if(!sprite) return;

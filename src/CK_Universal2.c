@@ -300,7 +300,9 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{DefRButton(0,"GB PALETTE")},
 		{DefRButton(0,"BRIGHT PALETTE")},
 		{DefRButton(0,"C64 PALETTE")},
+#ifdef CK_DYNAMIC_PAL
 		{DefRButton(0,"DYNAMIC PALETTE")},
+#endif
 		{uii_Bad}
 	};
 	UserItemGroup  videogroup = {8,8,CP_VIDEOMOVEMENTPIC,0,videoi,USL_VideoCustom};
@@ -516,10 +518,10 @@ USL_DialogSetup(word w,word h,word *x,word *y)
 	*x = CtlPanelSX + ((CtlPanelW - w) / 2);
 	*y = CtlPanelSY + ((CtlPanelH - h) / 2);
 	VWB_Bar(*x,*y,w + 1,h + 1, BackColor);
-	VWB_Hlin2(*x - 1,*x + w + 1,*y - 1,NohiliteColor);
-	VWB_Hlin2(*x - 1,*x + w + 1,*y + h + 1,NohiliteColor);
-	VWB_Vlin2(*y - 1,*y + h + 1,*x - 1,NohiliteColor);
-	VWB_Vlin2(*y - 1,*y + h + 1,*x + w + 1,NohiliteColor);
+	VWB_Hlin2(*x - 6,*x + w - 5,*y - 8,NohiliteColor);
+	VWB_Hlin2(*x - 6,*x + w - 5,*y + h - 7,NohiliteColor);
+	VWB_Vlin2(*y - 8,*y + h - 7,*x - 6,NohiliteColor);
+	VWB_Vlin2(*y - 8,*y + h - 7,*x + w - 5,NohiliteColor);
 }
 
 static void
@@ -535,9 +537,9 @@ USL_ShowLoadSave(char *s,char *name)
 	strcat(msg,"'");
 	USL_MeasureString(s,&sw,&h);
 	USL_MeasureString(msg,&w,&h);
-	tw = ((sw > w)? sw : w) + 6;
-	USL_DialogSetup(tw,(h * 2) + 2,&x,&y);
-	PrintY = y + 2;
+	tw = ((sw > w)? sw : w) + 8;
+	USL_DialogSetup(tw,(h * 2) + 10,&x,&y);
+	PrintY = y ;
 	PrintX = x + ((tw - sw) / 2);
 	USL_DrawString(s);
 	PrintY += h;
@@ -579,7 +581,7 @@ USL_CtlDialog(char *s1,char *s2,char *s3)
 	USL_DrawString(s1);
 	PrintY += (sh * 2) - 1;
 
-	VWB_Hlin(x + 3,x + w - 3,PrintY,NohiliteColor);
+	VWB_Hlin(x,x + w - 9,PrintY-3,NohiliteColor);
 	PrintY += 2;
 
 	fontcolor = NohiliteColor;
@@ -729,6 +731,12 @@ USL_SetOptionsText(void)
 	configi[6].text = GravisGamepad? "USE GRAVIS GAMEPAD (ON)" : "USE GRAVIS GAMEPAD (OFF)";
 */}
 
+const char * scoreboxdialogs[] = {
+	"Score box off",
+	"Score box on",
+	"Score box gba"
+};
+
 #pragma argsused
 static boolean
 USL_ScoreCustom(UserCall call,UserItem *item)
@@ -737,10 +745,25 @@ USL_ScoreCustom(UserCall call,UserItem *item)
 		return(false);
 
 	showscorebox ++;
-	showscorebox &= 3;
-	USL_CtlDialog(showscorebox? (showscorebox==2? "Score box gba":"Score box now on") : "Score box now off",
-					"Press any key",nil);
+	showscorebox %= 3;
+	USL_CtlDialog(scoreboxdialogs[showscorebox], "Press any key",nil);
 
+	// Fix the scorebox sprite
+	if (!DemoMode)
+	{
+		if(scoreobj->sprite){
+			switch(showscorebox){
+				default:
+				case CK_DISP_SCORE_DOS:
+					CK_SetSpriteGfx(&scoreobj->sprite, CKS_SCOREBOXDOS);
+					break;
+				case CK_DISP_SCORE_GBA:
+					CK_SetSpriteGfx(&scoreobj->sprite, CKS_SCOREBOXGBA);
+					break;
+			}
+		}
+	}
+	
 	USL_SetOptionsText();
 	return(true);
 }
@@ -1909,6 +1932,7 @@ USL_HandleComm(UComm comm)
 	switch (comm)
 	{
 	case uc_Loaded:
+	case uc_Saving:
 	case uc_Return:
 	case uc_WipeRom:
 		break;

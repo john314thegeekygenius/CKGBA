@@ -46,6 +46,8 @@
 #define STARWARSMUSIC	12
 #define ENDINGMUSIC	7
 
+#define STATUS_PRESSKEY_X 160
+
 // levels in this range can NOT be re-entered (BWB level should be > MAXDONELEVEL)
 #define MINDONELEVEL 1
 #define MAXDONELEVEL 17

@@ -668,6 +668,8 @@ void RunDemo(Sint16 num)
 
 void DrawHighScores(void)
 {
+	CK_MoveCamera(0, 0);
+	CK_ForceLevelRedraw();
     /*
 	Uint16 i, n;
 	Uint16 width, height;

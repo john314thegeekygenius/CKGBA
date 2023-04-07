@@ -84,13 +84,20 @@ void SpawnScore(void)
 	}
 	else if (!DemoMode)
 	{
+		// This should make the scorebox the largest version of the
+		// scorebox so that the same sprite memory can be used for all
+		// scorebox types
+		NewState(scoreobj, &s_score, CKS_SCOREBOXGBA); // GBA is the largest
+
+		// Now reset the type of scorebox to actually display
 		switch(showscorebox){
 			default:
 			case CK_DISP_SCORE_DOS:
-				NewState(scoreobj, &s_score, CKS_SCOREBOXDOS);
+				CK_SetSpriteGfx(&scoreobj->sprite, CKS_SCOREBOXDOS);
 				break;
+				// Unused since already a GBA one
+				// Needed so the default case doesn't grab it
 			case CK_DISP_SCORE_GBA:
-				NewState(scoreobj, &s_score, CKS_SCOREBOXGBA);
 				break;
 		}
 	}
@@ -157,8 +164,9 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
-	if (!showscorebox)
+	if (!showscorebox){
 		return;
+	}
 
 	// MOVED FROM BOTTOM OF FUNCTION
 	/*

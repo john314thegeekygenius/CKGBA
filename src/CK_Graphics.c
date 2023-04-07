@@ -56,6 +56,7 @@ extern const unsigned short CK_DYNAMIC_PALS[];
 extern boolean 				CtlPanelDone;
 
 void CK_FixPalette(){
+#ifdef CK_DYNAMIC_PAL
 	if(CK_PaletteSet == 5){
 		unsigned short dynamicIndex = 0;
 		// Handle the dynamic palette
@@ -77,6 +78,7 @@ void CK_FixPalette(){
 		}
 		return;
 	}
+#endif
 	// Copy the palette
 	for(int i = 0; i < 16; i++){
 		GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16),16);

@@ -35,6 +35,8 @@ void CK_SetSprite(objsprite **spr, CK_SpriteType type);
 
 void CK_RemakeSprite(objsprite **spr, CK_SpriteType type);
 
+void CK_SetSpriteGfx(objsprite **spr, CK_SpriteType type);
+
 void CK_UpdateSpriteGraphics(objsprite *spr);
 
 signed short *CK_GetSprShape(objsprite *obj);

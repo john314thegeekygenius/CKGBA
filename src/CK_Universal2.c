@@ -688,7 +688,8 @@ USL_HandleError(int num)
 	else if (num == ENOMEM)
 		strcat(buf,"Disk is Full");
 	else if (num == EINVFMT)
-		strcat(buf,"File is Incomplete");
+		strcat(buf,"Save file corrupt");
+//		strcat(buf,"File is Incomplete");
 
 	USL_CtlDialog(buf,"PRESS ANY KEY",nil);
 

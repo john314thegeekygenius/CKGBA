@@ -37,7 +37,7 @@ typedef enum {
 	CKF_SLOT1 = 0xAA01,
 	CKF_SLOT2 = 0xAA02,
 	CKF_SLOT3 = 0xAA03,
-	CKF_SLOT4 = 0xAA04,
+//	CKF_SLOT4 = 0xAA04,
 //	CKF_SLOT5 = 0xAA05,
 //	CKF_SLOT6 = 0xAA06,
 } CK_FILE_BLOCKS;
@@ -47,7 +47,7 @@ typedef enum {
 
 typedef enum {
 	CKFB_CONFIG_S = 0x240, // bytes for the config file
-	CKFB_SLOT_S = 0x1F00, // bytes for save file (~7K)
+	CKFB_SLOT_S = 0x5432, // bytes for save file (~21K)
 } CK_FILE_BLOCKS_SIZES;
 
 
@@ -81,7 +81,7 @@ typedef	struct
 		} HighScore;
 
 #define	MaxGameName		16
-#define	MaxSaveGames	4
+#define	MaxSaveGames	3
 typedef	struct
 		{
 			char	signature[4]; // 4

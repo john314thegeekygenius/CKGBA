@@ -77,7 +77,7 @@ boolean         NoWait,
 
 const unsigned short ck_file_slots[] = {
 	CKF_SLOT1, CKF_SLOT2, CKF_SLOT3, 
-	CKF_SLOT4,// CKF_SLOT5, CKF_SLOT6, 
+	//CKF_SLOT4,// CKF_SLOT5, CKF_SLOT6, 
 };
 
 SaveGame        Games[MaxSaveGames];

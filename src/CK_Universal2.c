@@ -227,14 +227,14 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{uii_Button,ui_Normal,0},
 		{uii_Button,ui_Normal,0},
 		{uii_Button,ui_Normal,0},
-		{uii_Button,ui_Normal,0},
+//		{uii_Button,ui_Normal,0},
 //		{uii_Button,ui_Normal,0},
 //		{uii_Button,ui_Normal,0},
 #endif
 		{uii_Bad}
 	};
-	UserItemGroup   loadgamegroup = {4,0,CP_LOADMENUPIC,0,loadsavegamei,USL_LoadCustom};
-	UserItemGroup   savegamegroup = {4,0,CP_SAVEMENUPIC,0,loadsavegamei,USL_SaveCustom};
+	UserItemGroup   loadgamegroup = {4,8,CP_LOADMENUPIC,0,loadsavegamei,USL_LoadCustom};
+	UserItemGroup   savegamegroup = {4,8,CP_SAVEMENUPIC,0,loadsavegamei,USL_SaveCustom};
 
 	// Options menu
 	UserItemGroup   scoregroup = {0,0,0,0,0,USL_ScoreCustom};
@@ -662,8 +662,10 @@ USL_ConfirmComm(UComm comm)
 	confirm = dialog? USL_CtlDialog(s1,s2,s3) : true;
 	if (confirm)
 	{
-		Communication = comm;
-		CtlPanelDone = true;
+		if(comm!=uc_Saving){
+			Communication = comm;
+			CtlPanelDone = true;
+		}
 	}
 	return(confirm);
 }

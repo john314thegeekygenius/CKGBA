@@ -128,6 +128,8 @@ void VW_FixGraphics();
 void VW_ClearVideo(unsigned int color);
 void VW_ClearScroll();
 void RF_FixOfs(int x, int y);
+void RF_RestoreOfs();
+
 void VWB_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c);
 void VWB_DrawTile8M(unsigned int x, unsigned int y, unsigned short tile);
 void VWB_DrawPic (int x, int y, int chunknum);

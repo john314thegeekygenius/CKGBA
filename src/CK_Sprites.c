@@ -541,6 +541,8 @@ void RF_RemoveSprite (void **user, bool cache){
 
 void RF_ForceRefresh (void)
 {
+    // TODO:
+    // Make this actually snap to keens location
 	CK_MoveCamera (originxglobal,originyglobal);
 	CK_FixCamera();
 	CK_ForceLevelRedraw();

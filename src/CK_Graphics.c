@@ -220,7 +220,12 @@ void VW_ClearScroll(){
 	*(volatile uint16_t*)GBA_REG_BG2VOFS = 0;
 };
 
+int rf_oldoffx = 0;
+int rf_oldoffy = 0;
+
 void RF_SetOfs(int x, int y){
+	rf_oldoffx = x;
+	rf_oldoffy = y;
 	*(volatile uint16_t*)GBA_REG_BG0HOFS = x;
 	*(volatile uint16_t*)GBA_REG_BG0VOFS = y;
 
@@ -239,6 +244,10 @@ void RF_FixOfs(int x, int y){
 	CK_CameraY = y;
 
 	RF_SetOfs(x,y);
+};
+
+void RF_RestoreOfs(){
+	RF_SetOfs(rf_oldoffx,rf_oldoffy);
 };
 
 extern const unsigned char TIL_8_UNMASKED[];

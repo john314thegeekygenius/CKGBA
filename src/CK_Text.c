@@ -23,24 +23,43 @@
 #include "CK_Heads.h"
 
 
-/*
-=================
-=
-= HelpScreens
-=
-=================
-*/
-void HelpScreens(void)
-{
-	// TODO:
+// CK Font stuffs
+extern const unsigned char CK_FONT[];
+extern const unsigned int CK_FONT_size;
+
+#define CK_TXTCOL(c) ( c | c<<4 | c<<8 | c<<12 | c<<16 | c<<20 | c<<24)
+
+uint16_t CK_PrintY = 0;
+uint16_t CK_PrintX = 0;
+uint32_t CK_PrintC = CK_TXTCOL(1);
+
+
+volatile uint16_t *HELPMAP_0 = (volatile uint16_t*)GBA_SCREEN_BLOCK(30);
+volatile uint16_t *HELPMAP_1 = (volatile uint16_t*)GBA_SCREEN_BLOCK(31);
+
+#define HELPMAP_BLOCK_0 0x00
+#define HELPMAP_BLOCK_1 0x08
+
+#define HELPMAP_MAP_0 0x1E00
+#define HELPMAP_MAP_1 0x1F00
+
+
+void CK_BlitCharHelp(char c, uint16_t x, uint16_t y, uint32_t col){
+	uint32_t *vidmem = (uint32_t*)GBA_VRAM2+(y<<8)+(x<<3);
+	for(int i = 0; i < 8; i++){
+		*vidmem = *((uint32_t*)CK_FONT+i+(c*8)) & col;//(27*16);//(c*8*4)+(y*8);
+		vidmem++;
+	}
 };
 
-
-void FinaleLayout(void){
-    // TODO:
+void CK_Print(char*pstr){
+	while(*pstr!='\0'){
+		CK_BlitCharHelp(*pstr,CK_PrintX,CK_PrintY,CK_PrintC);
+		++CK_PrintX;
+		++pstr;
+	}
 };
 
-/*
 
 #include "romstuffs/TXT/CK_TxtDefs.h"
 
@@ -110,8 +129,8 @@ uint32_t lastButton = 0;
 void CK_DrawHelpBorder(){
 	// Set the map up
 	for(int i = 0; i < 32*32; i++){
-		*(uint16_t*)(TILEMAP_0+i) = 0;
-		*(uint16_t*)(TILEMAP_1+i) = i;
+		*(uint16_t*)(HELPMAP_0+i) = 0;
+		*(uint16_t*)(HELPMAP_1+i) = i;
 	}
 
 	// Remove all foreground elements
@@ -121,18 +140,18 @@ void CK_DrawHelpBorder(){
 	GBA_DMA_MemSet32(vram, (uint32_t*)0, 32*20*8);	
 
 	for(int i = 0; i < 30; i++){
-		*(uint16_t*)(TILEMAP_0+i) = 0x5; // Top
-		*(uint16_t*)(TILEMAP_0+i+(32*19)) = 0xB; // Bottom
+		*(uint16_t*)(HELPMAP_0+i) = 0x5; // Top
+		*(uint16_t*)(HELPMAP_0+i+(32*19)) = 0xB; // Bottom
 	}
 	for(int i = 0; i < 20; i++){
-		*(uint16_t*)(TILEMAP_0+(i*32)) = 0x7; // Left
-		*(uint16_t*)(TILEMAP_0+(i*32)+(29)) = 0x9; // Right
+		*(uint16_t*)(HELPMAP_0+(i*32)) = 0x7; // Left
+		*(uint16_t*)(HELPMAP_0+(i*32)+(29)) = 0x9; // Right
 	}
 	// Draw the corners
-	*(uint16_t*)(TILEMAP_0) = 0x4;
-	*(uint16_t*)(TILEMAP_0+29) = 0x6;
-	*(uint16_t*)(TILEMAP_0+(32*19)) = 0x8;
-	*(uint16_t*)(TILEMAP_0+(32*19)+29) = 0xA;
+	*(uint16_t*)(HELPMAP_0) = 0x4;
+	*(uint16_t*)(HELPMAP_0+29) = 0x6;
+	*(uint16_t*)(HELPMAP_0+(32*19)) = 0x8;
+	*(uint16_t*)(HELPMAP_0+(32*19)+29) = 0xA;
 };
 
 void CK_DrawHelpMenu(){
@@ -143,13 +162,13 @@ void CK_DrawHelpMenu(){
 	// Draw the menu
 	for(int e = 0; e < CK_BMP0006_height>>3; e++){
 		for(int i = 0; i < CK_BMP0006_width>>2; i++){
-			*(uint16_t*)(TILEMAP_0+i+7+(e<<5)) = 0x6C+i+(e*(CK_BMP0006_width>>2));
+			*(uint16_t*)(HELPMAP_0+i+7+(e<<5)) = 0x6C+i+(e*(CK_BMP0006_width>>2));
 		}
 	}
 	// Draw help controls
 	for(int i = 0; i < 26; i++){
-		*(uint16_t*)(TILEMAP_0+i+(18*32)+2) = 0x30+i;
-		*(uint16_t*)(TILEMAP_0+i+(19*32)+2) = 0x30+i+26;
+		*(uint16_t*)(HELPMAP_0+i+(18*32)+2) = 0x30+i;
+		*(uint16_t*)(HELPMAP_0+i+(19*32)+2) = 0x30+i+26;
 	}
 
 	CK_UpdateHelpCursor = true;
@@ -166,11 +185,19 @@ void CK_SetupHelp(){
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0045, CK_BMP0045_size>>2);
 	vram += (CK_BMP0045_size>>2);
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_FONT, CK_FONT_size>>2);
-	
-	CK_DrawHelpMenu();
 
 	CK_MenuOn = 0;
 	CK_PageOn = 0;
+
+	CK_HelpLY = 0;
+	CK_HelpY = 0;
+
+	CK_UpdateHelpCursor = true;
+	lastButton = 0;
+
+
+	CK_DrawHelpMenu();
+
 };
 
 void CK_PrintPage(unsigned int menuid, unsigned int pageid){
@@ -215,12 +242,12 @@ void CK_PrintPage(unsigned int menuid, unsigned int pageid){
 	// Handle other pages
 	for(int e = 0; e < CK_TXT_HEIGHT; e++){
 		for(int i = 0; i < CK_TXT_WIDTH; i++){
-			CK_BlitChar(CK_PageText[(e*28)+i], i+1, e+1, CK_PageColor[(e*28)+i]);
+			CK_BlitCharHelp(CK_PageText[(e*28)+i], i+1, e+1, CK_PageColor[(e*28)+i]);
 		}
 	}
 };
 
-void CK_RunHelp(){
+int CK_RunHelp(){
 	if(CK_MenuOn == 0){
 
 		if(CK_UpdateHelpCursor){
@@ -275,7 +302,14 @@ void CK_RunHelp(){
 				CK_PrintPage(CK_MenuOn, CK_PageOn);
 			}
 		}
-
+		if(GBA_TEST_BUTTONS(GBA_BUTTON_B)){
+			lastButton = GBA_BUTTON_B;
+		}else{
+			if(lastButton == GBA_BUTTON_B){
+				lastButton = 0;
+				return 1;
+			}
+		}
 	}else{
 
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_B)){
@@ -321,7 +355,39 @@ void CK_RunHelp(){
 
 	}
 
-
+	return 0;
 };
 
+/*
+=================
+=
+= HelpScreens
+=
+=================
 */
+void HelpScreens(void)
+{
+	SD_MusicOff();
+	// Fix the GBA backgrounds
+	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | HELPMAP_MAP_0 | HELPMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
+	GBA_FINISH_BG1_4BIT(GBA_BG_MID | HELPMAP_MAP_1 | HELPMAP_BLOCK_1 | GBA_BG_SIZE_32x32);
+	// Remove the second background
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
+
+	CK_SetupHelp();
+	// Fix the scroll offsets
+	VW_ClearScroll();
+	// Hide all the sprites
+	GBA_HideSprites();
+
+	while(!CK_RunHelp()){};
+	// Fix the graphics
+	CA_FixGraphics();
+
+	RF_RestoreOfs();
+};
+
+
+void FinaleLayout(void){
+    // TODO:
+};

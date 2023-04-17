@@ -754,7 +754,7 @@ USL_ScoreCustom(UserCall call,UserItem *item)
 	// Fix the scorebox sprite
 	if (!DemoMode)
 	{
-		if(scoreobj->sprite){
+		if(scoreobj && scoreobj->sprite){
 			switch(showscorebox){
 				default:
 				case CK_DISP_SCORE_DOS:

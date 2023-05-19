@@ -276,6 +276,21 @@ void CK_ScrollCamera(signed int x, signed int y ){
     RFL_BoundScroll(x,y);
 };
 
+void CK_ResetCamera(){
+    CK_GlobalCameraX = 0;
+    CK_GlobalCameraY = 0;
+
+    CK_GlobalCameraLX = 0;
+    CK_GlobalCameraLY = 0;
+
+    CK_CameraX = 0;
+    CK_CameraY = 0;
+
+    CK_CameraBlockX = 0;
+    CK_CameraBlockY = 0;
+    CK_CameraMoved = false;
+};
+
 #define UMTILESET_WIDTH_VALD (UMTILESET_WIDTH_VAL<<1)
 #define MTILESET_WIDTH_VALD (MTILESET_WIDTH_VAL<<1)
 

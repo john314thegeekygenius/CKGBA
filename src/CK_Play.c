@@ -1019,13 +1019,13 @@ void ScrollScreen_Custom(objtype *ob)
 
 	xscroll=yscroll=0;
 
-	if (ob->left < originxglobal + 7*TILEGLOBAL)
+	if (ob->left < originxglobal - 128 + 8*TILEGLOBAL)
 	{
-		xscroll = ob->left - (originxglobal + 7*TILEGLOBAL);
+		xscroll = ob->left - (originxglobal - 128 + 8*TILEGLOBAL);
 	}
-	else if (ob->right > originxglobal + 11*TILEGLOBAL)
+	else if (ob->right > originxglobal + 128 + (9*TILEGLOBAL))
 	{
-		xscroll = ob->right + 16 - (originxglobal + 11*TILEGLOBAL);
+		xscroll = ob->right + 16 - (originxglobal + 128 + (9*TILEGLOBAL));
 	}
 	else
 	{
@@ -1343,7 +1343,12 @@ void PlayLoop(void)
 	playstate = ex_stillplaying;
 	invincible = keenkilled = oldfirecount = 0;
 
+	CK_ResetCamera();
+
 	CenterActor(player);
+	// Hmm....
+	if(gamestate.mapon != 0)
+		ScrollScreen_Custom(player);
 
 	if (DemoMode)
 	{

@@ -692,7 +692,7 @@ void KeenLookDownThink(objtype *ob)
 		if (CK_TileInfo[1][WESTWALL+tile] || CK_TileInfo[1][EASTWALL+tile] || CK_TileInfo[1][SOUTHWALL+tile])
 			return;				// wall prevents drop down
 
-		ymove = _ck_max(4, tics) * PIXGLOBAL;
+		ymove = 4* PIXGLOBAL;//_ck_max(4, tics) * PIXGLOBAL;
 		if (gamestate.riding)
 			ymove += gamestate.riding->ymove;
 		ob->bottom += ymove;

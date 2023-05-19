@@ -119,6 +119,8 @@ void CK_UpdateLevel();
 
 void CK_SnapScroll();
 
+void CK_ResetCamera();
+
 //==========================================================================
 
 void ScanInfoPlane(void);

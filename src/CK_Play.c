@@ -70,6 +70,7 @@ boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld
 Sint16 oldfirecount;
 
 Uint16 centerlevel;
+Sint16 scrollcount;
 
 Sint16 inactivateleft;
 Sint16 inactivateright;
@@ -824,10 +825,9 @@ void ScrollScreen(objtype *ob)
 	{
 		xscroll = ob->x - (originxglobal + 9*TILEGLOBAL); // 12
 	}
-
 	if (ob->state == &s_keenlookup2)
 	{
-		if (centerlevel+tics > 167)
+		if (centerlevel+tics > 167) // CK_HALF_SCREENY
 		{
 			pix = 167-centerlevel;
 		}
@@ -865,7 +865,9 @@ void ScrollScreen(objtype *ob)
 	}
 	else
 #endif
-	centerlevel = 0;
+	// Allows for keen to look up/down
+	// makes scrolling slow
+	//centerlevel = 0;
 	if ( (ob->hitnorth || !ob->needtoclip || ob->state == &s_keenholdon))
 	{
 		if (  ob->state != &s_keenclimbup
@@ -931,6 +933,166 @@ void ScrollScreen(objtype *ob)
 	if (pix > 0)
 	{
 		yscroll += pix;
+	}
+
+	if (xscroll == 0 && yscroll == 0)
+		return;
+
+//
+// don't scroll more than one tile per frame
+//
+	if (xscroll >= 0x100)
+	{
+		xscroll = 0xFF;
+	}
+	else if (xscroll <= -0x100)
+	{
+		xscroll = -0xFF;
+	}
+	if (yscroll >= 0x100)
+	{
+		yscroll = 0xFF;
+	}
+	else if (yscroll <= -0x100)
+	{
+		yscroll = -0xFF;
+	}
+
+	CK_ScrollCamera(xscroll, yscroll);
+
+//
+// update limits for onscreen and inactivate checks
+//
+	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
+	originytilemax = (originytile + PORTTILESHIGH) - 1;
+	inactivateleft = originxtile - INACTIVATEDIST;
+	if (inactivateleft < 0)
+	{
+		inactivateleft = 0;
+	}
+	inactivateright = originxtilemax + INACTIVATEDIST;
+	if (inactivateright < 0)
+	{
+		inactivateright = 0;
+	}
+	inactivatetop = originytile - INACTIVATEDIST;
+	if (inactivatetop < 0)
+	{
+		inactivatetop = 0;
+	}
+	inactivatebottom = originytilemax + INACTIVATEDIST;
+	if (inactivatebottom < 0)
+	{
+		inactivatebottom = 0;
+	}
+}
+
+
+void ScrollScreen_Custom(objtype *ob)
+{
+	Sint16 xscroll, yscroll, pix, speed;
+	Uint16 bottom;
+
+	if (keenkilled)
+		return;
+
+//
+// walked off edge of map?
+//
+	if (ob->left < originxmin || ob->right > originxmax + GBA_SCREEN_WIDTH*PIXGLOBAL)
+	{
+		playstate = ex_completed;
+		return;
+	}
+
+//
+// fallen off bottom of world?
+//
+	if (ob->bottom > originymax + 13*TILEGLOBAL)
+	{
+		ob->y -= ob->bottom - (originymax + 13*TILEGLOBAL);
+		SD_PlaySound(SND_PLUMMET);
+		godmode = false;
+		KillKeen();
+		return;
+	}
+
+	xscroll=yscroll=0;
+
+	if (ob->left < originxglobal + 7*TILEGLOBAL)
+	{
+		xscroll = ob->left - (originxglobal + 7*TILEGLOBAL);
+	}
+	else if (ob->right > originxglobal + 11*TILEGLOBAL)
+	{
+		xscroll = ob->right + 16 - (originxglobal + 11*TILEGLOBAL);
+	}
+	else
+	{
+		xscroll = 0;
+	}
+
+	if (ob->top < originyglobal + 4*TILEGLOBAL)
+	{
+		yscroll = ob->top - (originyglobal + 4*TILEGLOBAL);
+	}
+	else if (ob->bottom > originyglobal + 6*TILEGLOBAL)
+	{
+		yscroll = ob->bottom - (originyglobal + 6*TILEGLOBAL);
+	}
+	else
+	{
+		yscroll = 0;
+	}
+
+	if (ob->state == &s_keenlookup2)
+	{
+		scrollcount++;
+		if(scrollcount > 16){
+			pix = scrollcount-16;
+		}
+		if(scrollcount > 48){
+			pix = 32;
+		}
+		yscroll -= CONVERT_PIXEL_TO_GLOBAL(pix)*3;
+	}
+	else if (ob->state == &s_keenlookdown3)
+	{
+		scrollcount++;
+		if(scrollcount > 16){
+			pix = scrollcount-16;
+		}
+		if(scrollcount > 48){
+			pix = 32;
+		}
+		yscroll += CONVERT_PIXEL_TO_GLOBAL(pix)*3;
+	}else{
+		scrollcount = 0;
+	}
+
+#ifdef KEEN6
+	if (groundslam)
+	{
+		const static Sint16 shaketable[] = {0,
+			 -64,  -64,  -64,  64,  64,  64,
+			-200, -200, -200, 200, 200, 200,
+			-250, -250, -250, 250, 250, 250,
+			-250, -250, -250, 250, 250, 250
+		};
+		bottom = 0; // Fixed!
+		yscroll = yscroll + (bottom - (ob->bottom + shaketable[groundslam]));	// BUG: 'bottom' has not been initialized yet!
+	}
+	else
+#endif
+	if ( (ob->hitnorth || !ob->needtoclip || ob->state == &s_keenholdon))
+	{
+		if (  ob->state != &s_keenclimbup
+			&& ob->state != &s_keenclimbup2
+			&& ob->state != &s_keenclimbup3
+			&& ob->state != &s_keenclimbup4)
+		{
+			yscroll += ob->ymove;
+		}
 	}
 
 	if (xscroll == 0 && yscroll == 0)
@@ -1341,7 +1503,8 @@ void PlayLoop(void)
 		if (mapon != 0)
 #endif
 		{
-			ScrollScreen(player);
+			//ScrollScreen(player);
+			ScrollScreen_Custom(player);
 		}
 		else
 		{

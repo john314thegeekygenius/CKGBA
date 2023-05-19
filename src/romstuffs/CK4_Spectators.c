@@ -473,19 +473,21 @@ void CK_LoadSpectators(){
 const char *lindseytext[2] =
 {
 	"There's gear to help\n"
-	"you swim in Three-Tooth\n"
-	"Lake. It is hidden in\n"
-	"Miragia.\n"
+	"you swim in \n"
+	"Three-Tooth Lake.\n"
+	"It is hidden in \n"
+	"Miragia."
 	,
-	"The way to the Pyramid\n"
-	"of the Forbidden lies\n"
-	"under the Pyramid of\n"
-	"Moons.\n"
+	"The way to\n"
+	"the Pyramid of\n"
+	"the Forbidden lies\n"
+	"under the Pyramid\n"
+	"of Moons.\n"
 };
 
 const char *klindseytext[2] =
 {
-	"Thanks, your Highness!"
+	"Thanks,\nyour Highness!"
 	,
 	"Thanks for the\n"
 	"mysterious clue,\n"
@@ -505,7 +507,7 @@ void PrincessLindsey(void)
 	PrintY += 6;
 	WindowW -= 48;
 	WindowX += 48;
-	US_CPrint("Princess Lindsey says:\n");
+	US_CPrint("Princess Lindsey\msays:\n");
 	if (mapon == 7)
 	{
 		US_CPrint(lindseytext[0]);

@@ -499,6 +499,7 @@ void StatusWindow(void);
 void CenterActor(objtype *ob);
 void WorldScrollScreen(objtype *ob);
 void ScrollScreen(objtype *ob);
+void ScrollScreen_Custom(objtype *ob);
 
 void GivePoints(Uint16 points);
 void StopMusic(void);

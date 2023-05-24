@@ -214,8 +214,15 @@ boolean SaveTheGame(FileHandle handle){
 			expanded -= count*WORDSIZE;
 		}
 	}*/
+	// Save the current animation count
+	if (writeHandle(&handle, &CK_CurLevelAniTick, sizeof(CK_CurLevelAniTick)) == File_WriteFail)
+		return false;
+
 	struct CK_MapBlock tempblock;
-	for(int o = 0; o < CK_CurLevelSize*2; o++){
+	// Skip the background layer of changed tiles because they should only be animations
+	// TODO:
+	// Will not work with custom code??? (i.e. allowing for background dynamic changing)
+	for(int o = CK_CurLevelSize; o < CK_CurLevelSize*2; o++){
 		if(CK_CurLevelData[o] != CK_LevelInfo[(CK_CurLevelIndex*3)+2][o]){
 			// Set the info
 			tempblock.offset = o;
@@ -348,8 +355,17 @@ boolean LoadTheGame(FileHandle handle)
 			}
 		}
 	}*/
+	// Read the current animation count
+	if (readHandle(&handle, &CK_CurLevelAniTick, sizeof(CK_CurLevelAniTick)) == File_ReadFail)
+		return false;
+	
+	CK_FixTileAnimations(CK_CurLevelAniTick); // Fix the animations to the number of ticks
+
 	struct CK_MapBlock tempblock;
-	for(int o = 0; o < CK_CurLevelSize*2; o++){
+	// Skip the background layer of changed tiles because they should only be animations
+	// TODO:
+	// Will not work with custom code??? (i.e. allowing for background dynamic changing)
+	for(int o = CK_CurLevelSize; o < CK_CurLevelSize*2; o++){
 		if(readHandle(&handle, &tempblock.offset, sizeof(unsigned short)) == File_ReadFail)
 			return false;
 		if(tempblock.offset == 0xFFFF)

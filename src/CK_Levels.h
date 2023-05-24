@@ -54,6 +54,7 @@ extern unsigned short CK_CurLevelWidth;
 extern unsigned short CK_CurLevelHeight;
 extern unsigned short CK_CurLevelSize;
 extern unsigned short CK_CurLevelIndex;
+extern unsigned int CK_CurLevelAniTick;
 
 extern GBA_IN_EWRAM uint16_t CK_CurLevelData[16384*2];
 extern const unsigned short* CK_LevelInfo[];
@@ -116,6 +117,8 @@ void CK_FixCamera();
 void CK_ScrollCamera(signed int x, signed int y );
 
 void CK_UpdateLevel();
+
+void CK_FixTileAnimations(unsigned int toTick);
 
 void CK_SnapScroll();
 

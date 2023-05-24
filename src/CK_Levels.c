@@ -68,6 +68,7 @@ unsigned short CK_CurLevelWidth = 0;
 unsigned short CK_CurLevelHeight = 0;
 unsigned short CK_CurLevelSize = 0;
 unsigned short CK_CurLevelIndex = 0;
+unsigned int CK_CurLevelAniTick = 0; // Make it big
 
 struct CK_TileAnimation {
     uint16_t map_offset;
@@ -232,6 +233,8 @@ void CK_LoadLevel(unsigned short lvlNumber){
 
 	lasttimecount = TimeCount;		// setup for adaptive timing
 	tics = 1;
+
+    CK_CurLevelAniTick = 0; // Reset to 0
 
 };
 
@@ -467,6 +470,7 @@ void CK_UpdateLevel(){
     uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
     uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;
 
+    CK_CurLevelAniTick ++; // Increment the animaiton count
 
     for(int p = 0; p < 2; p++){
         for(int ani = 0; ani < CK_NumOfAnimations[p]; ani++){
@@ -510,6 +514,12 @@ void CK_UpdateLevel(){
 
 };
 
+void CK_FixTileAnimations(unsigned int toTick){
+    // Update the level toTick times
+    for(int i = 0; i < toTick; i++){
+        CK_UpdateLevel();
+    }
+};
 
 void CK_SnapScroll(){
     // We moved the camera a bit

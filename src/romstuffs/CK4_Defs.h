@@ -36,11 +36,10 @@
 #define WORLDMAPNAME "Shadowlands"
 #define DROPSNAME "DROPS"
 
-// TODO:
 // Make this correct
-#define HIGHSCORE_LEFT	24
-#define HIGHSCORE_TOP	51
-#define HIGHSCORE_RIGHT	296
+#define HIGHSCORE_LEFT	8
+#define HIGHSCORE_TOP	56
+#define HIGHSCORE_RIGHT	208
 #define HIGHSCORE_MAP	19
 
 #define STARWARSMUSIC	12

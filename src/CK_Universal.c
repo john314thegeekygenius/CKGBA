@@ -101,13 +101,12 @@ HighScore       Scores[MaxScores] =
 				{"John Romero",10000,0},
 				{"Jay Wilbur",10000,0},
 #else
-				{"Id Software - '91",10000,0},
-				{"",10000,0},
-				{"Jason Blochowiak",10000,0},
-				{"Adrian Carmack",10000,0},
-				{"John Carmack",10000,0},
+				{"Id '91-23",10000,7}, // Id Software - '91
+				{"Jason B.",10000,0}, // Jason Blochowiak
+				{"Adrian C.",10000,0}, // Adrian Carmack
+				{"John C.",10000,0}, // John Carmack
 				{"Tom Hall",10000,0},
-				{"John Romero",10000,0},
+				{"John R.",10000,0}, // John Romero
 				{"John314",10000,0}, // Added for clout
 #endif
 			};
@@ -766,6 +765,33 @@ void CK_TimedRumble(unsigned short ticks){
 	ck_rumbleticks = ticks;
 	GBA_RumbleOn();
 };
+
+
+
+//      Input routines
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+//      US_LineInput() - Gets a line of user input at (x,y), the string defaults
+//              to whatever is pointed at by def. Input is restricted to maxchars
+//              chars or maxwidth pixels wide. If the user hits escape (and escok is
+//              true), nothing is copied into buf, and false is returned. If the
+//              user hits return, the current string is copied into buf, and true is
+//              returned
+//
+///////////////////////////////////////////////////////////////////////////
+boolean
+US_LineInput(int x,int y,char *buf,char *def,boolean escok,
+				int maxchars,int maxwidth)
+{
+	boolean result = true;
+	// TODO:
+	// Make this take input
+	
+	IN_ClearKeysDown();
+	return (result);
+}
 
 
 /*

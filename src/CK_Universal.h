@@ -65,14 +65,11 @@ extern int LastScan;
 #define	MaxX	GBA_SCREEN_WIDTH
 #define	MaxY	GBA_SCREEN_HEIGHT
 
-#define	MaxHelpLines	500
+#define	MaxHelpLines	500 // TODO: Fix this??
 
-#define	MaxHighName	57
-#ifdef CAT3D
-#define	MaxScores	7
-#else
-#define	MaxScores	8
-#endif
+#define	MaxHighName	9
+#define	MaxScores	7 
+
 typedef	struct
 		{
 			char	name[MaxHighName + 1];
@@ -157,6 +154,8 @@ int _ck_strcpy(char *dest, char *src);
 char *_ck_ultoa(unsigned int n, char*buff, int mode);
 char *_ck_ltoa(int n, char*buff, int mode);
 unsigned int _ck_strlen(char *str);
+
+boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok, int maxchars,int maxwidth);
 
 // From Assembly Code
 unsigned int US_InitRndT();

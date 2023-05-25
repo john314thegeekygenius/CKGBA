@@ -28,6 +28,8 @@
 
 #include "CK_Heads.h"
 
+extern const unsigned int CK_KEENEST_size;
+extern const unsigned char CK_KEENEST[];
 
 boolean scorescreenkludge;
 
@@ -665,53 +667,54 @@ void RunDemo(Sint16 num)
 =
 ============================
 */
+extern HighScore       Scores[MaxScores];
 
 void DrawHighScores(void)
 {
-	CK_MoveCamera(0, 0);
-	CK_ForceLevelRedraw();
-	// TODO:
-    /*
 	Uint16 i, n;
-	Uint16 width, height;
 	HighScore *entry;
-	Uint16 oldbufferofs;
 	char buf[16], *bufptr;
-	
-	RF_NewPosition(0, 0);
-	oldbufferofs = bufferofs;
-	bufferofs = masterofs;
-#ifdef KEEN5
-#if GRMODE == CGAGR
-	fontcolor = 2;
-#else
-	fontcolor = BLUE ^ LIGHTMAGENTA;	// blue text on light magenta background (XOR draw mode!)
-#endif
-#endif
+
+	VW_ClearVideo(CK_TXTCOL(CK_EGA_BLUE));
+	CA_FixGraphics();
+	// Copy the image over
+	GBA_DMA_Copy32(GBA_VRAM, CK_KEENEST, CK_KEENEST_size>>2);
+	// Hide any sprites
+	CK_RemoveSprites();
+	// Fix the screen pos
+	RF_SetOfs(8,0);
+
+	*(volatile uint16_t*)GBA_REG_BG1HOFS = 4;
+	*(volatile uint16_t*)GBA_REG_BG1VOFS = 4;
+
+	// TODO:
+	// Set the font color to somthing different?
+	fontcolor = BLACK;
+
 	for (i=0, entry=&Scores[0]; i<MaxScores; i++, entry++)
 	{
 		PrintY = i*16 + HIGHSCORE_TOP;
 		PrintX = HIGHSCORE_LEFT;
 		US_Print(entry->name);
 #ifdef KEEN4
-		PrintX = 152;
+		PrintX = 12*8;
 		for (n=0; n<entry->completed; n++)
 		{
 			VWB_DrawTile8(PrintX, PrintY+1, 71);
 			PrintX += 8;
 		}
 #endif
-		ultoa(entry->score, buf, 10);
+		_ck_ultoa(entry->score, buf, 10);
 		for (bufptr=buf; *bufptr; bufptr++)
 		{
 			*bufptr = *bufptr + 81;
 		}
-		USL_MeasureString(buf, &width, &height);
-		PrintX = HIGHSCORE_RIGHT - width;
+		
+		PrintX = HIGHSCORE_RIGHT - _ck_strlen(buf);
 		US_Print(buf);
 	}
-	fontcolor = WHITE;	// back to default color
-	bufferofs = oldbufferofs;*/
+	fontcolor = BLACK;	// back to default color
+
 }
 
 //===========================================================================
@@ -731,8 +734,7 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 	HighScore entry;
 	// TODO:
 	// Make this work
-	/*
-	strcpy(entry.name, "");	//Note: 'entry.name[0] = 0;' would be more efficient
+	entry.name[0] = 0;
 	entry.score = score;
 	entry.completed = completed;
 	for (i=0, index=-1; i<MaxScores; i++)
@@ -752,20 +754,14 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 		}
 	}
 	if (index != -1)
-	{*/
-		scorescreenkludge = true;
-		gamestate.mapon = HIGHSCORE_MAP;
-		SetupGameLevel(true);
-		DrawHighScores();
-/*#ifdef KEEN5
+	{
+#ifdef KEEN5
 #if GRMODE == CGAGR
 		fontcolor = 2;
 #else
 		fontcolor = BLUE ^ LIGHTMAGENTA;	// blue text on light magenta background (XOR draw mode!)
 #endif
 #endif
-		RF_Refresh();
-		RF_Refresh();
 		PrintY = i*16 + HIGHSCORE_TOP;
 		PrintX = HIGHSCORE_LEFT;
 		US_LineInput(PrintX, PrintY, Scores[index].name, NULL, true, MaxHighName, 112);
@@ -774,7 +770,6 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 #ifdef KEEN5
 	fontcolor = 15;	// back to default color (white)
 #endif
-		*/
 	scorescreenkludge = false;
 }
 
@@ -787,12 +782,21 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 =
 ============================
 */
+extern const unsigned int CK_LevelAudio[];
 
 void ShowHighScores(void)
 {	
+	CA_CacheMarks(levelenter[HIGHSCORE_MAP]);
+	DelayedFade();
 	scorescreenkludge = true;
+	while(IN_IsUserInput());
 	IN_ClearKeysDown();
-	RunDemo(4);
+	StartMusic(CK_LevelAudio[HIGHSCORE_MAP]);
+	DrawHighScores();
+	VW_FadeIn();
+	while(!IN_IsUserInput());
+	while(IN_IsUserInput());
 	scorescreenkludge = false;
+	StopMusic();
 }
 

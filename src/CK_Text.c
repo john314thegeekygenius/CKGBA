@@ -390,4 +390,5 @@ void HelpScreens(void)
 
 void FinaleLayout(void){
     // TODO:
+	// Make the end text showup
 };

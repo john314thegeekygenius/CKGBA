@@ -105,10 +105,6 @@ void CheckKeys(void){
 		RF_ForceRefresh();
 		lasttimecount = TimeCount;	// BUG: should be the other way around
 
-		// TODO:
-		// Remove this!
-//		playstate = ex_completed;
-//		gamestate.mapon = 3;
 	}
 
 //

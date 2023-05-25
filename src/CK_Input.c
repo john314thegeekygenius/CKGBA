@@ -169,9 +169,9 @@ IN_ClearKeysDown(void)
 ///////////////////////////////////////////////////////////////////////////
 ScanCode IN_WaitForKey(void)
 {
-	ScanCode	result;
+	ScanCode result = LastScan;
 
-	while (!(result = LastScan))
+	while (!(result == LastScan))
 		;
 	LastScan = 0;
 	return(result);

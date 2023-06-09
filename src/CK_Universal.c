@@ -101,7 +101,7 @@ HighScore       Scores[MaxScores] =
 				{"John Romero",10000,0},
 				{"Jay Wilbur",10000,0},
 #else
-				{"Id '91-23",10000,7}, // Id Software - '91
+				{"Id '91-23",10000,0}, // Id Software - '91
 				{"Jason B.",10000,0}, // Jason Blochowiak
 				{"Adrian C.",10000,0}, // Adrian Carmack
 				{"John C.",10000,0}, // John Carmack

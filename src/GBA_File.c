@@ -76,7 +76,7 @@ badfile:
         file = GBA_PakRam+3;
 
         handleBlock = 1;
-        while(handleBlock < FILE_MAX_BLOCKS){
+        while(handleBlock <= FILE_MAX_BLOCKS){
             prevblock = tempblock;
             tempblock.identifier = *(file++);
             tempblock.identifier |= (*(file++))<<8;

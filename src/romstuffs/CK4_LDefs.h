@@ -1,6 +1,7 @@
 
 #ifndef __CK4_LDEFS__
 #define __CK4_LDEFS__
+// MODDERS:
 
 // Include all the levels
 extern const unsigned short BORDER_VILLAGE_width;

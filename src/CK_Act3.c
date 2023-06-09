@@ -202,7 +202,8 @@ void T_EaterJump(objtype *ob)
 void T_EaterTeleport(objtype *ob)
 {
 	objtype *ob2;
-
+	// TODO:
+	// He doesn't teleport????
 	ob->temp1 = 0;
 	for(int i = player->uuid; i < CK_NumOfObjects; i++){
 		ob2 = &CK_ObjectList[i];

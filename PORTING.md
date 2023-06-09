@@ -24,6 +24,7 @@
 	
 ## Step 3:
 - Make any needed / wanted changes to the source code
+- Noteable changes needed will be headed with a comment<pre>// MODDERS:
 
 ## Step 4:
 - Compile the ROM

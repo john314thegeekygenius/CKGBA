@@ -1,5 +1,6 @@
 #pragma once
 
+// MODDERS:
 // Sizes must be manually moved from the C source files
 const unsigned int SND1_156_size = 222073;
 extern const unsigned char SND1_156_data[];
@@ -25,6 +26,8 @@ const GBA_SoundSample CKM_GBA_Samples [] = {
     {&SND1_161_data , SND1_161_size, GBA_INV_11025, GBA_SAMP_RATE_11025 },
 };
 
+// MODDERS:
+// Number of songs = Number of levels
 const unsigned int CK_NumberOfSongs = 20;
 const unsigned int CK_LevelAudio[] = {
     SHADOWS_MUS, // Lvl 0 - Shadowlands

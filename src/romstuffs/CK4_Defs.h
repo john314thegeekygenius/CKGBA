@@ -26,6 +26,7 @@
 
 // K4_DEF.H stuff
 
+// MODDERS:
 // ???
 #define GAMELEVELS 25
 
@@ -33,6 +34,7 @@
 
 #define TERMPALETTE { 0x0, 0x1, 0x2, 0x9, 0xb, 0x5, 0x6, 0x8, 0x7, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0x7}
 
+// MODDERS:
 #define WORLDMAPNAME "Shadowlands"
 #define DROPSNAME "DROPS"
 
@@ -42,6 +44,7 @@
 #define HIGHSCORE_RIGHT	208
 #define HIGHSCORE_MAP	19
 
+// MODDERS:
 #define STARWARSMUSIC	12
 #define ENDINGMUSIC	7
 
@@ -51,13 +54,17 @@
 #define MINDONELEVEL 1
 #define MAXDONELEVEL 17
 
-#define INACTIVATEDIST 4
+//TODO:?
+#define INACTIVATEDIST 2 // Set to 2 -- Should be 4?
 
+// MODDERS:
 // Graphics Stuff
 
+// Width of each tileset in pixels
 #define UMTILESET_WIDTH_VAL (288)
 #define MTILESET_WIDTH_VAL (288)
 
+// Total number of tiles in each tileset
 #define TILESET_TILES 1296
 #define MTILESET_TILES 2916
 

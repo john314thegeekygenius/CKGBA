@@ -121,6 +121,7 @@ void CK_InitVideo();
 void CA_FixGraphics();
 
 void CK_FixPalette();
+void CK_FixPaletteU(); // For Universal.c
 
 extern boolean	screenfaded;
 

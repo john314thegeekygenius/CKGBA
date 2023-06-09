@@ -1385,7 +1385,6 @@ void PlayLoop(void)
 					|| obj->tiletop > inactivatebottom
 					|| obj->tilebottom < inactivatetop)
 				{
-					/*
 					if (obj->active == ac_removable)
 					{
 						RemoveObj(obj);
@@ -1395,6 +1394,8 @@ void PlayLoop(void)
 					{
 						if (US_RndT() < tics*2 || screenfaded || loadedgame)
 						{
+							// TODO:
+							// Could be dangerous
 							RF_RemoveSprite(&obj->sprite, true);
 							if (obj->obclass == stunnedobj){
 								RF_RemoveSprite(&obj->temp3, true);
@@ -1402,7 +1403,7 @@ void PlayLoop(void)
 							obj->active = ac_no;
 							continue;
 						}
-					}*/
+					}
 				}
 				StateMachine(obj);
 			}

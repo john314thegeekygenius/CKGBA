@@ -39,6 +39,8 @@ const unsigned short COMMANDER_KEEN_PALETTE[] = {
 	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x0000ff), RGBCONV(0x00ff00), RGBCONV(0x00ffff), RGBCONV(0xbf007f), RGBCONV(0xff7f00), RGBCONV(0xc0c0c0), RGBCONV(0x7f7f7f), RGBCONV(0x007fff), RGBCONV(0x7fff00), RGBCONV(0x85ffff), RGBCONV(0xff007f), RGBCONV(0xffb6c1), RGBCONV(0xffff00), RGBCONV(0xffffff), 
 	// C64 (4)
 	RGBCONV(0xccffcc), RGBCONV(0x000000), RGBCONV(0x5d00ab), RGBCONV(0x44c14e), RGBCONV(0x44c14e), RGBCONV(0x9f4238), RGBCONV(0xa16a1d), RGBCONV(0xb3b3b3), RGBCONV(0x606060), RGBCONV(0x9758df), RGBCONV(0x44c14e), RGBCONV(0x6cc8cf), RGBCONV(0xce7c73), RGBCONV(0x9758df), RGBCONV(0xc9ec7a), RGBCONV(0xffffff), 
+	// Old Gameboy palette Menu Edtion (2.5)
+	RGBCONV(0xccffcc), GB_COL_0, GB_COL_1, GB_COL_1, GB_COL_1, GB_COL_1, GB_COL_2, GB_COL_2, GB_COL_0, GB_COL_2, GB_COL_2, GB_COL_2, GB_COL_2, GB_COL_2, GB_COL_2, GB_COL_3,
 };
 
 const unsigned short PALETTE_SHIFT[] = {
@@ -51,8 +53,11 @@ const unsigned short PALETTE_SHIFT[] = {
 // Palettes are 0-4, dynamic palette is 5
 unsigned short CK_PaletteSet = 0;
 
+#ifdef CK_DYNAMIC_PAL
 extern const unsigned short CK_DynamicPalIndex[GAMELEVELS+1];
 extern const unsigned short CK_DYNAMIC_PALS[];
+#endif
+
 extern boolean 				CtlPanelDone;
 
 void CK_FixPalette(){
@@ -92,6 +97,18 @@ void CK_FixPalette(){
 	}
 };
 
+void CK_FixPaletteU(){
+	CK_FixPalette();
+	if(CK_PaletteSet == 2){
+		// Copy the palette
+		for(int i = 0; i < 16; i++){
+			GBA_DMA_Copy16((uint16_t*)GBA_PAL_BG_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(5*16),16);
+		// Copy the palette (foreground / sprites)
+			GBA_DMA_Copy16((uint16_t*)GBA_PAL_SPR_START+(i*16),(uint16_t*)COMMANDER_KEEN_PALETTE+(5*16),16);
+		}
+	}
+};
+
 void VW_FadeIn(){
 	uint16_t* paletteA = (uint16_t*)GBA_PAL_BG_START;
 	uint16_t* paletteB = (uint16_t*)GBA_PAL_SPR_START;
@@ -99,6 +116,7 @@ void VW_FadeIn(){
 	for(int fade = 3; fade >= 0; fade--){
 		for(int i = 0; i < 16; i++){
 			uint16_t* keenpalette = (uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16);
+			#ifdef CK_DYNAMIC_PAL
 			if(CK_PaletteSet == 5){
 				unsigned short dynamicIndex = 0;
 				// Handle the dynamic palette
@@ -109,6 +127,7 @@ void VW_FadeIn(){
 				}
 				keenpalette = (uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16);
 			}
+			#endif
 			for(int e = 0; e < 16; e++){
 				*paletteA = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
 				*paletteB = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
@@ -128,6 +147,7 @@ void VW_FadeOut(){
 	for(int fade = 0; fade < 4; fade++){
 		for(int i = 0; i < 16; i++){
 			uint16_t* keenpalette = (uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16);
+			#ifdef CK_DYNAMIC_PAL
 			if(CK_PaletteSet == 5){
 				unsigned short dynamicIndex = 0;
 				// Handle the dynamic palette
@@ -138,6 +158,7 @@ void VW_FadeOut(){
 				}
 				keenpalette = (uint16_t*)CK_DYNAMIC_PALS+(dynamicIndex*16);
 			}
+			#endif
 			for(int e = 0; e < 16; e++){
 				*paletteA = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];
 				*paletteB = keenpalette[PALETTE_SHIFT[e+ (fade<<4)]];

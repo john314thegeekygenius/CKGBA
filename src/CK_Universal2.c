@@ -1228,10 +1228,16 @@ USL_DrawFileIcon(UserItem *item)
 
 	item->y = topcard->y + CtlPanelSY + 16;
 	item->y += (item - loadsavegamei) * 16;
-
-	fontcolor = (item->flags & ui_Selected)? HiliteColor : NohiliteColor;
+	// HACK:
+	// For colour blind people
+	fontcolor = NohiliteColor;
+	if(item->flags & ui_Selected){
+		fontcolor = HiliteColor;
+		if(CK_PaletteSet >= 3) {
+			fontcolor += 1;
+		}
+	}
 	color = fontcolor; // (fontcolor ^ BackColor);  // Blech!
-
 	VWB_Hlin(item->x,item->x + (CtlPanelW - 12),item->y,color);
 	VWB_Hlin(item->x,item->x + (CtlPanelW - 12),item->y + 9,color);
 	VWB_Vlin(item->y,item->y + 9,item->x,color);
@@ -1885,7 +1891,7 @@ USL_VideoCustom(UserCall call,struct UserItem *item)
 
 	if(CK_PaletteSet != i){
 		CK_PaletteSet = i;
-		CK_FixPalette();
+		CK_FixPaletteU();
 	}
 
 	return(false);
@@ -1906,7 +1912,7 @@ USL_SetUpCtlPanel(void)
 	CA_CacheMarks("Control Panel");
 	// Move this here?
 	CA_FixGraphics();
-	CK_FixPalette();
+	CK_FixPaletteU();
 
 	// Do some other setup
 	fontcolor = F_BLACK;
@@ -2022,6 +2028,7 @@ USL_TearDownCtlPanel(void)
 	VW_ClearVideo( CK_TXTCOL(CK_EGA_BLACK)); // BUG ? Should be CK_EGA_CYAN
 #endif
 	CA_FixGraphics();
+	CK_FixPalette();
 
 	// Write the config file now?
 	US_Shutdown();

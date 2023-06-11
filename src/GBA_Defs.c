@@ -514,6 +514,8 @@ void GBA_ClearSerial(){
 
 int GBA_Channel_A_VBlanks = 0;
 int GBA_Channel_A_Samples = 0;
+int GBA_Channel_A_BufSamps = 0;
+int GBA_Channel_A_BufSampsL = 0;
 int GBA_Channel_A_Paused = 0;
 char GBA_Loop_Channel_A = 0;
 unsigned char *GBA_Channel_A_Src = (void*)0;
@@ -521,6 +523,8 @@ unsigned int GBA_Channel_A_Dest = 0;
 
 int GBA_Channel_B_VBlanks = 0;
 int GBA_Channel_B_Samples = 0;
+int GBA_Channel_B_BufSamps = 0;
+int GBA_Channel_B_BufSampsL = 0;
 int GBA_Channel_B_Paused = 0;
 char GBA_Loop_Channel_B = 0;
 unsigned char *GBA_Channel_B_Src = (void*)0;
@@ -616,45 +620,48 @@ void GBA_VSyncIRQ() {
 	
 		// Update channel A 
 		if(!GBA_Channel_A_Paused){
-			if (GBA_Channel_A_VBlanks == 0) {
+			GBA_Channel_A_BufSamps -= GBA_AUDIO_BUFFER_SIZE;
+			--GBA_Channel_A_VBlanks;
+			if (GBA_Channel_A_VBlanks == 0 || GBA_Channel_A_BufSamps < 0) {
 				// restart the sound again when it runs out
 				if((GBA_Channel_A_Src!=(void*)0) && GBA_Loop_Channel_A){
 					GBA_Channel_A_VBlanks = GBA_Channel_A_Samples;
+					GBA_Channel_A_BufSamps = GBA_Channel_A_BufSampsL;
 					*(volatile unsigned int*)GBA_DMA1_COUNT = 0;
 					*(volatile unsigned int*)GBA_DMA1_SRC   = (unsigned int) GBA_Channel_A_Src;
 					*(volatile unsigned int*)GBA_DMA1_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE;
 				}else{
 					GBA_Channel_A_Src = (void*)0;
 					GBA_Channel_A_VBlanks = 0;
+					GBA_Channel_A_BufSamps = GBA_Channel_A_BufSampsL = 0;
 					// Disable the sound and DMA transfer on channel A
 					*(volatile uint16_t*)GBA_SOUNDCNT_H &= ~(GBA_DSND_A_RIGHT | GBA_DSND_A_LEFT | GBA_DSND_A_FIFO_RESET | GBA_DSND_TIMER0 | GBA_DSND_A_RATIO);
 					*(volatile unsigned int*)GBA_DMA1_COUNT = 0;
 				}
-			} else {
-				--GBA_Channel_A_VBlanks;
 			}
 		}
 		#endif
 
         // Update channel B 
 		if(!GBA_Channel_B_Paused){
-			if (GBA_Channel_B_VBlanks == 0) {
+			GBA_Channel_B_BufSamps -= GBA_AUDIO_BUFFER_SIZE;
+			--GBA_Channel_B_VBlanks;
+			if (GBA_Channel_B_VBlanks == 0 || GBA_Channel_B_BufSamps < 0) {
 				// restart the sound again when it runs out
 				if(GBA_Channel_B_Src!=(void*)0&&GBA_Loop_Channel_B){
 					GBA_Channel_B_VBlanks = GBA_Channel_B_Samples;
+					GBA_Channel_B_BufSamps = GBA_Channel_B_BufSampsL;
 					*(volatile unsigned int*)GBA_DMA2_COUNT = 0;
 					*(volatile unsigned int*)GBA_DMA2_SRC   = (unsigned int) GBA_Channel_B_Src;
 					*(volatile unsigned int*)GBA_DMA2_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE;
 				}else{
 					GBA_Channel_B_Src = (void*)0;
 					GBA_Channel_B_VBlanks = 0;
+					GBA_Channel_B_BufSamps = GBA_Channel_B_BufSampsL = 0;
 					// Disable the sound and DMA transfer on channel B
 					*(volatile uint16_t*)GBA_SOUNDCNT_H &= ~(GBA_DSND_B_RIGHT | GBA_DSND_B_LEFT | GBA_DSND_B_FIFO_RESET | GBA_DSND_TIMER1 | GBA_DSND_B_RATIO);
 					*(volatile unsigned int*)GBA_DMA2_COUNT = 0;
 				}
-			}
-			else {
-				--GBA_Channel_B_VBlanks;
 			}
 		}
     }
@@ -823,9 +830,14 @@ void GBA_PlaySample(GBA_SoundSample *sample, char loop, char channel){
 	if(channel==GBA_CHANNEL_A){
 		GBA_Channel_A_VBlanks = (sample->num_samples * sample->sample_rate);
 		GBA_Channel_A_Samples = GBA_Channel_A_VBlanks;
+		GBA_Channel_A_BufSamps = 0; 
+		GBA_Channel_A_BufSampsL = sample->num_samples;
 		GBA_Loop_Channel_A = loop;
 		GBA_Channel_A_Src = sample->sample;
 		GBA_Channel_A_Dest = GBA_FIFO_BUFF_A;
+
+		// Make sure the timer is off
+		*(volatile unsigned short*)GBA_TIMER0_CONTROL = 0;
 
 		// Enable FIFO audio
 	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_A_RIGHT | GBA_DSND_A_LEFT | GBA_DSND_A_FIFO_RESET | GBA_DSND_TIMER0 | GBA_DSND_A_RATIO;
@@ -835,7 +847,7 @@ void GBA_PlaySample(GBA_SoundSample *sample, char loop, char channel){
 		*(volatile unsigned int*)GBA_DMA1_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
 
 		*(volatile unsigned short*)GBA_TIMER0_DATA = 0x10000 - sample->rate;
-
+		// Activate the timer
 		*(volatile unsigned short*)GBA_TIMER0_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_1;
 	}
 	else 
@@ -843,9 +855,14 @@ void GBA_PlaySample(GBA_SoundSample *sample, char loop, char channel){
 	if(channel==GBA_CHANNEL_B){
 		GBA_Channel_B_VBlanks = sample->num_samples * sample->sample_rate;
 		GBA_Channel_B_Samples = GBA_Channel_B_VBlanks;
+		GBA_Channel_B_BufSamps = 0;
+		GBA_Channel_B_BufSampsL = sample->num_samples;
 		GBA_Loop_Channel_B = loop;
 		GBA_Channel_B_Src = sample->sample;
 		GBA_Channel_B_Dest = GBA_FIFO_BUFF_B;
+
+		// Make sure the timer is off
+		*(volatile unsigned short*)GBA_TIMER1_CONTROL = 0;
 
 		// Enable FIFO audio
 	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_B_RIGHT | GBA_DSND_B_LEFT | GBA_DSND_B_FIFO_RESET | GBA_DSND_TIMER1 | GBA_DSND_B_RATIO;
@@ -855,7 +872,7 @@ void GBA_PlaySample(GBA_SoundSample *sample, char loop, char channel){
 		*(volatile unsigned int*)GBA_DMA2_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
 
 		*(volatile unsigned short*)GBA_TIMER1_DATA = 0x10000 - sample->rate;
-
+		// Activate the timer
 		*(volatile unsigned short*)GBA_TIMER1_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_1;
 	}
 

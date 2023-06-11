@@ -760,6 +760,7 @@ void GBA_SetSoundFreq(short id, int freq);
 #define GBA_SAMP_RATE_22050   761
 #define GBA_SAMP_RATE_44100   380
 
+#define GBA_AUDIO_BUFFER_SIZE 4 // bytes
 
 typedef struct GBA_SoundSample {
     unsigned char *sample;

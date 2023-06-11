@@ -43,6 +43,7 @@
 
 void InitGame(void)
 {
+	//////////////////////////////
 	CK_InitVideo();
 	SD_InitAudio();
 	CK_SetupSprites();

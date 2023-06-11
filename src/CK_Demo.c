@@ -676,6 +676,7 @@ void DrawHighScores(void)
 	char buf[16], *bufptr;
 
 	VW_ClearVideo(CK_TXTCOL(CK_EGA_BLUE));
+	VW_FixGraphics();
 	CA_FixGraphics();
 	// Copy the image over
 	GBA_DMA_Copy32(GBA_VRAM, CK_KEENEST, CK_KEENEST_size>>2);
@@ -732,8 +733,10 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 	Uint16 i, n;
 	Sint16 index;
 	HighScore entry;
-	// TODO:
-	// Make this work
+
+	// Redraw the highscores???? 
+	DrawHighScores();
+
 	entry.name[0] = 0;
 	entry.score = score;
 	entry.completed = completed;
@@ -794,6 +797,9 @@ void ShowHighScores(void)
 	StartMusic(CK_LevelAudio[HIGHSCORE_MAP]);
 	DrawHighScores();
 	VW_FadeIn();
+	// TODO: REmove???
+	CheckHighScore(gamestate.score, gamestate.rescued);
+
 	while(!IN_IsUserInput());
 	while(IN_IsUserInput());
 	scorescreenkludge = false;

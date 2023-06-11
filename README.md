@@ -12,3 +12,5 @@ if the object name 'new' it must be changed to 'ck_newobj'
 Also, the function NewState() now takes an extra parameter -
 The type of sprite denoted with 'CKS_'
 
+# Porting / Modding
+A readme is available for the process of modding this source port

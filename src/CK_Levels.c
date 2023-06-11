@@ -407,6 +407,7 @@ void CK_RenderLevel(){
         }
         // TODO:
         // Make this optional for extra speed???
+        // Note : This changing this will cause screen tearing
         GBA_WAIT_FOR_VBLANKN(160)
 
         // Move the camera if need be

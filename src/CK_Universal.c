@@ -101,6 +101,7 @@ HighScore       Scores[MaxScores] =
 				{"John Romero",10000,0},
 				{"Jay Wilbur",10000,0},
 #else
+// MODDERS:
 				{"Id '91-23",10000,0}, // Id Software - '91
 				{"Jason B.",10000,0}, // Jason Blochowiak
 				{"Adrian C.",10000,0}, // Adrian Carmack
@@ -770,6 +771,9 @@ void CK_TimedRumble(unsigned short ticks){
 
 //      Input routines
 
+// Does not exist
+//extern const unsigned int KEYBOARD_size; //9600
+//extern const unsigned char KEYBOARD[];
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -781,13 +785,135 @@ void CK_TimedRumble(unsigned short ticks){
 //              returned
 //
 ///////////////////////////////////////////////////////////////////////////
-boolean
-US_LineInput(int x,int y,char *buf,char *def,boolean escok,
+
+char lineBuffer[MaxString];
+
+boolean US_LineInput(int _ox,int _oy,char *buf,char *def,boolean escok,
 				int maxchars,int maxwidth)
 {
-	boolean result = true;
-	// TODO:
-	// Make this take input
+	boolean result = true, done = false;
+	boolean cursorBlink = false;
+	int i;
+	int cursorTic = 0;
+	int typeX = 0; 
+	int inputLen = 0;
+	int x = _ox, y = _oy;
+	x >>= 3;
+	y >>= 3;
+	maxwidth >>= 3; 
+
+// Hmmm : Bad idea...
+#define local_ClearCursor()\
+CK_BlitChar('\x01', x+typeX+1, y, fontcolor); // Clear char (what???)
+
+	// Clear the buffer
+	GBA_DMA_MemSet16(lineBuffer,0,MaxString>>1);
+	// Clear the screen for the area of the buffer
+	for(i = 0; i < maxchars; i++){
+		CK_BlitChar('\x01', x+typeX+i, y, fontcolor); // Clear char (what???)
+	}
+
+// Leftover keyboard idea
+//	GBA_DMA_Copy32(GBA_VRAM2, KEYBOARD, KEYBOARD_size>>2);
+
+	IN_ClearKeysDown();
+
+	while(!done){
+
+		// Draw a blinking cursor at the location
+		if(typeX < MaxString && typeX < maxchars && typeX < maxwidth){
+			// We can take more input
+			if(LastScan == GBA_BUTTON_A){
+				// If we wrote a character already
+				if(lineBuffer[typeX]){
+					local_ClearCursor()
+					typeX += 1;
+				}
+			}
+			if(LastScan == GBA_BUTTON_UP){
+				// Spawn a new letter if none is there
+				if(lineBuffer[typeX] == 0){
+					lineBuffer[typeX] = 'A';
+				}else{
+					lineBuffer[typeX] += 1;
+				}
+				// Handle issues
+				if(lineBuffer[typeX] == '['){
+					lineBuffer[typeX] = 'a';
+				}
+				if(lineBuffer[typeX] == '{'){
+					lineBuffer[typeX] = '0';
+				}
+				if(lineBuffer[typeX] == ':'){
+					lineBuffer[typeX] = 'A';
+				}
+			}
+			if(LastScan == GBA_BUTTON_DOWN){
+				// Spawn a new letter if none is there
+				if(lineBuffer[typeX] == 0){
+					lineBuffer[typeX] = 'Z';
+				}else{
+					lineBuffer[typeX] -= 1;
+				}
+				// Handle issues
+				if(lineBuffer[typeX] == '@'){
+					lineBuffer[typeX] = '9';
+				}
+				if(lineBuffer[typeX] == '/'){
+					lineBuffer[typeX] = 'z';
+				}
+				if(lineBuffer[typeX] == '`'){
+					lineBuffer[typeX] = 'Z';
+				}
+			}
+		}
+		if(LastScan == GBA_BUTTON_B){
+			local_ClearCursor()
+			typeX -= 1;
+			if(typeX < 0) typeX = 0;
+			// Remove the character from the string
+			lineBuffer[typeX] = 0;
+		}
+		
+		// Handle end cases
+		if(LastScan == GBA_BUTTON_START){
+			// We are happy with it
+			result = true;
+			done = true;
+		}
+		if(LastScan == GBA_BUTTON_SELECT){
+			if(escok){
+				// We are not happy
+				result = false;
+				// Clear the buffer
+				GBA_DMA_MemSet16(lineBuffer,0,MaxString>>1);
+				done = true;
+			}
+		}
+
+		IN_ClearKeysDown(); // Hmmm
+
+		if((++cursorTic % 1024)==0){
+			cursorBlink = !cursorBlink;
+		}
+		if(cursorBlink){
+			CK_BlitChar('|', x+typeX+1, y, fontcolor);
+		}else{
+			local_ClearCursor()
+		}
+		PrintX = _ox;
+		PrintY = _oy;
+		US_Print(lineBuffer);
+
+		GBA_WAIT_VBLANK
+	}
+	// Remove the cursor
+	local_ClearCursor()
+
+	// Copy the buffer no matter what
+	for(i = 0; i < maxchars; i++){
+		buf[i] = lineBuffer[i];
+	}
 	
 	IN_ClearKeysDown();
 	return (result);

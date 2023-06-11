@@ -1,0 +1,10 @@
+Treasure eater is broken
+Slugs get stuck on hills going left
+Licks can climb walls
+End sequence is non-existant
+Adlib music breaks at the end
+Adlib sounds click at the end
+WoW level will crash???
+Unkown object can be saved and thus corupt a save file???
+Keen do move chonkey
+

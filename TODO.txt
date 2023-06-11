@@ -1,10 +1,16 @@
-Treasure eater is broken
+
 Slugs get stuck on hills going left
 Licks can climb walls
+Keen do move chonkey
+
 End sequence is non-existant
+
 Adlib music breaks at the end
 Adlib sounds click at the end
-WoW level will crash???
+
+WoW level will has sprite issues
+
 Unkown object can be saved and thus corupt a save file???
-Keen do move chonkey
 Demos will play back wrong
+
+Write the tool documentation

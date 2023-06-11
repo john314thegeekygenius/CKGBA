@@ -160,7 +160,8 @@ void T_EaterJump(objtype *ob)
 	if (ob->temp1 >= 2)
 	{
 		// BUG? this doesn't play a sound
-		ob->state = &s_eatertport1;
+//		ob->state = &s_eatertport1;
+		NewState(ob, &s_eatertport1, CKS_TESMOKE); // Reset sprite to smoke sprite
 		return;
 	}
 
@@ -228,6 +229,13 @@ void T_EaterTeleport(objtype *ob)
 
 void C_Eater(objtype *ob, objtype *hit)
 {
+	// Fix eater sprite here???
+	if(ob->state == &s_eaterjump1){
+		if(ob->curSprType == CKS_TESMOKE){
+			CK_RemakeSprite(&ob->sprite, CKS_TEATER);
+		}
+	}
+
 	if (hit->obclass == bonusobj)
 	{
 		//BUG? bonus object might be a key, and eating a key makes a level unwinnable

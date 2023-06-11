@@ -408,6 +408,7 @@ boolean LoadTheGame(FileHandle handle)
 
 	ck_newobj->needtoreact = true;
 	ck_newobj->sprite = NULL;
+
 	CK_SetSprite(&ck_newobj->sprite, ck_newobj->curSprType);
 	ck_newobj->state = CK_StateList[stateid];
 
@@ -464,6 +465,20 @@ boolean LoadTheGame(FileHandle handle)
 	scoreobj->temp1 = -1;
 	scoreobj->temp3 = -1;
 	scoreobj->temp4 = -1;
+
+	// Fix the graphics
+	if(scoreobj && scoreobj->sprite){
+		switch(showscorebox){
+			default:
+			case CK_DISP_SCORE_DOS:
+				CK_SetSpriteGfx(&scoreobj->sprite, CKS_SCOREBOXDOS);
+				break;
+			case CK_DISP_SCORE_GBA:
+				CK_SetSpriteGfx(&scoreobj->sprite, CKS_SCOREBOXGBA);
+				break;
+		}
+	}
+
 #ifdef KEEN5
 	gamestate.numfuses = numfuses;	// put value from saved game back in place 
 #endif

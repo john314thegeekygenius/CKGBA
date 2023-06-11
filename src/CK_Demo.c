@@ -734,9 +734,6 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 	Sint16 index;
 	HighScore entry;
 
-	// Redraw the highscores???? 
-	DrawHighScores();
-
 	entry.name[0] = 0;
 	entry.score = score;
 	entry.completed = completed;
@@ -765,6 +762,9 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 		fontcolor = BLUE ^ LIGHTMAGENTA;	// blue text on light magenta background (XOR draw mode!)
 #endif
 #endif
+		// Redraw the highscores???? 
+		DrawHighScores();
+
 		PrintY = i*16 + HIGHSCORE_TOP;
 		PrintX = HIGHSCORE_LEFT;
 		US_LineInput(PrintX, PrintY, Scores[index].name, NULL, true, MaxHighName, 112);

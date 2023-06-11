@@ -797,9 +797,6 @@ void ShowHighScores(void)
 	StartMusic(CK_LevelAudio[HIGHSCORE_MAP]);
 	DrawHighScores();
 	VW_FadeIn();
-	// TODO: REmove???
-	CheckHighScore(gamestate.score, gamestate.rescued);
-
 	while(!IN_IsUserInput());
 	while(IN_IsUserInput());
 	scorescreenkludge = false;

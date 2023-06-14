@@ -705,10 +705,10 @@ void GBA_SetSoundFreq(short id, int freq);
 /////////// Timers
 
 /* make defines for the bit positions of the control register */
-#define GBA_TIMER_FREQ_1    0x00
-#define GBA_TIMER_FREQ_64   0x01
-#define GBA_TIMER_FREQ_256  0x02
-#define GBA_TIMER_FREQ_1024 0x03
+#define GBA_TIMER_FREQ_1    0x00 // 16.78MHz (~17mlns ticks per second)
+#define GBA_TIMER_FREQ_64   0x01 // ~262187.5KHz
+#define GBA_TIMER_FREQ_256  0x02 // ~65546.875KHz
+#define GBA_TIMER_FREQ_1024 0x03 // ~16386.71875KHz
 
 #define GBA_TIMER_ENABLE    0x80
 
@@ -757,7 +757,7 @@ void GBA_SetSoundFreq(short id, int freq);
 // SampR = 16758000 / SampleR
 
 #define GBA_SAMP_RATE_11025   1520
-#define GBA_SAMP_RATE_22050   761
+#define GBA_SAMP_RATE_22050   760 // 761 ???
 #define GBA_SAMP_RATE_44100   380
 
 #define GBA_AUDIO_BUFFER_SIZE 4 // bytes

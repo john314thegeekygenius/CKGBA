@@ -54,7 +54,7 @@ void SD_InitAudio(){
 	*(volatile uint16_t*)GBA_INT_ENABLE = 1;
 
 	// Make it update every 1/140 of a second
-	*(volatile unsigned short*)GBA_TIMER2_DATA = _140_HZ;
+	*(volatile unsigned short*)GBA_TIMER2_DATA = _140_HZ; // 1873
 	*(volatile unsigned short*)GBA_TIMER2_CONTROL = GBA_TIMER_ENABLE | GBA_TIMER_FREQ_64 | GBA_TIMER_INTERUPT;
 
 	

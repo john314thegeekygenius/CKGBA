@@ -1328,16 +1328,19 @@ const statetype s_stunhit2 = {STUNHIT2SPR, STUNHIT2SPR, step, false, false, 12, 
 =
 ======================
 */
+extern boolean infiniteammo;
 
 void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 {
-	if (!gamestate.ammo)
-	{
-		SD_PlaySound(SND_USESWITCH);
-		return;
-	}
+	if(!infiniteammo){
+		if (!gamestate.ammo)
+		{
+			SD_PlaySound(SND_USESWITCH);
+			return;
+		}
 
-	gamestate.ammo--;
+		gamestate.ammo--;
+	}
 	GetNewObj(true);
 	ck_newobj->x = x;
 	ck_newobj->y = y;

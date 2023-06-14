@@ -45,6 +45,11 @@ void	USL_CheckSavedGames(void);
 #else
 		ScanCode        firescan;
 #endif
+extern boolean godmode;
+extern boolean jumpcheat;
+extern boolean infiniteammo;
+extern boolean infinitelives;
+extern boolean debugok;
 
 //      Global variables
 		boolean         ingame,abortgame,loadedgame;
@@ -90,6 +95,12 @@ typedef enum
 			// Added
 			uc_WipeRom,
 			uc_Saving,
+			//// Cheats
+			uc_C_GodMode,
+			uc_C_InfAmmo,
+			uc_C_InfLives,
+			uc_C_JumpCheat,
+			uc_C_AllItems,
 		} UComm;
 typedef enum
 		{
@@ -169,7 +180,8 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 #endif
 				USL_PongCustom(UserCall call,struct UserItem *item),
 				USL_ResetCustom(UserCall call,struct UserItem *item),
-				USL_VideoCustom(UserCall call,struct UserItem *item);
+				USL_VideoCustom(UserCall call,struct UserItem *item),
+				USL_CheatCustom(UserCall call,struct UserItem *item);
 
 
 #define DefButton(key,text)                             uii_Button,ui_Normal,key,text
@@ -307,6 +319,18 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 	};
 	UserItemGroup  videogroup = {8,8,CP_VIDEOMOVEMENTPIC,0,videoi,USL_VideoCustom};
 
+	UserItem cheati[] =
+	{
+		{uii_Button,ui_Normal,0,"GOD MODE",uc_C_GodMode},
+		{uii_Button,ui_Normal,0,"JUMP CHEAT",uc_C_JumpCheat},
+		{uii_Button,ui_Normal,0,"INFIN AMMO",uc_C_InfAmmo},
+		{uii_Button,ui_Normal,0,"INFIN LIVES",uc_C_InfLives},
+		{uii_Button,ui_Normal,0,"FULL ITEMS",uc_C_AllItems},
+		{uii_Bad}
+	};
+	UserItemGroup  cheatgroup = {8,8,CP_CONFIGMENUPIC,0,cheati,USL_CheatCustom};
+	
+
 	UserItem  keysi[] =
 	{
 		{DefFolder(0,"MOVEMENT",&keygroup)},
@@ -340,6 +364,9 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 
 	// Main menu
 	UserItemGroup  ponggroup = {0,0,0,0,0,USL_PongCustom};
+#ifndef NOCHEATS
+	UserItem rootcheati = {DefFolder(0,"CHEATS",&cheatgroup)};
+#endif
 	UserItem rooti[] =
 	{
 		{DefFolder(0,"NEW GAME",&newgamegroup)},
@@ -356,6 +383,9 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 #ifdef CK_INTR_ENDER
 		{DefButton(0,"QUIT"),uc_Quit},
 #endif
+#ifndef NOCHEATS
+		{uii_Bad}, // Dummy item for cheats menu
+#endif
 		{uii_Bad}
 	};
 	UserItemGroup  rootgroup = {16,8,CP_MAINMENUPIC,0,rooti};
@@ -366,6 +396,9 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 	word                    cstackptr;
 	UserItemGroup   *cardstack[MaxCards],
 					 *topcard;
+
+
+boolean cheatsEnabled = false;
 
 //      Card stack code
 static void
@@ -657,6 +690,73 @@ USL_ConfirmComm(UComm comm)
 		s2 = "SAVES AND CONFIGS";
 		dialog = true;
 		break;
+
+	case uc_C_GodMode:
+		s1 = "GOD MODE";
+		godmode = !godmode;
+		if(godmode){
+			s2 = "ENABLED";
+		}else {
+			s2 = "DISABLED";
+		}
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+	case uc_C_JumpCheat:
+		s1 = "JUMP CHEAT";
+		jumpcheat = !jumpcheat;
+		if(jumpcheat){
+			s2 = "ENABLED";
+		}else {
+			s2 = "DISABLED";
+		}
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+	case uc_C_InfAmmo:
+		s1 = "INFINITE AMMO";
+		infiniteammo = !infiniteammo;
+		if(infiniteammo){
+			s2 = "ENABLED";
+		}else {
+			s2 = "DISABLED";
+		}
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+	case uc_C_InfLives:
+		s1 = "INFINITE LIVES";
+		infinitelives = !infinitelives;
+		if(infinitelives){
+			s2 = "ENABLED";
+		}else {
+			s2 = "DISABLED";
+		}
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+	case uc_C_AllItems:
+		s1 = "ITEMS ADDED";
+		gamestate.ammo = 99;
+		gamestate.keys[0] = gamestate.keys[1] = 
+			gamestate.keys[2] = gamestate.keys[3] = 99;
+		gamestate.lives = 99;
+		gamestate.score += 20000;
+		s2 = "";
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+
 	}
 
 	confirm = dialog? USL_CtlDialog(s1,s2,s3) : true;
@@ -1877,6 +1977,12 @@ USL_SetControlValues(void)
 		rooti[2].flags |= ui_Disabled;  // Save Game
 		rooti[5].flags |= ui_Disabled;  // End Game
 	}
+#ifndef NOCHEATS
+	// Add in the cheat menu if needed 
+	if(debugok)
+		rooti[7] = rootcheati;
+#endif
+
 	rootgroup.cursor = ingame? 4 : 0;
 	USL_SetOptionsText();
 	// DEBUG - write the rest of this
@@ -1897,6 +2003,20 @@ USL_VideoCustom(UserCall call,struct UserItem *item)
 	return(false);
 }
 
+static boolean
+USL_CheatCustom(UserCall call,struct UserItem *item)
+{
+	int     i = 0;
+	// DEBUG - write the rest of this
+	i = USL_FindPushedItem(&cheatgroup);
+
+	return(false);
+}
+
+
+void US_EnableCheatMenu(){
+	cheatsEnabled = true;
+};
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -1944,6 +2064,11 @@ USL_HandleComm(UComm comm)
 	case uc_Saving:
 	case uc_Return:
 	case uc_WipeRom:
+	case uc_C_GodMode:
+	case uc_C_JumpCheat:
+	case uc_C_InfAmmo:
+	case uc_C_InfLives:
+	case uc_C_AllItems:
 		break;
 	case uc_Abort:
 		abortgame = true;

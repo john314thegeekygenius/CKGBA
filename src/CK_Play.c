@@ -37,7 +37,8 @@
 =============================================================================
 */
 
-boolean singlestep, jumpcheat, godmode, keenkilled;
+boolean singlestep, jumpcheat = false, godmode = false, keenkilled;
+boolean infinitelives= false, infiniteammo= false;
 
 exittype playstate;
 gametype gamestate;
@@ -424,59 +425,8 @@ void DrawStatusWindow(void)
 */
 
 void ScrollStatusWindow(void)
-{/*
-	Uint16 source, dest;
-	Sint16 height;
-
-	if (vislines > 152)
-	{
-		height = vislines - 152;
-		source = windowofs + panadjust + 8;
-		dest = bufferofs + panadjust + 8;
-		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
-		VW_ClipDrawMPic((pansx+136)/BYTEPIXELS, -(16-height)+pansy, METALPOLEPICM);
-		source = windowofs + panadjust + 16*SCREENWIDTH + 8*CHARWIDTH;
-		dest = bufferofs + panadjust + height*SCREENWIDTH + 8;
-		height = 152;
-	}
-	else
-	{
-		source = windowofs + panadjust + (152-vislines)*SCREENWIDTH + 16*SCREENWIDTH + 8*CHARWIDTH;
-		dest = bufferofs + panadjust + 8;
-		height = vislines;
-	}
-	if (height > 0)
-	{
-		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
-	}
-	if (scrollup)
-	{
-		height = 168-vislines;
-		source = masterofs + panadjust + vislines*SCREENWIDTH + 8;
-		dest = bufferofs + panadjust + vislines*SCREENWIDTH + 8;
-		VW_ScreenToScreen(source, dest, 192/BYTEPIXELS, height);
-		height = vislines;
-		source = windowofs + panadjust + 8 - 24/BYTEPIXELS;
-		dest = bufferofs + panadjust + 8 - 24/BYTEPIXELS;
-		if (height > 0)
-			VW_ScreenToScreen(source, dest, 24/BYTEPIXELS, height);
-	}
-	else
-	{
-		height = vislines + -72;
-		if (height > 0)
-		{
-			source = windowofs + panadjust + 8 - 24/BYTEPIXELS;
-			dest = bufferofs + panadjust + 8 - 24/BYTEPIXELS;
-			if (height > 0)
-				VW_ScreenToScreen(source, dest, 24/BYTEPIXELS, height);
-		}
-	}
-	if (vislines >= 72)
-	{
-		VW_ClipDrawMPic((pansx+40)/BYTEPIXELS, vislines-168+pansy, CORDPICM);
-	}
-	VW_UpdateScreen();*/
+{
+	// We aren't doing that
 }
 
 /*
@@ -487,21 +437,29 @@ void ScrollStatusWindow(void)
 ==================
 */
 
+// MODDERS:
+// You could change / remove the cheats this way
+#ifndef NOCHEATS
+const int DebugSequence[] = { 
+	GBA_BUTTON_UP, 
+	GBA_BUTTON_UP, 
+	GBA_BUTTON_DOWN,
+	GBA_BUTTON_DOWN,
+	GBA_BUTTON_LEFT,
+	GBA_BUTTON_RIGHT,
+	GBA_BUTTON_LEFT,
+	GBA_BUTTON_RIGHT,
+	GBA_BUTTON_B,
+	GBA_BUTTON_A,
+	0
+};
+#endif
+
 void StatusWindow(void)
 {
+	int debugSCount = 0;
 	// Draw it like CGA mode
-//#if GRMODE == CGAGR
-/*
-	if (Keyboard[sc_A] && Keyboard[sc_2])
-	{
-		US_CenterWindow(20, 2);
-		PrintY += 2;
-		US_Print("Debug keys active");
-		VW_UpdateScreen();
-		IN_Ack();
-		debugok = true;
-	}
-*/
+
 	// Fix the scroll offsets
 	VW_FixGraphics();
 	// Hide all the sprites
@@ -516,78 +474,35 @@ void StatusWindow(void)
 	DrawStatusWindow();
 	VW_UpdateScreen();
 	IN_ClearKeysDown();
-	IN_Ack();
+	ScanCode sc = 0;
 
-//#else
-#ifdef STATIS_SCROL
-	Uint16 oldbufferofs;
-
-	WindowX = 0;
-	WindowW = 320;
-	WindowY = 0;
-	WindowH = 200;
-
-	if (Keyboard[sc_A] && Keyboard[sc_2])
-	{
-		US_CenterWindow(20, 2);
-		PrintY += 2;
-		US_Print("Debug keys active");
-		VW_UpdateScreen();
-		IN_Ack();
-		debugok = true;
+	// Wait for the select button to be pressed again
+	while(sc != GBA_BUTTON_SELECT){
+		sc = IN_WaitForKey();
+#ifndef NOCHEATS
+		if(sc == DebugSequence[debugSCount]){
+			debugSCount ++;
+		}else if(sc){
+			debugSCount = 0;
+		}
+/*		if(debugSCount){
+			PrintX = 0;
+			PrintY = 0;
+			US_PrintUnsigned(debugSCount);
+		}*/
+		if(DebugSequence[debugSCount] == 0){
+			US_CenterWindow(20, 2);
+			PrintX += 4;
+			PrintY += 2;
+			US_Print("Cheats Enabled");
+			VW_UpdateScreen();
+			IN_Ack();
+			debugok = true;
+			US_EnableCheatMenu();
+			return; // I guess return now?
+		}
+#endif
 	}
-
-	RF_Refresh();
-	RFL_InitAnimList();
-	oldbufferofs = bufferofs;
-	bufferofs = windowofs = RF_FindFreeBuffer();
-	VW_ScreenToScreen(displayofs, displayofs, 44, 224);	// useless (source and dest offsets are identical)
-	VW_ScreenToScreen(displayofs, masterofs, 44, 224);
-	VW_ScreenToScreen(displayofs, bufferofs, 44, 168);
-	DrawStatusWindow();
-	bufferofs = oldbufferofs;
-	RF_Refresh();
-
-	SD_PlaySound(SND_SHOWSTATUS);
-	vislines = 16;
-	scrollup = false;
-	RF_SetRefreshHook(ScrollStatusWindow);
-
-	while (true)
-	{
-		RF_Refresh();
-		if (vislines == 168)
-			break;
-		vislines = vislines + tics*8;
-		if (vislines > 168)
-			vislines = 168;
-	}
-
-	RF_Refresh();
-	RF_SetRefreshHook(NULL);
-	IN_ClearKeysDown();
-	IN_Ack();
-
-	SD_PlaySound(SND_HIDESTATUS);
-	vislines -= 16;
-	scrollup = true;
-	RF_SetRefreshHook(ScrollStatusWindow);
-
-	while (true)
-	{
-		RF_Refresh();
-		if (vislines == 0)
-			break;
-		vislines = vislines - tics*8;
-		if (vislines < 0)
-			vislines = 0;
-	}
-
-	RF_SetRefreshHook(NULL);
-
-	scoreobj->x = 0;	//force scorebox to redraw?
-
-#endif*/
 }
 
 

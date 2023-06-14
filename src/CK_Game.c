@@ -789,6 +789,8 @@ void CA_CacheMarks (char *title)
 ==========================
 */
 
+extern boolean infinitelives;
+
 void HandleDeath(void)
 {
 
@@ -797,7 +799,9 @@ void HandleDeath(void)
 	SizeText(levelnames[mapon], &w, &h);
 
 	memset(gamestate.keys, 0, sizeof(gamestate.keys));
-	gamestate.lives--;
+	if(!infinitelives){
+		gamestate.lives--;
+	}
 
 	if (gamestate.lives >= 0)
 	{

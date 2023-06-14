@@ -33,6 +33,8 @@ DONT_OPTIMISE objtype * GetNewObj(boolean dummy);
 
 void CK_SetSprite(objsprite **spr, CK_SpriteType type);
 
+void CK_FixSpriteGraphics(objsprite *sprite);
+
 void CK_RemakeSprite(objsprite **spr, CK_SpriteType type);
 
 void CK_SetSpriteGfx(objsprite **spr, CK_SpriteType type);

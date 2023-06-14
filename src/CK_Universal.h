@@ -133,6 +133,7 @@ void US_ShowScreen(unsigned short screen);
 
 void US_Setup();
 void US_Shutdown(void);
+void US_EnableCheatMenu();
 
 extern void US_TextScreen(), 
 				US_UpdateTextScreen(void),

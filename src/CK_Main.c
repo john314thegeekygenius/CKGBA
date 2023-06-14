@@ -117,6 +117,7 @@ void Quit(char *error)
 	GBA_StopChannel(GBA_CHANNEL_A);
 	GBA_StopChannel(GBA_CHANNEL_B);
 	VW_ClearVideo(BLACK);
+	CK_FixPalette();
 	// Remove the second background
 	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 	VW_ClearScroll();

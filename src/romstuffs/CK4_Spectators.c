@@ -510,7 +510,8 @@ void PrincessLindsey(void)
 	PrintY += 6;
 	WindowW -= 48;
 	WindowX += 48;
-	US_CPrint("Princess Lindsey\msays:\n");
+	// MODDERS:
+	US_CPrint("Princess Lindsey\nsays:\n");
 	if (mapon == 7)
 	{
 		US_CPrint(lindseytext[0]);

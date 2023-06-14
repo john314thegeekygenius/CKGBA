@@ -1233,7 +1233,7 @@ void SpawnDartShooter(Sint16 x, Sint16 y, Sint16 dir)
 		ck_newobj->shapenum = DARTL1SPR;
 		break;
 	}
-	NewState(ck_newobj, &s_dartthrower, CKS_EOL);
+	NewState(ck_newobj, &s_dartthrower, CKS_DUMMY);
 
 }
 
@@ -1289,7 +1289,6 @@ void T_DartShoot(objtype *ob)
 void R_DartThrower(objtype *ob)	//never used
 {
 	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
-	
 }
 
 /*

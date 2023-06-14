@@ -29,6 +29,7 @@
 #ifndef __CK_DEF__
 #define __CK_DEF__
 
+#define FIX_BUGS 1
 
 // Pulled from ID_RF.H
 /*

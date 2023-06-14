@@ -1,16 +1,23 @@
 
-Slugs get stuck on hills going left
-Licks can climb walls
-Keen do move chonkey
+!! End sequence is non-existant
 
-End sequence is non-existant
+** Adlib music breaks at the end
+** Adlib sounds click at the end
 
-Adlib music breaks at the end
-Adlib sounds click at the end
+!! WoW level will has sprite issues
 
-WoW level will has sprite issues
+?? Unkown object can be saved and thus corupt a save file???
+?? Demos will play back wrong
+?? Slugs get stuck on hills going left
+?? Licks can climb walls
+?? Keen do move chonkey
+?? Hitbox on wormmouth is wrong?
 
-Unkown object can be saved and thus corupt a save file???
-Demos will play back wrong
+** Write the tool documentation
+** Release tools_pack.zip (with win binaries??)
 
-Write the tool documentation
+Loading takes too long because of animation loop?
+
+Green things don't shoot
+
+

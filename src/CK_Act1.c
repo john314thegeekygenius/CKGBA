@@ -335,6 +335,9 @@ void T_Council(objtype *ob)
 		// BUG: might be about to move off a ledge, causing it to get stuck
 		// after standing (the stand state doesn't use R_Walk)!
 		// To avoid that, set xtry to 0 here.
+#ifdef FIX_BUGS
+		xtry = 0; // TOOD: See if this works
+#endif
 		ob->state = &s_councilstand;
 	}
 }
@@ -407,6 +410,9 @@ void T_Slug(objtype *ob)
 		ob->state = &s_slugpiss1;
 		SD_PlaySound(SND_SLUGPOO);
 		// Note: might be a good idea to set xtry to 0 here
+#ifdef FIX_BUGS
+		xtry = 0; // TOOD: Might be intended to not have this???
+#endif
 	}
 }
 

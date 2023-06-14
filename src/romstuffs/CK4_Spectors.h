@@ -75,6 +75,7 @@ typedef enum CK_SpriteType{
 	CKS_LIGHTNINGBOLT,
 	CKS_BERKELOID,
 	CKS_FLAME,
+	CKS_DUMMY,
 	CKS_EOL,
 }CK_SpriteType;
 #endif

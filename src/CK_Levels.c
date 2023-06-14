@@ -516,9 +516,21 @@ void CK_UpdateLevel(){
 };
 
 void CK_FixTileAnimations(unsigned int toTick){
-    // Update the level toTick times
-    for(int i = 0; i < toTick; i++){
-        CK_UpdateLevel();
+    // Update the level background tiles toTick times
+    for(int ani = 0; ani < CK_NumOfAnimations[0]; ani++){
+        struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][0];
+        for(int i = 0; i < toTick; i++){
+            if(!ck_ani->active) continue; // Don't worry about inactive animations
+            ck_ani->ani_time -= 1;
+            while(ck_ani->ani_time < 1){
+                // Update the tile
+                uint16_t *tile = &CK_CurLevelData[ck_ani->map_offset];
+                *tile += (signed short)ck_ani->tile_to;
+
+                ck_ani->tile_to = (signed char)CK_TileInfo[0][*tile+CK_TileInfo_BGTiles];
+                ck_ani->ani_time = CK_TileInfo[0][*tile];
+            }
+        }
     }
 };
 

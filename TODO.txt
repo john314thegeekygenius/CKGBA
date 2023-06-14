@@ -16,8 +16,3 @@
 ** Write the tool documentation
 ** Release tools_pack.zip (with win binaries??)
 
-Loading takes too long because of animation loop?
-
-Green things don't shoot
-
-

@@ -41,7 +41,7 @@
 // Make this correct
 #define HIGHSCORE_LEFT	8
 #define HIGHSCORE_TOP	56
-#define HIGHSCORE_RIGHT	208
+#define HIGHSCORE_RIGHT	240
 #define HIGHSCORE_MAP	19
 
 // MODDERS:

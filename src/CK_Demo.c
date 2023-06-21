@@ -712,7 +712,7 @@ void DrawHighScores(void)
 			*bufptr = *bufptr + 81;
 		}
 		
-		PrintX = HIGHSCORE_RIGHT - _ck_strlen(buf);
+		PrintX = HIGHSCORE_RIGHT - (_ck_strlen(buf)<<3);
 		US_Print(buf);
 	}
 	fontcolor = BLACK;	// back to default color

@@ -808,6 +808,7 @@ CK_BlitChar('\x01', x+typeX+1, y, fontcolor); // Clear char (what???)
 
 	// Clear the buffer
 	GBA_DMA_MemSet16(lineBuffer,0,MaxString>>1);
+	lineBuffer[0] = 'A';
 	// Clear the screen for the area of the buffer
 	for(i = 0; i < maxchars; i++){
 		CK_BlitChar('\x01', x+typeX+i, y, fontcolor); // Clear char (what???)
@@ -851,7 +852,7 @@ CK_BlitChar('\x01', x+typeX+1, y, fontcolor); // Clear char (what???)
 			if(LastScan == GBA_BUTTON_DOWN){
 				// Spawn a new letter if none is there
 				if(lineBuffer[typeX] == 0){
-					lineBuffer[typeX] = 'Z';
+					lineBuffer[typeX] = 'z';
 				}else{
 					lineBuffer[typeX] -= 1;
 				}
@@ -873,6 +874,8 @@ CK_BlitChar('\x01', x+typeX+1, y, fontcolor); // Clear char (what???)
 			if(typeX < 0) typeX = 0;
 			// Remove the character from the string
 			lineBuffer[typeX] = 0;
+			if(typeX == 0)
+				CK_BlitChar('\x01', x, y, fontcolor);
 		}
 		
 		// Handle end cases

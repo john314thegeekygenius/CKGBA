@@ -100,6 +100,7 @@ void SpawnScore(void)
 			case CK_DISP_SCORE_GBA:
 				break;
 		}
+		scoreboxwiped = true;
 	}
 	else
 	{
@@ -168,41 +169,11 @@ void UpdateScore(objtype *ob)
 		return;
 	}
 
-	// MOVED FROM BOTTOM OF FUNCTION
-	/*
-	Note:
-	-----
-
-	It would be more efficient to use
-
-		if (changed)
-			ShiftScore();
-
-	here instead of the individual ShiftScore() calls above. Because if the player
-	gains a life by collecting points items, both the score and lives numbers need
-	to be updated, which means the sprite would be shifted twice. And if the player
-	fires a shot during the same frame, the ammo number also needs to be updated,
-	leading to up to three shifts in one frame.
-	*/
-
 	changed = false;
-
-	if (ob->x != originxglobal || ob->y != originyglobal)
-	{
-		ob->x = originxglobal;
-		ob->y = originyglobal;
+	if(scoreboxwiped){
+		CK_UpdateSpriteGraphics(scoreobj->sprite);
+		scoreboxwiped = false;
 		changed = true;
-	}
-	if (changed){
-		switch(showscorebox){
-			case CK_DISP_SCORE_DOS:
-				RF_PlaceSprite(&ob->sprite, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
-			break;
-			case CK_DISP_SCORE_GBA:
-				RF_PlaceSprite(&ob->sprite, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
-			break;
-		};
-		
 	}
 
 //code below is a combination of ScoreThink and ScoreReact from Keen Dreams with minor changes
@@ -337,6 +308,25 @@ void UpdateScore(objtype *ob)
 		for(int drw = 0; drw < 8; drw++){
 			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (gamestate.rescued*8)];
 		}
+	}
+
+
+	if (ob->x != originxglobal || ob->y != originyglobal)
+	{
+		ob->x = originxglobal;
+		ob->y = originyglobal;
+		changed = true; 
+	}
+	if (changed){
+		switch(showscorebox){
+			case CK_DISP_SCORE_DOS:
+				RF_PlaceSpriteNU(&ob->sprite, ob->x+4*PIXGLOBAL, ob->y, SCOREBOXSPR, spritedraw, 3);
+			break;
+			case CK_DISP_SCORE_GBA:
+				RF_PlaceSpriteNU(&ob->sprite, ob->x, ob->y-3*PIXGLOBAL, SCOREBOXSPR, spritedraw, 3);
+			break;
+		};
+		
 	}
 
 };

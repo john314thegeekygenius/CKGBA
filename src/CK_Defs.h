@@ -361,7 +361,6 @@ typedef struct objsprite {
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
 	uint16_t gfxsprindx;
-	bool gfxlocked;
     CK_SpriteType ck_sprType;
     CK_SpriteType ck_prevType;
 	Uint16 spritenum;
@@ -422,6 +421,7 @@ void SizeText(char *text, Uint16 *width, Uint16 *height);
 */
 
 extern boolean scorescreenkludge;
+extern boolean scoreboxwiped;
 
 extern const unsigned char CK_DEMO0_data[];
 extern const unsigned char CK_DEMO1_data[];

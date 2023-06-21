@@ -32,6 +32,7 @@ extern const unsigned int CK_KEENEST_size;
 extern const unsigned char CK_KEENEST[];
 
 boolean scorescreenkludge;
+boolean scoreboxwiped;
 
 const unsigned char *CK_DemoPtrs[] = {
 	CK_DEMO0_data,

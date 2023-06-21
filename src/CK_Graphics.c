@@ -473,7 +473,6 @@ void VWB_DrawSprite(objsprite **spr, int x, int y, int chunknum){
 	dx += shape[4];
 	dy += shape[5];
 
-	CK_FixSpriteGraphics(sprite);
     CK_UpdateSpriteGraphics(sprite);
 
     uint32_t vidmem = sprite->gfxoffset;

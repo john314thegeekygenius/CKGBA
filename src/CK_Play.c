@@ -480,16 +480,15 @@ void StatusWindow(void)
 	while(sc != GBA_BUTTON_SELECT){
 		sc = IN_WaitForKey();
 #ifndef NOCHEATS
+		PrintX = 5<<3;
+		PrintY = 2<<3;
 		if(sc == DebugSequence[debugSCount]){
 			debugSCount ++;
+			US_PrintUnsigned(debugSCount);
 		}else if(sc){
 			debugSCount = 0;
+			US_Print("\1");
 		}
-/*		if(debugSCount){
-			PrintX = 0;
-			PrintY = 0;
-			US_PrintUnsigned(debugSCount);
-		}*/
 		if(DebugSequence[debugSCount] == 0){
 			US_CenterWindow(20, 2);
 			PrintX += 4;
@@ -1414,8 +1413,10 @@ void PlayLoop(void)
 //
 // scroll the screen and update the score box
 //
+// MODDERS:
+// Can change what maps use World Scroll ( WorldMap & WoW)
 #ifdef KEEN4
-		if (mapon != 0 && mapon != 17)
+		if (mapon != 0 )//&& mapon != 17)
 #else
 		if (mapon != 0)
 #endif

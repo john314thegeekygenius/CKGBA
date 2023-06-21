@@ -171,8 +171,9 @@ ScanCode IN_WaitForKey(void)
 {
 	ScanCode result = LastScan;
 
-	while (!(result == LastScan))
-		;
+	while (!(result == LastScan)){
+		GBA_WAIT_VBLANK
+	};
 	LastScan = 0;
 	return(result);
 }

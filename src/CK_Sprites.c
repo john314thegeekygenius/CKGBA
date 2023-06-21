@@ -408,11 +408,13 @@ void CK_RemoveSprites(){
     CK_NumOfSprites = 0;
     // We have no sprites anymore!
     CK_SprGfxOffset = 0;
+    CK_NumOfGfxLocks = 0;
 };
 
 void CK_ResetSprGraphicsOffset(){
     // We have no sprites anymore!
     CK_SprGfxOffset = 0;
+    CK_NumOfGfxLocks = 0;
 };
 
 void CK_RemoveDummySprites(){
@@ -428,6 +430,7 @@ void CK_RemoveDummySprites(){
 
     // We have no sprites yet!
     CK_SprGfxOffset = 0;
+    CK_NumOfGfxLocks = 0;
 };
 
 

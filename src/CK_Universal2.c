@@ -750,6 +750,17 @@ USL_ConfirmComm(UComm comm)
 			gamestate.keys[2] = gamestate.keys[3] = 99;
 		gamestate.lives = 99;
 		gamestate.score += 20000;
+#ifdef KEEN4
+		gamestate.wetsuit = true;
+#elif defined CK5
+		gamestate.keycard = true;
+#elif defined CK6
+		// TODO: Are these items?
+		gamestate.sandwichstate = 1; 
+		gamestate.hookstate = 1; 
+		gamestate.passcardstate = 1; 
+		gamestate.rocketstate = 1;
+#endif
 		s2 = "";
 		s3 = "PRESS KEY";
 		USL_CtlDialog(s1,s2,s3);

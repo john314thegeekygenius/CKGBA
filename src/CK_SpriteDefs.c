@@ -40,17 +40,55 @@ const unsigned int CKS_Droplets_SprCount = 1;
 const unsigned int CKS_Droplets_SprData[] = {
 	1, 0, 0, 0, // 
 };
-const unsigned int CKS_OneUp_SprSize = 384;
-const unsigned int CKS_OneUp_SprCount = 2;
-const unsigned int CKS_OneUp_SprData[] = {
+const unsigned int CKS_ShadowOneUp_SprSize = 384;
+const unsigned int CKS_ShadowOneUp_SprCount = 2;
+const unsigned int CKS_ShadowOneUp_SprData[] = {
 	1, 0, 0, 0, // 
 	8, 16, 0, 4, // 
 };
-const unsigned int CKS_Shadows_SprSize = 384;
-const unsigned int CKS_Shadows_SprCount = 2;
-const unsigned int CKS_Shadows_SprData[] = {
+const unsigned int CKS_Shadow100_SprSize = 128;
+const unsigned int CKS_Shadow100_SprCount = 1;
+const unsigned int CKS_Shadow100_SprData[] = {
+	4, 0, 0, 0, // 
+};
+const unsigned int CKS_Shadow200_SprSize = 128;
+const unsigned int CKS_Shadow200_SprCount = 1;
+const unsigned int CKS_Shadow200_SprData[] = {
+	4, 0, 0, 0, // 
+};
+const unsigned int CKS_Shadow500_SprSize = 128;
+const unsigned int CKS_Shadow500_SprCount = 1;
+const unsigned int CKS_Shadow500_SprData[] = {
+	4, 0, 0, 0, // 
+};
+const unsigned int CKS_Shadow1k_SprSize = 192;
+const unsigned int CKS_Shadow1k_SprCount = 2;
+const unsigned int CKS_Shadow1k_SprData[] = {
+	4, 0, 0, 0, // 
+	0, 16, 0, 2, // 
+};
+const unsigned int CKS_Shadow2k_SprSize = 192;
+const unsigned int CKS_Shadow2k_SprCount = 2;
+const unsigned int CKS_Shadow2k_SprData[] = {
+	4, 0, 0, 0, // 
+	0, 16, 0, 2, // 
+};
+const unsigned int CKS_Shadow5k_SprSize = 192;
+const unsigned int CKS_Shadow5k_SprCount = 2;
+const unsigned int CKS_Shadow5k_SprData[] = {
+	4, 0, 0, 0, // 
+	0, 16, 0, 2, // 
+};
+const unsigned int CKS_Shadow1up_SprSize = 384;
+const unsigned int CKS_Shadow1up_SprCount = 2;
+const unsigned int CKS_Shadow1up_SprData[] = {
 	1, 0, 0, 0, // 
-	8, 16, 0, 32, // 
+	8, 16, 0, 4, // 
+};
+const unsigned int CKS_ShadowStun_SprSize = 256;
+const unsigned int CKS_ShadowStun_SprCount = 1;
+const unsigned int CKS_ShadowStun_SprData[] = {
+	1, 0, 0, 0, // 
 };
 const unsigned int CKS_Soda_SprSize = 256;
 const unsigned int CKS_Soda_SprCount = 1;
@@ -123,12 +161,28 @@ const unsigned int CKS_NStunner_SprCount = 1;
 const unsigned int CKS_NStunner_SprData[] = {
 	1, 0, 0, 0, // 
 };
-const unsigned int CKS_ScoreBox_SprSize = 2816;
-const unsigned int CKS_ScoreBox_SprCount = 3;
-const unsigned int CKS_ScoreBox_SprData[] = {
+const unsigned int CKS_ScoreBoxDOS_SprSize = 3520;
+const unsigned int CKS_ScoreBoxDOS_SprCount = 7;
+const unsigned int CKS_ScoreBoxDOS_SprData[] = {
 	7, 0, 0, 0, // 
 	10, 64, 0, 32, // 
 	9, 80, 0, 40, // 
+	5, 0, 32, 44, // 
+	5, 32, 32, 48, // 
+	4, 64, 32, 52, // 
+	0, 80, 32, 54, // 
+};
+const unsigned int CKS_ScoreBoxGBA_SprSize = 3840;
+const unsigned int CKS_ScoreBoxGBA_SprCount = 8;
+const unsigned int CKS_ScoreBoxGBA_SprData[] = {
+	6, 0, 0, 0, // 
+	6, 32, 0, 8, // 
+	6, 64, 0, 16, // 
+	6, 96, 0, 24, // 
+	6, 128, 0, 32, // 
+	6, 160, 0, 40, // 
+	6, 192, 0, 48, // 
+	1, 224, 0, 56, // 
 };
 const unsigned int CKS_MapKeen_SprSize = 256;
 const unsigned int CKS_MapKeen_SprCount = 1;
@@ -141,16 +195,11 @@ const unsigned int CKS_MapFoot_SprData[] = {
 	2, 0, 0, 0, // 
 	9, 32, 0, 32, // 
 };
-const unsigned int CKS_MapFlagFlip_SprSize = 1280;
-const unsigned int CKS_MapFlagFlip_SprCount = 2;
-const unsigned int CKS_MapFlagFlip_SprData[] = {
+const unsigned int CKS_MapFlag_SprSize = 1280;
+const unsigned int CKS_MapFlag_SprCount = 2;
+const unsigned int CKS_MapFlag_SprData[] = {
 	2, 0, 0, 0, // 
-	5, 0, 32, 112, // 
-};
-const unsigned int CKS_MapFlagIdle_SprSize = 1024;
-const unsigned int CKS_MapFlagIdle_SprCount = 1;
-const unsigned int CKS_MapFlagIdle_SprData[] = {
-	2, 0, 0, 0, // 
+	5, 0, 32, 176, // 
 };
 const unsigned int CKS_KeenSwim_SprSize = 1280;
 const unsigned int CKS_KeenSwim_SprCount = 2;
@@ -221,6 +270,14 @@ const unsigned int CKS_TESmoke_SprData[] = {
 	5, 0, 32, 100, // 
 	0, 32, 32, 120, // 
 };
+const unsigned int CKS_CMember_SprSize = 960;
+const unsigned int CKS_CMember_SprCount = 4;
+const unsigned int CKS_CMember_SprData[] = {
+	10, 0, 0, 0, // 
+	9, 16, 0, 48, // 
+	4, 0, 32, 72, // 
+	0, 16, 32, 84, // 
+};
 const unsigned int CKS_Egg_SprSize = 768;
 const unsigned int CKS_Egg_SprCount = 2;
 const unsigned int CKS_Egg_SprData[] = {
@@ -232,14 +289,9 @@ const unsigned int CKS_EggParticles_SprCount = 1;
 const unsigned int CKS_EggParticles_SprData[] = {
 	0, 0, 0, 0, // 
 };
-const unsigned int CKS_BBirdWalk_SprSize = 1024;
-const unsigned int CKS_BBirdWalk_SprCount = 1;
-const unsigned int CKS_BBirdWalk_SprData[] = {
-	2, 0, 0, 0, // 
-};
-const unsigned int CKS_BBirdFly_SprSize = 2048;
-const unsigned int CKS_BBirdFly_SprCount = 1;
-const unsigned int CKS_BBirdFly_SprData[] = {
+const unsigned int CKS_BBird_SprSize = 2048;
+const unsigned int CKS_BBird_SprCount = 1;
+const unsigned int CKS_BBird_SprData[] = {
 	7, 0, 0, 0, // 
 };
 const unsigned int CKS_Dart_SprSize = 256;
@@ -391,4 +443,9 @@ const unsigned int CKS_Flame_SprCount = 2;
 const unsigned int CKS_Flame_SprData[] = {
 	10, 0, 0, 0, // 
 	4, 0, 32, 32, // 
+};
+const unsigned int CKS_EOL_SprSize = 64;
+const unsigned int CKS_EOL_SprCount = 1;
+const unsigned int CKS_EOL_SprData[] = {
+	0, 0, 0, 0, // 
 };

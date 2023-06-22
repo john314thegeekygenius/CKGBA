@@ -3,7 +3,10 @@
 
 #include "GBA_Defs.h"
 
-
+int min(int a, int b){
+	if(a > b) return b;
+	return a;
+};
 
 void GBA_Delay(uint32_t ms){
 	ms *= 250;
@@ -74,6 +77,36 @@ copyloop:
 		goto copyloop;
 };
 
+void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) {
+	uint8_t *dstbytes = dest, *srcbytes = source;
+	uint8_t srcbyte, nibblea, nibbleb, wbyte;
+	amount *= 4; // multiply by 4
+copyloop:
+	wbyte = *(dstbytes);
+	srcbyte = *(srcbytes++);
+	nibblea = srcbyte&0xF;
+	nibbleb = srcbyte>>4;
+	if(nibblea) wbyte &= 0xF0;
+	if(nibbleb) wbyte &= 0x0F;
+	wbyte |= srcbyte;
+	*(dstbytes++) = wbyte;
+	if(--amount)
+		goto copyloop;	
+};
+
+void GBA_InitRumble(){
+    *(volatile unsigned short*)GPIO_PORT_DIRECTION = (1 << 3);
+    *(volatile unsigned short*)GPIO_PORT_CONTROL = 1;
+};
+
+void GBA_RumbleOn(){
+    *(volatile unsigned short*)GPIO_PORT_DATA |= (1 << 3);
+};
+
+void GBA_RumbleOff(){
+    *(volatile unsigned short*)GPIO_PORT_DATA &= ~(1 << 3);
+};
+
 
 GBA_Sprite GBA_SpriteList[GBA_NUM_SPRITES];
 uint16_t GBA_SpriteIndex = 0;
@@ -81,6 +114,12 @@ uint16_t GBA_SpriteIndex = 0;
 
 // Moves all the sprites off the screen to hide them
 void GBA_ResetSprites(){
+	GBA_ClearSpriteCache();
+	// Also update the sprites
+	GBA_UPDATE_SPRITES()
+};
+
+void GBA_ClearSpriteCache(){
 	int i;
 	for(i = 0; i < GBA_NUM_SPRITES; i++){
 		GBA_SpriteList[i].a0 = 0xF0;
@@ -88,7 +127,6 @@ void GBA_ResetSprites(){
 		GBA_SpriteList[i].a2 = 0;
 	}
 	GBA_SpriteIndex = 0;
-	GBA_UPDATE_SPRITES()
 };
 
 void GBA_HideSprites(){
@@ -127,14 +165,13 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 
 	// Set the sprite attributes
 	size_bits = size&0x3;//((int)size%4);
-	shape_bits = (size >> 2);
+	shape_bits = (size >> 2)&0x3;
 
 	for(i = 0; i < GBA_SpriteIndex; i++){
 		if(GBA_SpriteList[i].a0 == 0xF0 && GBA_SpriteList[i].a1 == 0xA0 && GBA_SpriteList[i].a2 == 0){
-			GBA_SpriteList[i].a0 = y | palflags | (shape_bits<<14);
-			GBA_SpriteList[i].a1 = x | (size_bits<<14);
-			GBA_SpriteList[i].a2 = tileIndex | zLayer | (palette<<12);
-
+			GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+			GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+			GBA_SpriteList[i].a2 = (tileIndex&0x3FF) | zLayer | (palette<<12);
 			return i;
 		}
 	}
@@ -144,12 +181,44 @@ GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t 
 		GBA_SpriteIndex = 127; // lock in place
 	}
 
-	GBA_SpriteList[index].a0 = y | palflags | (shape_bits<<14);
-	GBA_SpriteList[index].a1 = x | (size_bits<<14);
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
+
+	GBA_UPDATE_SPRITE(index)
+
+	return index;
+};
+
+// Function to create a new sprite in the list
+// returns index into sprite array
+GBA_SpriteIndex_t GBA_CreateSpriteFast(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer,int palette){
+	uint16_t size_bits = 0, shape_bits = 0;
+	uint16_t index = GBA_SpriteIndex; // Get the current index
+	uint16_t palflags = 0;
+	uint16_t i = 0;
+	
+	if(palette == -1){
+		palflags = GBA_SPRITE_256;
+		palette = 0;
+	}
+
+	// Set the sprite attributes
+	size_bits = size&0x3;//((int)size%4);
+	shape_bits = (size >> 2)&0x3;
+
+	++GBA_SpriteIndex; // Increment the index by one
+	if(GBA_SpriteIndex>127){
+		GBA_SpriteIndex = 127; // lock in place
+	}
+
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
 	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
 
 	return index;
 };
+
 
 void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette){
 	uint16_t size_bits = 0, shape_bits = 0;
@@ -162,12 +231,12 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 
 	// Set the sprite attributes
 	size_bits = size&0x3;//((int)size%4);
-	shape_bits = (size >> 2);
+	shape_bits = (size >> 2)&0x3;
 
 	if(index<0||index>127) return; // bad sprite ID
-	GBA_SpriteList[index].a0 = y | palflags | (shape_bits<<14);
-	GBA_SpriteList[index].a1 = x | (size_bits<<14);
-	GBA_SpriteList[index].a2 = tileIndex | zLayer | (palette<<12);
+	GBA_SpriteList[index].a0 = (y&0xFF) | palflags | (shape_bits<<14);
+	GBA_SpriteList[index].a1 = (x&0x1FF) | (size_bits<<14);
+	GBA_SpriteList[index].a2 = (tileIndex&0x3FF) | zLayer | (palette<<12);
 };
 
 
@@ -448,12 +517,14 @@ int GBA_Channel_A_Samples = 0;
 int GBA_Channel_A_Paused = 0;
 char GBA_Loop_Channel_A = 0;
 unsigned char *GBA_Channel_A_Src = (void*)0;
+unsigned int GBA_Channel_A_Dest = 0;
 
 int GBA_Channel_B_VBlanks = 0;
 int GBA_Channel_B_Samples = 0;
 int GBA_Channel_B_Paused = 0;
 char GBA_Loop_Channel_B = 0;
 unsigned char *GBA_Channel_B_Src = (void*)0;
+unsigned int GBA_Channel_B_Dest = 0;
 
 
 // Mixer variables
@@ -499,14 +570,11 @@ signed char mixerBuffer[736*2] GBA_IN_EWRAM;
 
 unsigned int GBA_VSyncCounter = 0;
 
-void GBA_UserIRQ();
-
 void GBA_VSyncIRQ() {
 	unsigned short temp;
 		
 	/* disable interrupts for now and save current state of interrupt */
 	*(volatile uint16_t*)GBA_INT_ENABLE = 0;
-
 	temp = *(volatile uint16_t*)GBA_INT_STATE;
 
 
@@ -514,7 +582,6 @@ void GBA_VSyncIRQ() {
     if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_VBLANK) == GBA_INT_VBLANK) {
 		
 		GBA_VSyncCounter += 1; // Update the number of VBlanks
-		GBA_UserIRQ();
 
 		// Force this here to always mix the audio
 //		#ifdef GBA_MIX_MY_AUDIO
@@ -545,7 +612,6 @@ void GBA_VSyncIRQ() {
 			mixerVars.activeBuffer = 1;
 		}
 		#else
-	
 		// Update channel A 
 		if(!GBA_Channel_A_Paused){
 			if (GBA_Channel_A_VBlanks == 0) {
@@ -589,13 +655,19 @@ void GBA_VSyncIRQ() {
 				--GBA_Channel_B_VBlanks;
 			}
 		}
-    }
 
+	}
+
+	if ((*(volatile uint16_t*)GBA_INT_STATE & GBA_INT_TIMER2) == GBA_INT_TIMER2) {
+
+		GBA_UserIRQ();
+	}
 
     // restore/enable interrupts 
     *(volatile uint16_t*)GBA_INT_STATE = temp;
 	*(volatile uint16_t*)GBA_INT_ENABLE = 1;
 };
+
 
 
 
@@ -605,12 +677,13 @@ void GBA_InitAudio(void){
 	GBA_Channel_A_Samples = 0;
 	GBA_Loop_Channel_A = 0;
 	GBA_Channel_A_Src = (void*)0;
+	GBA_Channel_A_Dest = 0;
 
 	GBA_Channel_B_VBlanks = 0;
 	GBA_Channel_B_Samples = 0;
 	GBA_Loop_Channel_B = 0;
 	GBA_Channel_B_Src = (void*)0;
-
+	GBA_Channel_B_Dest = 0;
 
 	// Setup interupt to stop sounds
 	*(volatile uint16_t*)GBA_INT_ENABLE = 0;
@@ -838,10 +911,25 @@ void GBA_PlayChannel(char channel){
 	#ifndef GBA_MIX_MY_AUDIO
 	if(channel==GBA_CHANNEL_A){
 		GBA_Channel_A_Paused = 0;
+
+		// Enable FIFO audio
+	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_A_RIGHT | GBA_DSND_A_LEFT | GBA_DSND_A_FIFO_RESET | GBA_DSND_TIMER0 | GBA_DSND_A_RATIO;
+
+		*(volatile unsigned int*)GBA_DMA1_SRC   = (unsigned int) GBA_Channel_A_Src;
+		*(volatile unsigned int*)GBA_DMA1_DEST  = (unsigned int) GBA_FIFO_BUFF_A;
+		*(volatile unsigned int*)GBA_DMA1_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
 	}
 	#endif
 	if(channel==GBA_CHANNEL_B){
 		GBA_Channel_B_Paused = 0;
+
+		// Enable FIFO audio
+	    *(volatile uint16_t*)GBA_SOUNDCNT_H |= GBA_DSND_B_RIGHT | GBA_DSND_B_LEFT | GBA_DSND_B_FIFO_RESET | GBA_DSND_TIMER1 | GBA_DSND_B_RATIO;
+
+		*(volatile unsigned int*)GBA_DMA2_SRC   = (unsigned int) GBA_Channel_B_Src;
+		*(volatile unsigned int*)GBA_DMA2_DEST  = (unsigned int) GBA_FIFO_BUFF_B;
+		*(volatile unsigned int*)GBA_DMA2_COUNT = GBA_DMA_DEST_FIXED | GBA_DMA_REPEAT | GBA_DMA_32 | GBA_DMA_SNC_TO_TIMER | GBA_DMA_ENABLE ;
+
 	}
 };
 

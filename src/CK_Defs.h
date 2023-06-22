@@ -4,27 +4,32 @@
     Feb 2023
 */
 
+/* Reconstructed Commander Keen 4-6 Source Code
+ * Copyright (C) 2021 K1n9_Duk3
+ *
+ * This file is primarily based on:
+ * Catacomb 3-D Source Code
+ * Copyright (C) 1993-2014 Flat Rock Software
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef __CK_DEF__
 #define __CK_DEF__
 
-// #define CK_DISABLE_MUSIC
-#define CK4
-
-
-#ifdef CK4
-#define KEEN4
-#include "romstuffs/CK4_Defs.h"
-#endif
-#ifdef CK5
-#define KEEN5
-#include "romstuffs/CK5_Defs.h"
-#endif
-#ifdef CK6
-#define KEEN6
-#include "romstuffs/CK6_Defs.h"
-#endif
-
-
+#define FIX_BUGS 1
 
 // Pulled from ID_RF.H
 /*
@@ -43,7 +48,7 @@
 
 #ifdef KEEN5
 
-#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXSPRITES			200		// max tracked sprites // MODIFIED
 #define	MAXANIMTILES		90		// max animating tiles on screen
 #define MAXANIMTYPES		80		// max different unique anim tiles on map
 
@@ -51,7 +56,7 @@
 
 #else
 
-#define	MAXSPRITES			60		// max tracked sprites
+#define	MAXSPRITES			200		// max tracked sprites // MODIFIED
 #define	MAXANIMTILES		90		// max animating tiles on screen
 #define MAXANIMTYPES		65		// max different unique anim tiles on map
 
@@ -62,17 +67,25 @@
 #define	PRIORITIES			4
 #define	MASKEDTILEPRIORITY	3		// planes go: 0,1,2,MTILES,3
 
-#define TILEGLOBAL			16 // from 256
+#define TILEGLOBAL			256 // from 256
 #define PIXGLOBAL			16
+#define HITGLOBAL			16
 
-#define	G_T_SHIFT			4		// global >> ?? = tile // from 8
+#define	G_T_SHIFT			8		// global >> ?? = tile 
 #define	G_P_SHIFT			4		// global >> ?? = pixels
 #define P_T_SHIFT			4		// pixels >> ?? = tile
 
+#define G_EGASX_SHIFT	7	// global >> ?? = screen x
+#define G_SY_SHIFT		4	// global >> ?? = screen y
 
 //===========================================================================
 
 typedef enum {spritedraw,maskdraw} drawtype;
+
+
+#define CK_DISP_SCORE_NONE 0
+#define CK_DISP_SCORE_DOS 1
+#define CK_DISP_SCORE_GBA 2
 
 
 // Pulled from CK_DEF.H
@@ -102,6 +115,10 @@ typedef enum {spritedraw,maskdraw} drawtype;
 
 #define MAX_GBA_SPRITES 16 // Theoretical max sprite size is thus 256x256 or 16 64x64 sprites
 
+#define PLATFORMBLOCK 31
+#define DIRARROWSTART 91
+#define DIRARROWEND   (DIRARROWSTART+arrow_None)
+
 /*
 =============================================================================
 
@@ -111,12 +128,12 @@ typedef enum {spritedraw,maskdraw} drawtype;
 */
 
 //SDL-style integer types - just to make future SDL ports easier
-typedef unsigned int Uint16;
-typedef signed int Sint16;
+typedef unsigned short Uint16; // Fixed from int
+typedef signed short Sint16; // Fixed from int
 typedef unsigned char Uint8;
 typedef signed char Sint8;
-typedef unsigned long Uint32;
-typedef signed long Sint32;
+typedef unsigned int Uint32; // Fixed from long
+typedef signed int Sint32; // Fixed from long
 //Note: only the game code (CK_*.C, K?_*.C) uses these!
 
 typedef enum {
@@ -130,6 +147,7 @@ typedef enum {
 	arrow_NorthWest, // 7
 	arrow_None       // 8
 } arrowdirtype;
+
 
 typedef enum {
 	ex_stillplaying, //  0
@@ -191,6 +209,8 @@ typedef enum
 
 	INTILE_FOREGROUND = 0x80
 } intiletype;
+
+#define INTILE_TYPEMASK (INTILE_FOREGROUND-1)
 
 typedef enum
 {
@@ -305,7 +325,6 @@ typedef struct statestruct
 	struct statestruct *nextstate;
 } statetype;
 
-
 typedef struct objstruct
 {
 	classtype obclass;
@@ -324,18 +343,33 @@ typedef struct objstruct
 	Uint16 left, top, right, bottom, midx;
 	Uint16 tileleft, tiletop, tileright, tilebottom, tilemidx;
 	Sint16 hitnorth, hiteast, hitsouth, hitwest;
-	Sint16 temp1, temp2, temp3, temp4;
+	Sint32 temp1, temp2, temp3, temp4; // Might break somthing??? now 32 bit
 	void *sprite;
-	struct objstruct *next, *prev;
+	//struct objstruct *next, *prev; // Originally used for saveing / loading
     ///////////////////////////////////////////////////
     // Added for GBA port
+    CK_SpriteType curSprType;
     unsigned char isFree;
+	unsigned int uuid;
+	bool removed;
+} objtype;
+
+// New type for the GBA
+typedef struct objsprite {
     GBA_SpriteIndex_t gbaSprites[MAX_GBA_SPRITES];
-    unsigned int sprtype[MAX_GBA_SPRITES];
+    unsigned int sprsizes[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
     unsigned int gfxoffset;
+	uint16_t gfxsprindx;
     CK_SpriteType ck_sprType;
-} objtype;
+    CK_SpriteType ck_prevType;
+	Uint16 spritenum;
+	Sint32 deltax, deltay;
+	uint8_t drawtype;
+	uint16_t priority;
+}objsprite;
+
+void ClearGameState();
 
 typedef struct
 {
@@ -360,9 +394,23 @@ typedef struct
 	objtype *riding;
 } gametype;
 
+
+
 // Found in CK_Sprites.c
 extern statetype sc_deadstate;
 extern statetype sc_badstate;
+
+/*
+=============================================================================
+
+						CK_MAIN DEFINITIONS
+
+=============================================================================
+*/
+
+
+void SizeText(char *text, Uint16 *width, Uint16 *height);
+
 
 /*
 =============================================================================
@@ -373,6 +421,46 @@ extern statetype sc_badstate;
 */
 
 extern boolean scorescreenkludge;
+extern boolean scoreboxwiped;
+
+extern const unsigned char CK_DEMO0_data[];
+extern const unsigned char CK_DEMO1_data[];
+extern const unsigned char CK_DEMO2_data[];
+extern const unsigned char CK_DEMO3_data[];
+extern const unsigned char CK_DEMO4_data[];
+
+
+
+// Intro text
+extern const unsigned int CK_INT0_width;
+extern const unsigned int CK_INT0_height;
+extern const unsigned char CK_INT0[];
+extern const unsigned int CK_INT1_width;
+extern const unsigned int CK_INT1_height;
+extern const unsigned char CK_INT1[];
+extern const unsigned int CK_INT2_width;
+extern const unsigned int CK_INT2_height;
+extern const unsigned char CK_INT2[];
+extern const unsigned int CK_INT3_width;
+extern const unsigned int CK_INT3_height;
+extern const unsigned char CK_INT3[];
+
+
+extern const unsigned int CK_TERM_0_size;
+extern const unsigned int CK_TERM_0_width;
+extern const unsigned int CK_TERM_0_height;
+extern const unsigned char CK_TERM_0[];
+
+extern const unsigned int CK_TERM_1_size;
+extern const unsigned int CK_TERM_1_width;
+extern const unsigned int CK_TERM_1_height;
+extern const unsigned char CK_TERM_1[];
+
+extern const unsigned int CK_TITLESCREEN_size;
+extern const unsigned char CK_TITLESCREEN[];
+
+extern const unsigned char CK_BURNBITS[];
+extern const unsigned short CK_BURNBITS_LINEHEIGHT;
 
 void Terminator(void);
 
@@ -384,27 +472,205 @@ void Terminator(void);
 =============================================================================
 */
 
+#define CK_HALF_SCREENY 105 // 140
 
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
 extern exittype playstate;
 extern gametype gamestate;
-extern ControlInfo c;
-extern objtype *ck_newobj, *check, *player, *scoreobj;
+extern objtype *ck_newobj, *player, *scoreobj;
 extern Uint16 originxtilemax, originytilemax;
+extern ControlInfo c;
+extern boolean button2, button3;	// never used
 extern objtype dummyobj;
 extern Sint16 invincible;
+extern short showscorebox;
+extern Sint16 groundslam;
 extern boolean debugok;
-
 extern boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
+
+void Quit(char *error);
+
 
 // From CK_Game.c
 extern int	mapon;
 
 void InitObjArray(void);
 
+
+void CheckKeys(void);
+void StatusWindow(void);
+void CenterActor(objtype *ob);
+void WorldScrollScreen(objtype *ob);
+void ScrollScreen(objtype *ob);
+void ScrollScreen_Custom(objtype *ob);
+
+void GivePoints(Uint16 points);
 void StopMusic(void);
 void StartMusic(Uint16 num);
+
 void PlayLoop(void);
+/*
+=============================================================================
+
+						CK_KEEN DEFINITIONS
+
+=============================================================================
+*/
+
+extern const Uint16 bounceangle[8][8];
+#ifndef KEEN4
+extern const arrowdirtype arrowflip[];
+#endif
+
+extern const statetype s_keenstand;
+extern const statetype s_keenpauselook;
+extern const statetype s_keenwait1;
+extern const statetype s_keenwait2;
+extern const statetype s_keenwait3;
+extern const statetype s_keenwait4;
+extern const statetype s_keenwait5;
+extern const statetype s_keenwait6;
+extern const statetype s_keenmoon1;
+extern const statetype s_keenmoon2;
+extern const statetype s_keenmoon3;
+extern const statetype s_keenread;
+extern const statetype s_keenread2;
+extern const statetype s_keenread3;
+extern const statetype s_keenread4;
+extern const statetype s_keenread5;
+extern const statetype s_keenread6;
+extern const statetype s_keenread7;
+extern const statetype s_keenstopread;
+extern const statetype s_keenstopread2;
+extern const statetype s_keenstopread3;
+extern const statetype s_keenlookup;
+extern const statetype s_keenlookup2;
+extern const statetype s_keenlookdown;
+extern const statetype s_keenlookdown2;
+extern const statetype s_keenlookdown3;
+extern const statetype s_keenlookdown4;
+extern const statetype s_keendrop;
+extern const statetype s_keendead;
+extern const statetype s_keendie1;
+extern const statetype s_keendie2;
+#ifdef KEEN4
+extern const statetype s_keensuitdie1;
+extern const statetype s_keensuitdie2;
+#endif
+extern const statetype s_keenshoot1;
+extern const statetype s_keenshoot2;
+extern const statetype s_keenshootup1;
+extern const statetype s_keenshootup2;
+extern const statetype s_keenswitch;
+extern const statetype s_keenswitch2;
+extern const statetype s_keenkey;
+extern const statetype s_keenlineup;
+extern const statetype s_keenenter1;
+extern const statetype s_keenenter2;
+extern const statetype s_keenenter3;
+extern const statetype s_keenenter4;
+extern const statetype s_keenenter5;
+extern const statetype s_keenpole;
+extern const statetype s_keenclimb1;
+extern const statetype s_keenclimb2;
+extern const statetype s_keenclimb3;
+extern const statetype s_keenslide1;
+extern const statetype s_keenslide2;
+extern const statetype s_keenslide3;
+extern const statetype s_keenslide4;
+extern const statetype s_keenpoleshoot1;
+extern const statetype s_keenpoleshoot2;
+extern const statetype s_keenpoleshootup1;
+extern const statetype s_keenpoleshootup2;
+extern const statetype s_keenpoleshootdown1;
+extern const statetype s_keenpoleshootdown2;
+extern const statetype s_keenwalk1;
+extern const statetype s_keenwalk2;
+extern const statetype s_keenwalk3;
+extern const statetype s_keenwalk4;
+extern const statetype s_keenpogodown;
+extern const statetype s_keenpogo;
+extern const statetype s_keenpogo2;
+extern const statetype s_keenjump1;
+extern const statetype s_keenjump2;
+extern const statetype s_keenjump3;
+extern const statetype s_keenjump4;
+extern const statetype s_keenairshoot1;
+extern const statetype s_keenairshoot2;
+extern const statetype s_keenairshoot3;
+extern const statetype s_keenairshootup1;
+extern const statetype s_keenairshootup2;
+extern const statetype s_keenairshootup3;
+extern const statetype s_keenairshootdown1;
+extern const statetype s_keenairshootdown2;
+extern const statetype s_keenairshootdown3;
+extern const statetype s_keenholdon;
+extern const statetype s_keenholdon2;
+extern const statetype s_keenclimbup;
+extern const statetype s_keenclimbup2;
+extern const statetype s_keenclimbup3;
+extern const statetype s_keenclimbup4;
+extern const statetype s_keenclimbup5;
+
+extern const Sint16 slopespeed[8];
+extern const Sint16 polexspeed[3];
+
+extern const Sint16 shotsinclip[4];
+extern const Sint16 bonussound[];
+extern const Sint16 bonuspoints[];
+extern const Sint16 bonussprite[];
+
+extern Uint16 zeromap;
+
+extern Sint16 singlegravity;
+extern Sint16 jumptime;
+extern Sint32 leavepoletime;
+extern Sint16 moonok;
+
+void SpawnKeen(Sint16 x, Sint16 y, Sint16 dir);
+boolean CheckGrabPole(objtype *ob);
+boolean CheckEnterHouse(objtype *ob);
+void WalkSound1(objtype *ob);
+void WalkSound2(objtype *ob);
+void KeenStandThink(objtype *ob);
+void KeenPauseThink(objtype *ob);
+void KeenReadThink(objtype *ob);
+void KeenLookUpThink(objtype *ob);
+void KeenLookDownThink(objtype *ob);
+void KeenWalkThink(objtype *ob);
+void T_LineUp(objtype *ob);
+void KeenEnterThink(objtype *ob);
+void KeenSwitchThink(objtype *ob);
+void KeenKeyThink(objtype *ob);
+void KeenAirThink(objtype *ob);
+void KeenBounceThink(objtype *ob);
+void KeenPogoThink(objtype *ob);
+void PoleActions(objtype *ob);
+void KeenPoleThink(objtype *ob);
+void KeenClimbThink(objtype *ob);
+void KeenDropThink(objtype *ob);
+void KeenDropDownThink(objtype *ob);
+void KeenHoldThink(objtype *ob);
+void KeenShootThink(objtype *ob);
+void T_PullUp1(objtype *ob);
+void T_PullUp2(objtype *ob);
+void T_PullUp3(objtype *ob);
+void T_PulledUp(objtype *ob);
+void KeenDieThink(objtype *ob);
+void KillKeen(void);
+void KeenContact(objtype *ob, objtype *hit);
+void KeenPosContact(objtype *ob, objtype *hit);
+void HandleRiding(objtype *ob);
+void TileBonus(Uint16 x, Uint16 y, Uint16 bonus);
+void GiveDrop(Uint16 x, Uint16 y);
+void CheckInTiles(objtype *ob);
+void KeenSimpleReact(objtype *ob);
+void KeenStandReact(objtype *ob);
+void KeenWalkReact(objtype *ob);
+void KeenAirReact(objtype *ob);
+void KeenPogoReact(objtype *ob);
+void KeenPoleReact(objtype *ob);
+
 
 
 /*
@@ -495,24 +761,86 @@ void CardDoorOpen(objtype *ob);
 /*
 =============================================================================
 
+						CK_TEXT DEFINITIONS
+
+=============================================================================
+*/
+
+
+void HelpScreens(void);
+void FinaleLayout(void);
+
+/*
+=============================================================================
+
 						CK_STATE DEFINITIONS
 
 =============================================================================
 */
+
+
+#define NORTHWALL (CK_TileInfo_FGTiles*0)
+#define EASTWALL (CK_TileInfo_FGTiles*1)
+#define SOUTHWALL (CK_TileInfo_FGTiles*2)
+#define WESTWALL (CK_TileInfo_FGTiles*3)
+#define MANIM	(CK_TileInfo_FGTiles*4)
+#define INTILE	(CK_TileInfo_FGTiles*5)
+#define MSPEED	(CK_TileInfo_FGTiles*6)
+
 extern const Sint16 wallclip[8][16];
 
 extern Sint16 xtry;
 extern Sint16 ytry;
 extern boolean playerkludgeclipcancel;
 
+void MoveObjVert(objtype *ob, Sint16 ymove);
+void MoveObjHoriz(objtype *ob, Sint16 xmove);
+void PlayerBottomKludge(objtype *ob);
+void PlayerTopKludge(objtype *ob);
+void ClipToEnds(objtype *ob);
+void ClipToSides(objtype *ob);
+boolean CheckPosition(objtype *ob);
+boolean StatePositionOk(objtype *ob, statetype *state);
+
+#ifdef KEEN5
+void CalcBounds(objtype *ob);
+#endif
+
+void ClipToWalls(objtype *ob);
+void FullClipToWalls(objtype *ob);
+void PushObj(objtype *ob);
+void ClipToSpriteSide(objtype *push, objtype *solid);
+void ClipToSpriteTop(objtype *push, objtype *solid);
+void ClipToSprite(objtype *push, objtype *solid, boolean squish);
 Sint16 DoActor(objtype *ob, Sint16 numtics);
 void StateMachine(objtype *ob);
-void NewState(objtype *ob, statetype *state);
+void NewState(objtype *ob, statetype *state, CK_SpriteType type);
 void ChangeState(objtype *ob, statetype *state);
-
-
+boolean OnScreen(objtype *ob);
+void DoGravity(objtype *ob);
+void DoWeakGravity(objtype *ob);
+void DoTinyGravity(objtype *ob);
+void AccelerateX(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void AccelerateXv(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void AccelerateY(objtype *ob, Sint16 dir, Sint16 maxspeed);
+void FrictionX(objtype *ob);
+void FrictionY(objtype *ob);
+void StunObj(objtype *ob, objtype *shot, statetype *stunstate);
+void T_Projectile(objtype *ob);
+void T_WeakProjectile(objtype *ob);
+void ProjectileThink1(objtype *ob);
+void T_Velocity(objtype *ob);
+void SetReactThink(objtype *ob);
+void T_Stunned(objtype *ob);
+void C_Lethal(objtype *ob, objtype *hit);
 void R_Draw(objtype *ob);
+void R_Walk(objtype *ob);
+void R_WalkNormal(objtype *ob);
+void BadState(void);
+void R_Stunned(objtype *ob);
 
+extern statetype sc_deadstate;
+extern statetype sc_badstate;
 
 
 #endif

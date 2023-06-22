@@ -14,6 +14,7 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 
+int min(int a, int b);
 
 #define GBA_ABS(x) ((x)<0?-(x):(x))
 
@@ -42,6 +43,8 @@ extern unsigned int GBA_VSyncCounter;
 #define GBA_IN_EWRAM __attribute__((section (".ewram")))
 #define GBA_IN_IWRAM __attribute__((section (".iwram")))
 
+#define GBA_ARM __attribute__((__target__("arm")))
+#define GBA_THUMB __attribute__((__target__("thumb")))
 
 #define GBA_GAMEPAK_RAM_START 0x0E000000
 
@@ -99,10 +102,21 @@ void GBA_DMA_MemSet32(uint32_t* dest, uint32_t val, int len);
 
 void GBA_ASM_Copy16(uint16_t* dest, uint16_t* source, int amount);
 void GBA_ASM_Copy32(uint32_t* dest, uint32_t* source, int amount);
+void GBA_ASM_MaskCopy32(uint32_t* dest, uint32_t* source, int amount) ;
 
 //void GBA_ASM_Memset16(uint16_t* dest, uint16_t* source, int amount);
 //void GBA_ASM_Memset32(uint32_t* dest, uint32_t* source, int amount);
 
+
+// GPIO Stuff
+
+#define GPIO_PORT_DATA      0x80000C4
+#define GPIO_PORT_DIRECTION 0x80000C6
+#define GPIO_PORT_CONTROL   0x80000C8
+
+void GBA_InitRumble();
+void GBA_RumbleOn();
+void GBA_RumbleOff();
 
 /////////// Interupts
 
@@ -115,6 +129,7 @@ void GBA_ASM_Copy32(uint32_t* dest, uint32_t* source, int amount);
 
 /* this registers stores which interrupts if any occured */
 #define GBA_INT_STATE 0x4000202
+#define GBA_INT_ACK 0x4000202
 
 /* the address of the function to call when an interrupt occurs */
 #define GBA_INT_CALLBACK 0x3007FFC
@@ -125,6 +140,27 @@ void GBA_ASM_Copy32(uint32_t* dest, uint32_t* source, int amount);
 /* the interrupts are identified by number, we only care about this one */
 #define GBA_INT_VBLANK 0x1
 
+
+//Defines for Interrupts
+//There are 14 Interrupts that we can register with REG_IE
+#define GBA_INT_VBLANK 	0x0001
+#define GBA_INT_HBLANK 	0x0002
+#define GBA_INT_VCOUNT 	0x0004
+#define GBA_INT_TIMER0 	0x0008
+#define GBA_INT_TIMER1 	0x0010
+#define GBA_INT_TIMER2 	0x0020
+#define GBA_INT_TIMER3 	0x0040
+#define GBA_INT_COM 	0x0080
+#define GBA_INT_DMA0 	0x0100
+#define GBA_INT_DMA1	0x0200
+#define GBA_INT_DMA2 	0x0400
+#define GBA_INT_DMA3 	0x0800
+#define GBA_INT_BUTTON 	0x1000
+#define GBA_INT_CART 	0x2000
+//create pointer to video memory
+#define DSTAT_VBL_IRQ 0x0008
+#define DSTAT_VHB_IRQ 0x0010
+#define DSTAT_VCT_IRQ 0x0020
 
 
 ////////////// Video Stuff
@@ -412,6 +448,9 @@ X  X  X  X   S  I  I  I   I  I  I  I   I  I  I  I   I  I  I  I   I  I  I I  F F 
 // 1024 chunks of 32 bytes
 #define GBA_SPRGFX_START 0x6010000
 
+#define GBA_SPR_OFFX 0xF0
+#define GBA_SPR_OFFY 0xF0
+
 typedef struct GBA_Sprite {
 	uint16_t a0;
 	uint16_t a1;
@@ -444,6 +483,8 @@ typedef uint16_t GBA_SpriteIndex_t;
 // Function to create a new sprite in the list
 // returns index into sprite array
 GBA_SpriteIndex_t GBA_CreateSprite(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
+GBA_SpriteIndex_t GBA_CreateSpriteFast(int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
+
 void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes size, uint16_t tileIndex, int zLayer, int palette);
 
 #define GBA_SET_SPRITE_CLEAR(index) \
@@ -486,10 +527,10 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 	GBA_SpriteList[(index)].a2 |= (tileindex)&0x3FF;\
 	}
 
-#define GBA_SET_RENDER(index,rend) \
+#define GBA_SET_PRIORITY(index,priority) \
 	if((index)>=0&&(index)<128){\
-	GBA_SpriteList[(index)].a1 &= 0xF3FF; \
-	GBA_SpriteList[(index)].a1 |= (rend);\
+	GBA_SpriteList[(index)].a2 &= 0xF3FF; \
+	GBA_SpriteList[(index)].a2 |= (priority&0x3);\
 	}
 
 #define GBA_UPDATE_SPRITES() GBA_DMA_Copy32((uint32_t*)GBA_SPRITE_START, (uint32_t*)GBA_SpriteList, GBA_NUM_SPRITES << 1);
@@ -500,6 +541,7 @@ void GBA_RemakeSprite(GBA_SpriteIndex_t index, int x, int y, GBA_SpriteSizes siz
 void GBA_ResetSprites();
 void GBA_HideSprites();
 void GBA_RemoveSprite(uint16_t id);
+void GBA_ClearSpriteCache();
 
 //////// Input
 
@@ -663,11 +705,14 @@ void GBA_SetSoundFreq(short id, int freq);
 /////////// Timers
 
 /* make defines for the bit positions of the control register */
-#define GBA_TIMER_FREQ_1    0x00
-#define GBA_TIMER_FREQ_64   0x02
-#define GBA_TIMER_FREQ_256  0x03
-#define GBA_TIMER_FREQ_1024 0x04
+#define GBA_TIMER_FREQ_1    0x00 // 16.78MHz (~17mlns ticks per second)
+#define GBA_TIMER_FREQ_64   0x01 // ~262187.5KHz
+#define GBA_TIMER_FREQ_256  0x02 // ~65546.875KHz
+#define GBA_TIMER_FREQ_1024 0x03 // ~16386.71875KHz
+
 #define GBA_TIMER_ENABLE    0x80
+
+#define GBA_TIMER_INTERUPT  0x40
 
 /* define the timer control registers */
 #define GBA_TIMER0_DATA    0x4000100
@@ -712,9 +757,10 @@ void GBA_SetSoundFreq(short id, int freq);
 // SampR = 16758000 / SampleR
 
 #define GBA_SAMP_RATE_11025   1520
-#define GBA_SAMP_RATE_22050   761
+#define GBA_SAMP_RATE_22050   760 // 761 ???
 #define GBA_SAMP_RATE_44100   380
 
+#define GBA_AUDIO_BUFFER_SIZE 4 // bytes
 
 typedef struct GBA_SoundSample {
     unsigned char *sample;

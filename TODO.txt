@@ -1,0 +1,18 @@
+
+** Adlib music breaks at the end
+** Adlib sounds click at the end
+
+?? Unkown object can be saved and thus corupt a save file???
+?? Demos will play back wrong
+?? Slugs get stuck on hills going left
+?? Licks can climb walls
+?? Inch worms have wrong hitbox???
+?? Keen do move chonkey
+?? Hitbox on wormmouth is wrong?
+
+?? Treasure eater eats RAM ??? :O
+?? Sprites are broken TODO: Check this 
+
+** Write the tool documentation
+** Release tools_pack.zip (with win binaries??)
+

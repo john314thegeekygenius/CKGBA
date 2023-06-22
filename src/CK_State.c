@@ -4,6 +4,28 @@
     Feb 2023
 */
 
+/* Reconstructed Commander Keen 4-6 Source Code
+ * Copyright (C) 2021 K1n9_Duk3
+ *
+ * This file is primarily based on:
+ * Catacomb 3-D Source Code
+ * Copyright (C) 1993-2014 Flat Rock Software
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "CK_Heads.h"
 
 /*
@@ -28,7 +50,944 @@ const Sint16 wallclip[8][16] = {			// the height of a given point in a tile
 Sint16 xtry, ytry;
 boolean playerkludgeclipcancel;
 
+/*
+=============================================================================
 
+						 LOCAL VARIABLES
+
+=============================================================================
+*/
+
+Uint16 oldtileleft, oldtiletop, oldtileright, oldtilebottom, oldtilemidx;
+Uint16 oldleft, oldtop, oldright, oldbottom, oldmidx;
+Sint16 leftmoved, topmoved, rightmoved, bottommoved, midxmoved;
+
+//==========================================================================
+
+/*
+====================
+=
+= MoveObjVert
+=
+====================
+*/
+
+void MoveObjVert(objtype *ob, Sint16 ymove)
+{
+	ob->y += ymove;
+	ob->top += ymove;
+	ob->bottom += ymove;
+	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+}
+
+/*
+====================
+=
+= MoveObjHoriz
+=
+====================
+*/
+
+void MoveObjHoriz(objtype *ob, Sint16 xmove)
+{
+	//BUG? ob->midx is not adjusted in Keen 4 & 5
+	ob->x += xmove;
+	ob->left += xmove;
+	ob->right += xmove;
+#ifdef KEEN6
+	ob->midx += xmove;	//BUG? ob->tilemidx is not updated
+#endif
+	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+}
+
+//==========================================================================
+
+/*
+====================
+=
+= PlayerBottomKludge
+=
+====================
+*/
+
+void PlayerBottomKludge(objtype *ob)
+{
+	Uint16 *map;
+	Uint16 wall, clip, xpix;
+	Sint16 xmove, ymove;
+
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tilebottom-1)*CK_CurLevelWidth);
+	if (ob->xdir == 1)
+	{
+		xpix = 0;
+		map += ob->tileright;
+		xmove = ob->right - ob->midx;
+		if (CK_TileInfo[1][*(map-CK_CurLevelWidth)+WESTWALL] || CK_TileInfo[1][*map+WESTWALL])
+		{
+			return;
+		}
+	}
+	else
+	{
+		xpix = 15;
+		map += ob->tileleft;
+		xmove = ob->left - ob->midx;
+		if (CK_TileInfo[1][*(map-CK_CurLevelWidth)+EASTWALL] || CK_TileInfo[1][*map+EASTWALL])
+		{
+			return;
+		}
+	}
+	map += CK_CurLevelWidth;
+	if ((wall = CK_TileInfo[1][*map+NORTHWALL]) != 1)
+	{
+		return;
+	}
+	clip = wallclip[wall&7][xpix];
+	ymove = CONVERT_TILE_TO_GLOBAL(ob->tilebottom) + clip - 1 -ob->bottom;
+	if (ymove <= 0 && ymove >= -bottommoved)
+	{
+		ob->hitnorth = wall;
+		MoveObjVert(ob, ymove);
+		MoveObjHoriz(ob, xmove);
+	}
+}
+
+/*
+====================
+=
+= PlayerTopKludge
+=
+====================
+*/
+
+void PlayerTopKludge(objtype *ob)
+{
+	Uint16 *map;
+	Uint16 xpix, wall, clip;
+	Sint16 move;
+
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((ob->tiletop+1)*CK_CurLevelWidth);
+	if (ob->xdir == 1)
+	{
+		xpix = 0;
+		map += ob->tileright;
+		if (CK_TileInfo[1][*(map+CK_CurLevelWidth)+WESTWALL] || CK_TileInfo[1][*(map+2*CK_CurLevelWidth)+WESTWALL])
+		{
+			return;
+		}
+	}
+	else
+	{
+		xpix = 15;
+		map += ob->tileleft;
+		if (CK_TileInfo[1][*(map+CK_CurLevelWidth)+EASTWALL] || CK_TileInfo[1][*(map+2*CK_CurLevelWidth)+EASTWALL])
+		{
+			return;
+		}
+	}
+	map -= CK_CurLevelWidth;
+	if ((wall = CK_TileInfo[1][*map+SOUTHWALL]) != 0)
+	{
+		clip = wallclip[wall&7][xpix];
+		move = CONVERT_TILE_TO_GLOBAL(ob->tiletop+1) - clip - ob->top;
+		if (move >= 0 && move <= -topmoved)
+		{
+			ob->hitsouth = wall;
+			MoveObjVert(ob, move);
+		}
+	}
+}
+
+/*
+===========================
+=
+= ClipToEnds
+=
+===========================
+*/
+
+void ClipToEnds(objtype *ob)
+{
+	Uint16 *map;
+	Uint16 wall, y, clip;
+	Sint16 totalmove, maxmove, move;
+	Uint16 midxpix;
+
+	midxpix = CONVERT_GLOBAL_TO_PIXEL(ob->midx & 0xF0);
+	maxmove = -abs(midxmoved)-bottommoved-16;
+	// TODO:
+	//                                     WUT?!?!?
+	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable-1)[oldtilebottom]/2 + ob->tilemidx;
+	// My best guess is that they wanted it offset by 2 bytes (i.e. the next line)
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtilebottom-1)*CK_CurLevelWidth) + ob->tilemidx;
+
+	for (y=oldtilebottom-1; y <= ob->tilebottom; y++,map+=CK_CurLevelWidth)
+	{
+		if ((wall = CK_TileInfo[1][*map + NORTHWALL]) != 0)
+		{
+			clip = wallclip[wall&7][midxpix];
+			move = (CONVERT_TILE_TO_GLOBAL(y) + clip)-1-ob->bottom;
+			if (move < 0 && move >= maxmove)
+			{
+				ob->hitnorth = wall;
+				MoveObjVert(ob, move);
+				return;
+			}
+		}
+	}
+	maxmove = abs(midxmoved)-topmoved+16;
+	// TODO:
+	//                                     WUT?!?!?
+	//map = (Uint16 far *)mapsegs[1] + (mapbwidthtable+1)[oldtiletop]/2 + ob->tilemidx;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + ((oldtiletop+1)*CK_CurLevelWidth) + ob->tilemidx;
+	for (y=oldtiletop+1; y >= ob->tiletop; y--,map-=CK_CurLevelWidth)	// BUG: unsigned comparison - loop never ends if ob->tiletop is 0
+	{
+		if ((wall = CK_TileInfo[1][*map + SOUTHWALL]) != 0)
+		{
+			clip = wallclip[wall&7][midxpix];
+			move = CONVERT_TILE_TO_GLOBAL(y+1) - clip - ob->top;
+			if (move > 0 && move <= maxmove)
+			{
+				totalmove = ytry+move;
+				if (totalmove < 0x100 && totalmove > -0x100)
+				{
+					ob->hitsouth = wall;
+					MoveObjVert(ob, move);
+					//BUG? no return here
+				}
+			}
+		}
+	}
+}
+
+/*
+===========================
+=
+= ClipToSides
+=
+===========================
+*/
+
+void ClipToSides(objtype *ob)
+{
+	Sint16 move, y, top, bottom;
+	Uint16 *map;
+
+	top = ob->tiletop;
+	if (ob->hitsouth > 1)
+	{
+		top++;
+	}
+	bottom = ob->tilebottom;
+	if (ob->hitnorth > 1)
+	{
+		bottom--;
+	}
+	for (y=top; y<=bottom; y++)
+	{
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + ob->tileleft;
+		if ((ob->hiteast = CK_TileInfo[1][*map+EASTWALL]) != 0)
+		{
+			move = CONVERT_TILE_TO_GLOBAL(ob->tileleft+1) - ob->left;
+			MoveObjHoriz(ob, move);
+			return;
+		}
+	}
+	for (y=top; y<=bottom; y++)
+	{
+		map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + ob->tileright;
+		if ((ob->hitwest = CK_TileInfo[1][*map+WESTWALL]) != 0)
+		{
+			move = (CONVERT_TILE_TO_GLOBAL(ob->tileright)-1)-ob->right;
+			MoveObjHoriz(ob, move);
+			return;
+		}
+	}
+}
+
+/*
+===========================
+=
+= CheckPosition
+=
+===========================
+*/
+
+boolean CheckPosition(objtype *ob)
+{
+	Uint16 tile, x, y;
+	Uint16 *map;
+	Uint16 rowdiff;
+	if(!ob || ob->removed) return false;
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->tiletop*CK_CurLevelWidth) + ob->tileleft;
+	rowdiff = CK_CurLevelWidth-(ob->tileright-ob->tileleft+1);
+	for (y=ob->tiletop; y<=ob->tilebottom; y++,map+=rowdiff)
+	{
+		for (x=ob->tileleft; x<=ob->tileright; x++)
+		{
+			tile = *(map++);
+			if (CK_TileInfo[1][tile+NORTHWALL] || CK_TileInfo[1][tile+EASTWALL] || 
+			CK_TileInfo[1][tile+SOUTHWALL] || CK_TileInfo[1][tile+WESTWALL])
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+/*
+===========================
+=
+= StatePositionOk
+=
+===========================
+*/
+
+boolean StatePositionOk(objtype *ob, statetype *state)
+{
+	if (ob->xdir > 0)
+	{
+		ob->shapenum = state->rightshapenum;
+	}
+	else
+	{
+		ob->shapenum = state->leftshapenum;
+	}
+	signed short *shape = CK_GetSprShape(ob->sprite);
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+	ob->midx = ob->left + (ob->right-ob->left)/2;
+	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+	ob->tilemidx = CONVERT_GLOBAL_TO_TILE(ob->midx);
+	return CheckPosition(ob);
+}
+
+#ifdef KEEN5
+/*
+===========================
+=
+= CalcBounds
+=
+===========================
+*/
+
+void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
+{
+	signed short *shape = CK_GetSprShape(ob->sprite);
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+	ob->midx = ob->left + (ob->right-ob->left)/2;
+}
+#endif
+
+//==========================================================================
+
+/*
+================
+=
+= ClipToWalls
+=
+= Moves the current object xtry/ytry units, clipping to walls
+=
+================
+*/
+
+void ClipToWalls(objtype *ob)
+{
+	Uint16 oldx, oldy;
+#ifdef KEEN6
+	Uint16 y;
+#endif
+	boolean pushed;
+
+	oldx = ob->x;
+	oldy = ob->y;
+	pushed = false;
+
+//
+// make sure it stays in contact with a 45 degree slope
+//
+	if (ob->state->pushtofloor)
+	{
+		if (ob->hitnorth == 25)
+		{
+			ytry = 145;
+		}
+		else
+		{
+			if (xtry > 0)
+			{
+				ytry = xtry+16;
+			}
+			else
+			{
+				ytry = -xtry+16;
+			}
+			pushed = true;
+		}
+	}
+
+//
+// move the shape
+//
+	if (xtry > 239)
+	{
+		xtry = 239;
+	}
+	else if (xtry < -239)
+	{
+		xtry = -239;
+	}
+	if (ytry > 255)			// +16 for push to floor
+	{
+		ytry = 255;
+	}
+	else if (ytry < -239)
+	{
+		ytry = -239;
+	}
+
+	ob->x += xtry;
+	ob->y += ytry;
+
+	ob->needtoreact = true;
+	// TODO: Investigate?
+	// Added !ob->sprite : BUG?
+	if (!ob->shapenum || !ob->sprite)		// can't get a hit rect with no shape!
+	{
+		return;
+	}
+
+
+	oldtileright = ob->tileright;
+	oldtiletop = ob->tiletop;
+	oldtileleft = ob->tileleft;
+	oldtilebottom = ob->tilebottom;
+	oldtilemidx = ob->tilemidx;
+
+	oldright = ob->right;
+	oldtop = ob->top;
+	oldleft = ob->left;
+	oldbottom = ob->bottom;
+	oldmidx = ob->midx;
+
+	signed short *shape = CK_GetSprShape(ob->sprite);
+
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+	ob->midx = ob->left + (ob->right-ob->left)/2;
+
+	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+	ob->tilemidx = CONVERT_GLOBAL_TO_TILE(ob->midx);
+
+	ob->hitnorth=ob->hiteast=ob->hitsouth=ob->hitwest=0;
+
+	if (ob->needtoclip)
+	{
+		leftmoved = ob->left - oldleft;
+		rightmoved = ob->right - oldright;
+		topmoved = ob->top - oldtop;
+		bottommoved = ob->bottom - oldbottom;
+		midxmoved = ob->midx - oldmidx;
+
+	//
+	// clip it
+	//
+		ClipToEnds(ob);
+
+		if (ob == player && !playerkludgeclipcancel)	// zero tolerance near the edge when player gets pushed!
+		{
+			if (!ob->hitnorth && bottommoved > 0)
+			{
+				PlayerBottomKludge(ob);
+			}
+			if (!ob->hitsouth && topmoved < 0)
+			{
+				PlayerTopKludge(ob);
+			}
+		}
+		ClipToSides(ob);
+
+#ifdef KEEN6
+		//
+		// special hack to prevent player from getting stuck on slopes?
+		//
+		if (ob == player && (ob->hitnorth & 7) > 1 && (ob->hiteast || ob->hitwest))
+		{
+			Uint16 far *map;
+			Uint16 pixx, clip, move;
+			Uint16 wall;
+
+			pixx = CONVERT_GLOBAL_TO_PIXEL(ob->midx & (15*PIXGLOBAL));
+			map = (Uint16 far *)mapsegs[1] + mapbwidthtable[oldtilebottom]/2 + ob->tilemidx;
+
+			for (y=oldtilebottom; ob->tilebottom+1 >= y; y++, map+=mapwidth)
+			{
+				if ((wall = tinf[*map + NORTHWALL]) != 0)
+				{
+					clip = wallclip[wall & 7][pixx];
+					move = CONVERT_TILE_TO_GLOBAL(y) + clip - 1 - ob->bottom;
+					ob->hitnorth = wall;
+					MoveObjVert(ob, move);
+					return;
+				}
+			}
+		}
+#endif
+	}
+	if (pushed && !ob->hitnorth)
+	{
+		ob->y = oldy;
+		ob->x = oldx + xtry;
+
+		ob->left = ob->x + shape[0]*HITGLOBAL;
+		ob->right = ob->x + shape[2]*HITGLOBAL;
+		ob->top = ob->y + shape[1]*HITGLOBAL;
+		ob->bottom = ob->y + shape[3]*HITGLOBAL;
+		ob->midx = ob->left + (ob->right-ob->left)/2;
+
+		ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+		ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+		ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+		ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+		ob->tilemidx = CONVERT_GLOBAL_TO_TILE(ob->midx);
+	}
+
+	ob->xmove = ob->xmove + (ob->x - oldx);
+	ob->ymove = ob->ymove + (ob->y - oldy);
+}
+
+/*
+================
+=
+= FullClipToWalls
+=
+= Moves the current object xtry/ytry units, clipping to walls
+=
+================
+*/
+
+void FullClipToWalls(objtype *ob)
+{
+	Uint16 oldx, oldy, w, h;
+
+	if(!ob || ob->removed) return false;
+
+	oldx = ob->x;
+	oldy = ob->y;
+
+//
+// move the shape
+//
+	if (xtry > 239)
+	{
+		xtry = 239;
+	}
+	else if (xtry < -239)
+	{
+		xtry = -239;
+	}
+	if (ytry > 239)
+	{
+		ytry = 239;
+	}
+	else if (ytry < -239)
+	{
+		ytry = -239;
+	}
+
+	ob->x += xtry;
+	ob->y += ytry;
+
+	ob->needtoreact = true;
+
+	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	{
+		return;
+	}
+	signed short *shape = CK_GetSprShape(ob->sprite);
+
+	switch (ob->obclass)
+	{
+#if defined KEEN4
+	case keenobj:
+		w = 40*HITGLOBAL;
+		h = 24*HITGLOBAL;
+		break;
+	case eggbirdobj:
+		w = 64*HITGLOBAL;
+		h = 32*HITGLOBAL;
+		break;
+	case dopefishobj:
+		w = 88*HITGLOBAL;
+		h = 64*HITGLOBAL;
+		break;
+	case schoolfishobj:
+		w = 16*HITGLOBAL;
+		h = 8*HITGLOBAL;
+		break;
+#elif defined KEEN5
+	case slicestarobj:
+	case spherefulobj:
+		w = h = 32*HITGLOBAL;
+		break;
+#elif defined KEEN6
+	case blorbobj:
+		w = h = 32*HITGLOBAL;
+		break;
+#endif
+
+	default:
+		Quit("FullClipToWalls: Bad obclass");
+		break;
+	}
+
+	ob->right = ob->x + w;
+	ob->left = ob->x;
+	ob->top = ob->y;
+	ob->bottom = ob->y + h;
+
+	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+
+	ob->hitnorth=ob->hiteast=ob->hitsouth=ob->hitwest=0;
+
+//
+// clip it
+//
+	if (!CheckPosition(ob))
+	{
+		MoveObjHoriz(ob, -xtry);	//undo x movement
+		if (CheckPosition(ob))
+		{
+			if (xtry > 0)
+			{
+				ob->hitwest = 1;
+			}
+			else
+			{
+				ob->hiteast = 1;
+			}
+		}
+		else
+		{
+			if (ytry > 0)
+			{
+				ob->hitnorth = 1;
+			}
+			else
+			{
+				ob->hitsouth = 1;
+			}
+			MoveObjHoriz(ob, xtry);	//redo x movement
+			MoveObjVert(ob, -ytry);	//undo y movement
+			if (!CheckPosition(ob))
+			{
+				MoveObjHoriz(ob, -xtry);	//undo x movement
+				if (xtry > 0)
+				{
+					ob->hitwest = 1;
+				}
+				else
+				{
+					ob->hiteast = 1;
+				}
+			}
+		}
+	}
+
+	ob->xmove = ob->xmove + (ob->x - oldx);
+	ob->ymove = ob->ymove + (ob->y - oldy);
+
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+	ob->midx = ob->left + (ob->right-ob->left)/2;
+	
+}
+
+/*
+================
+=
+= PushObj
+=
+= Moves the current object xtry/ytry units, clipping to walls
+=
+================
+*/
+
+void PushObj(objtype *ob)
+{
+	Uint16 oldx, oldy;
+
+	if(!ob || ob->removed) return false;
+
+	oldx = ob->x;
+	oldy = ob->y;
+
+//
+// move the shape
+//
+	ob->x += xtry;
+	ob->y += ytry;
+
+	ob->needtoreact = true;
+
+	// Changed so sprites can have shape num of 0
+	if (!ob->shapenum)				// can't get a hit rect with no shape!
+	{
+		return;
+	}
+
+	if(!ob->sprite) Quit("PushObj () : Bad Obj sprite!");
+	signed short *shape = CK_GetSprShape(ob->sprite);
+
+	oldtileright = ob->tileright;
+	oldtiletop = ob->tiletop;
+	oldtileleft = ob->tileleft;
+	oldtilebottom = ob->tilebottom;
+	oldtilemidx = ob->tilemidx;
+
+	oldright = ob->right;
+	oldtop = ob->top;
+	oldleft = ob->left;
+	oldbottom = ob->bottom;
+	oldmidx = ob->midx;
+
+	ob->left = ob->x + shape[0] * HITGLOBAL;
+	ob->right = ob->x + shape[2]* HITGLOBAL;
+	ob->top = ob->y + shape[1]* HITGLOBAL;
+	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+	ob->midx = ob->left + (ob->right-ob->left)/2;
+
+	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
+	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
+	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
+	ob->tilebottom = CONVERT_GLOBAL_TO_TILE(ob->bottom);
+	ob->tilemidx = CONVERT_GLOBAL_TO_TILE(ob->midx);
+
+	if (ob->needtoclip)
+	{
+		leftmoved = ob->left - oldleft;
+		rightmoved = ob->right - oldright;
+		topmoved = ob->top - oldtop;
+		bottommoved = ob->bottom - oldbottom;
+		midxmoved = ob->midx - oldmidx;
+
+		ClipToEnds(ob);
+		ClipToSides(ob);
+	}
+
+	ob->xmove = ob->xmove + (ob->x - oldx);
+	ob->ymove = ob->ymove + (ob->y - oldy);
+
+}
+
+//==========================================================================
+
+
+/*
+==================
+=
+= ClipToSpriteSide
+=
+= Clips push to solid
+=
+==================
+*/
+
+void ClipToSpriteSide(objtype *push, objtype *solid)
+{
+	Sint16 xmove, leftinto, rightinto;
+	if(!push) Quit("ClipToSpriteSide : Bad Push Objectt");
+	if(!solid) Quit("ClipToSpriteSide : Bad Solid Objectt");
+
+	//
+	// amount the push shape can be pushed
+	//
+	xmove = solid->xmove - push->xmove;
+
+	//
+	// amount it is inside
+	//
+	leftinto = solid->right - push->left;
+	rightinto = push->right - solid->left;
+
+	if (leftinto > 0 && leftinto <= xmove)
+	{
+		xtry = leftinto;
+		if (push->state->pushtofloor)
+		{
+			ytry = leftinto+16;
+		}
+		ClipToWalls(push);
+		push->hiteast = 1;
+	}
+	else if (rightinto > 0 && rightinto <= -xmove)
+	{
+		xtry = -rightinto;
+		if (push->state->pushtofloor)
+		{
+			ytry = rightinto+16;
+		}
+		ClipToWalls(push);
+		push->hitwest = 1;
+	}
+}
+
+//==========================================================================
+
+
+/*
+==================
+=
+= ClipToSpriteTop
+=
+= Clips push to solid
+=
+==================
+*/
+
+void ClipToSpriteTop(objtype *push, objtype *solid)
+{
+	Sint16 temp, ymove, bottominto;
+	if(!push) Quit("ClipToSprite : Bad Push Objectt");
+	if(!solid) Quit("ClipToSprite : Bad Solid Objectt");
+
+	//
+	// amount the push shape can be pushed
+	//
+	ymove = push->ymove - solid->ymove;
+
+	//
+	// amount it is inside
+	//
+	bottominto = push->bottom - solid->top;
+
+	if (bottominto >= 0 && bottominto <= ymove)
+	{
+		if (push == player)
+		{
+			gamestate.riding = solid;
+		}
+		ytry = -bottominto;
+		temp = push->state->pushtofloor;
+		push->state->pushtofloor = false;
+		ClipToWalls(push);
+		push->state->pushtofloor = temp;
+		if (!push->hitsouth)
+		{
+			push->hitnorth = 25;
+		}
+	}
+}
+
+//==========================================================================
+
+
+/*
+==================
+=
+= ClipToSprite
+=
+= Clips push to solid
+=
+==================
+*/
+
+void ClipToSprite(objtype *push, objtype *solid, boolean squish)
+{
+	Sint16 xmove, ymove, leftinto, rightinto, topinto, bottominto;
+	
+	xmove = solid->xmove - push->xmove;
+	xtry = ytry = 0;
+
+	//
+	// left / right
+	//
+	leftinto = solid->right - push->left;
+	rightinto = push->right - solid->left;
+
+	if (leftinto > 0 && xmove+1 >= leftinto)
+	{
+		xtry = leftinto;
+		push->xspeed = 0;
+		PushObj(push);
+		if (squish && push->hitwest)
+		{
+			KillKeen();
+		}
+		push->hiteast = 1;
+		return;
+	}
+	else if (rightinto > 0 && -xmove+1 >= rightinto)
+	{
+		xtry = -rightinto;
+		push->xspeed = 0;
+		PushObj(push);
+		if (squish && push->hiteast)
+		{
+			KillKeen();
+		}
+		push->hitwest = 1;
+		return;
+	}
+
+	//
+	// top / bottom
+	//
+	ymove = push->ymove - solid->ymove;
+	topinto = solid->bottom - push->top;
+	bottominto = push->bottom - solid->top;
+	if (bottominto >= 0 && bottominto <= ymove)
+	{
+		if (push == player)
+		{
+			gamestate.riding = solid;
+		}
+		ytry = -bottominto;
+		PushObj(push);
+		if (squish && push->hitsouth)
+		{
+			KillKeen();
+		}
+		if (!push->hitsouth)
+		{
+			push->hitnorth = 25;
+		}
+		return;
+	}
+	else if (topinto >= 0 && topinto <= ymove)	// BUG: should be 'topinto <= -ymove'
+	{
+		ytry = topinto;
+		ClipToWalls(push);
+		if (squish && push->hitnorth)
+		{
+			KillKeen();
+		}
+		push->hitsouth = 25;
+	}
+}
+
+//==========================================================================
 
 
 /*
@@ -47,8 +1006,9 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 {
 	Sint16 ticcount, usedtics, excesstics;
 	statetype *state;
-	
+
 	state = ob->state;
+	if(!state) return 0; // ???
 
 	if (state->progress == think)
 	{
@@ -160,24 +1120,28 @@ Sint16 DoActor(objtype *ob, Sint16 numtics)
 ====================
 */
 
+
 void StateMachine(objtype *ob)
 {
 	Sint16 excesstics, oldshapenum;
 	statetype *state;
 	
+	if(!ob || ob->removed) Quit("StateMachine : Bad Object");
+
 	ob->xmove=ob->ymove=xtry=ytry=0;
 	oldshapenum = ob->shapenum;
 
 	state = ob->state;
 
 	excesstics = DoActor(ob, tics);
+
 	if (ob->state != state)
 	{
 		ob->ticcount = 0;		// start the new state at 0, then use excess
 		state = ob->state;
 	}
 
-	while (excesstics)
+	while (excesstics > 0) // Hack???
 	{
 	//
 	// passed through to next state
@@ -194,6 +1158,10 @@ void StateMachine(objtype *ob)
 		{
 			ob->ticcount = 0;		// start the new state at 0, then use excess
 			state = ob->state;
+			// Bug here : If the state is null, the program breaks?
+			if(state == NULL){
+				excesstics = 0;
+			}
 		}
 	}
 
@@ -203,6 +1171,7 @@ void StateMachine(objtype *ob)
 		return;
 	}
 
+	
 	//
 	// if state->rightshapenum == NULL, the state does not have a standard
 	// shape (the think routine should have set it)
@@ -229,14 +1198,13 @@ void StateMachine(objtype *ob)
 	// actor moved or changed shape
 	// make sure the movement is within limits (one tile)
 	//
-    
 		if (ob->needtoclip == cl_fullclip)
 		{
-	//		FullClipToWalls(ob);
+			FullClipToWalls(ob);
 		}
 		else
 		{
-		//	ClipToWalls(ob);
+			ClipToWalls(ob);
 		}
 	}
 }
@@ -252,10 +1220,13 @@ void StateMachine(objtype *ob)
 ====================
 */
 
-void NewState(objtype *ob, statetype *state)
+void NewState(objtype *ob, statetype *state, CK_SpriteType type)
 {
 	Sint16 temp;
-	
+
+	if(!state) Quit("NewState : Bad State");
+	if(!ob || ob->removed) Quit("NewState : Bad obj");
+
 	ob->state = state;
 
 	if (state->rightshapenum)
@@ -274,13 +1245,14 @@ void NewState(objtype *ob, statetype *state)
 	{
 		ob->shapenum = 0;
 	}
+	// Make the sprite
+	CK_SetSprite(&ob->sprite, type);
 
 	temp = ob->needtoclip;
 	ob->needtoclip = cl_noclip;
 
 	xtry = ytry = 0;					// no movement
-    ob->needtoreact = true;
-/*	ClipToWalls(ob);					// just calculate values
+	ClipToWalls(ob);					// just calculate values
 
 	ob->needtoclip = temp;
 
@@ -292,7 +1264,7 @@ void NewState(objtype *ob, statetype *state)
 	{
 		ClipToWalls(ob);
 	}
-*/}
+}
 
 //==========================================================================
 
@@ -307,6 +1279,9 @@ void NewState(objtype *ob, statetype *state)
 
 void ChangeState(objtype *ob, statetype *state)
 {
+	if(!state) Quit("ChangeState : Bad State");
+	if(!ob) Quit("ChangeState : Bad Obj");
+
 	ob->state = state;
 	ob->ticcount = 0;
 	if (state->rightshapenum)
@@ -332,14 +1307,450 @@ void ChangeState(objtype *ob, statetype *state)
 
 	if (ob->hitnorth != 25)
 	{
-        ob->needtoreact = true;
-//		ClipToWalls(ob);
+		ClipToWalls(ob);
 	}
+}
+
+
+//==========================================================================
+
+
+/*
+====================
+=
+= OnScreen
+=
+====================
+*/
+
+boolean OnScreen(objtype *ob)
+{
+	if (ob->tileright < originxtile || ob->tilebottom < originytile
+		|| ob->tileleft > originxtilemax || ob->tiletop > originytilemax)
+	{
+		return false;
+	}
+	return true;
 }
 
 //==========================================================================
 
 
+/*
+====================
+=
+= DoGravity
+=
+====================
+*/
+
+void DoGravity(objtype *ob)
+{
+	Sint32 i;
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i = lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i&1)
+		{
+			if (ob->yspeed < 0 && ob->yspeed >= -4)
+			{
+				ytry += ob->yspeed;
+				ob->yspeed = 0;
+				return;
+			}
+			ob->yspeed += 4;
+			if (ob->yspeed > 70)
+			{
+				ob->yspeed = 70;
+			}
+		}
+		ytry += ob->yspeed;
+	}
+}
+
+
+/*
+====================
+=
+= DoWeakGravity
+=
+====================
+*/
+
+void DoWeakGravity(objtype *ob)
+{
+	Sint32 i;
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i = lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i&1)
+		{
+			if (ob->yspeed < 0 && ob->yspeed >= -3)
+			{
+				ytry += ob->yspeed;
+				ob->yspeed = 0;
+				return;
+			}
+			ob->yspeed += 3;
+			if (ob->yspeed > 70)
+			{
+				ob->yspeed = 70;
+			}
+		}
+		ytry += ob->yspeed;
+	}
+}
+
+
+/*
+====================
+=
+= DoTinyGravity
+=
+====================
+*/
+
+void DoTinyGravity(objtype *ob)
+{
+	Sint32 i;
+//
+// only accelerate every 4 tics, because of limited precision
+//
+	for (i = lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (!i & 3)	//BUG: this is equal to ((!i) & 3), not (!(i & 3))
+		{
+			ob->yspeed++;
+			if (ob->yspeed > 70)
+			{
+				ob->yspeed = 70;
+			}
+		}
+		ytry += ob->yspeed;
+	}
+}
+
+
+/*
+===============
+=
+= AccelerateX
+=
+===============
+*/
+
+void AccelerateX(objtype *ob, Sint16 dir, Sint16 maxspeed)
+{
+	Sint32 i;
+	Uint16 oldsign;
+	
+	oldsign = ob->xspeed & 0x8000;
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i=lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i & 1)
+		{
+			ob->xspeed += dir;
+			if ((ob->xspeed & 0x8000) != oldsign)
+			{
+				oldsign = ob->xspeed & 0x8000;
+				ob->xdir = oldsign? -1 : 1;
+			}
+			if (ob->xspeed > maxspeed)
+			{
+				ob->xspeed = maxspeed;
+			}
+			else if (ob->xspeed < -maxspeed)
+			{
+				ob->xspeed = -maxspeed;
+			}
+		}
+		xtry += ob->xspeed;
+	}
+}
+
+
+/*
+===============
+=
+= AccelerateXv
+=
+= Doesn't change object's xdir
+=
+===============
+*/
+
+void AccelerateXv(objtype *ob, Sint16 dir, Sint16 maxspeed)
+{
+	Sint32 i;
+
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i=lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i & 1)
+		{
+			ob->xspeed += dir;
+			if (ob->xspeed > maxspeed)
+			{
+				ob->xspeed = maxspeed;
+			}
+			else if (ob->xspeed < -maxspeed)
+			{
+				ob->xspeed = -maxspeed;
+			}
+		}
+		xtry += ob->xspeed;
+	}
+}
+
+
+/*
+===============
+=
+= AccelerateY
+=
+===============
+*/
+
+void AccelerateY(objtype *ob, Sint16 dir, Sint16 maxspeed)
+{
+	Sint32 i;
+
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i=lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i & 1)
+		{
+			ob->yspeed += dir;
+			if (ob->yspeed > maxspeed)
+			{
+				ob->yspeed = maxspeed;
+			}
+			else if (ob->yspeed < -maxspeed)
+			{
+				ob->yspeed = -maxspeed;
+			}
+		}
+		ytry += ob->yspeed;
+	}
+}
+
+
+/*
+===============
+=
+= FrictionX
+=
+===============
+*/
+
+void FrictionX(objtype *ob)
+{
+	Sint16 friction, oldsign;
+	Sint32 i;
+
+	oldsign = ob->xspeed & 0x8000;
+	if (ob->xspeed > 0)
+	{
+		friction = -1;
+	}
+	else if (ob->xspeed < 0)
+	{
+		friction = 1;
+	}
+	else
+	{
+		friction = 0;
+	}
+//
+// only accelerate on odd tics, because of limited precision
+//
+
+	for (i=lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i & 1)
+		{
+			ob->xspeed += friction;
+			if ((ob->xspeed & 0x8000) != oldsign)
+			{
+//				ob->xspeed = 0; // BUG? Makes keen not jump left correctly?
+			}
+		}
+		xtry += ob->xspeed;
+	}
+}
+
+
+/*
+===============
+=
+= FrictionY
+=
+===============
+*/
+
+void FrictionY(objtype *ob)
+{
+	Sint16 friction, oldsign;
+	Sint32 i;
+
+	if (ob->yspeed > 0)
+	{
+		friction = -1;
+	}
+	else if (ob->yspeed < 0)
+	{
+		friction = 1;
+	}
+	else
+	{
+		friction = 0;
+	}
+//
+// only accelerate on odd tics, because of limited precision
+//
+	for (i=lasttimecount-tics; i<lasttimecount; i++)
+	{
+		if (i & 1)
+		{
+			ob->yspeed += friction;
+			if ((ob->yspeed & 0x8000) != oldsign)	//BUG: oldsign is not initialized!
+			{
+				ob->yspeed = 0;
+			}
+		}
+		ytry += ob->yspeed;
+	}
+}
+
+//==========================================================================
+
+/*
+===============
+=
+= StunObj
+=
+===============
+*/
+
+void StunObj(objtype *ob, objtype *shot, statetype *stunstate)
+{
+	ExplodeShot(shot);
+	ob->temp1 = ob->temp2 = ob->temp3 = 0;	// Note: ob->nothink should also be set to 0
+	ob->temp4 = ob->obclass;
+	ChangeState(ob, stunstate);
+	ob->obclass = stunnedobj;
+#ifndef KEEN4
+	ob->yspeed -= 24;
+	if (ob->yspeed < -48)
+		ob->yspeed = -48;
+#endif
+}
+
+//==========================================================================
+
+/*
+===============
+=
+= T_Projectile
+=
+===============
+*/
+
+void T_Projectile(objtype *ob)
+{
+	DoGravity(ob);
+	xtry = ob->xspeed*tics;
+}
+
+
+/*
+===============
+=
+= T_WeakProjectile
+=
+===============
+*/
+
+void T_WeakProjectile(objtype *ob)
+{
+	DoWeakGravity(ob);
+	xtry = ob->xspeed*tics;
+}
+
+
+/*
+===============
+=
+= T_Velocity
+=
+===============
+*/
+
+void T_Velocity(objtype *ob)
+{
+	xtry = ob->xspeed*tics;
+	ytry = ob->yspeed*tics;
+}
+
+
+/*
+===============
+=
+= SetReactThink
+=
+===============
+*/
+
+void SetReactThink(objtype *ob)
+{
+	ob->needtoreact = true;
+}
+
+
+/*
+===============
+=
+= T_Stunned
+=
+===============
+*/
+
+void T_Stunned(objtype *ob)
+{
+	ob->temp1 = 0;
+	ob->needtoreact = true;
+	if (++ob->temp2 == 3)
+		ob->temp2 = 0;
+}
+
+
+/*
+===============
+=
+= C_Lethal
+=
+===============
+*/
+
+void C_Lethal(objtype *ob, objtype *hit)
+{
+//	ob++;			// shut up compiler
+	if (hit->obclass == keenobj)
+	{
+		KillKeen();
+	}
+}
 
 
 /*
@@ -350,10 +1761,10 @@ void ChangeState(objtype *ob, statetype *state)
 ===============
 */
 
-void R_Draw(objtype *ob) {
-    CK_UpdateObjGraphics(ob);
-    CK_DrawObject(ob, ob->x, ob->y);
-//	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+void R_Draw(objtype *ob)
+{
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -388,10 +1799,8 @@ void R_Walk(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-    CK_UpdateObjGraphics(ob);
-    CK_DrawObject(ob, ob->x, ob->y);
-
-//	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
 }
 
 
@@ -428,10 +1837,124 @@ void R_WalkNormal(objtype *ob)
 		ob->nothink = US_RndT() >> 5;
 		ChangeState(ob, ob->state);
 	}
-    CK_UpdateObjGraphics(ob);
-    CK_DrawObject(ob, ob->x, ob->y);
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
+}
 
-//	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+/*
+===============
+=
+= R_Stunned
+=
+===============
+*/
+
+void R_Stunned(objtype *ob)
+{
+	Sint16 starx, stary;
+
+	if (ob->hitwest || ob->hiteast)
+		ob->xspeed = 0;
+
+	if (ob->hitsouth)
+		ob->yspeed = 0;
+
+	if (ob->hitnorth)
+	{
+		ob->xspeed = ob->yspeed = 0;
+		if (ob->state->nextstate)
+			ChangeState(ob, ob->state->nextstate);
+	}
+
+	RF_PlaceSprite(&ob->sprite, ob->x, ob->y, ob->shapenum, spritedraw, ob->priority);
+	
+
+	starx = stary = 0;
+	switch (ob->temp4)
+	{
+#if defined KEEN4
+	case mimrockobj:
+		stary = -4*PIXGLOBAL;
+		break;
+	case eggobj:
+		starx = 8*PIXGLOBAL;
+		stary = -8*PIXGLOBAL;
+		break;
+	case treasureeaterobj:
+		starx = 8*PIXGLOBAL;
+		break;
+	case bounderobj:
+		starx = 4*PIXGLOBAL;
+		stary = -8*PIXGLOBAL;
+		break;
+	case wormouthobj:
+		starx = 4*PIXGLOBAL;
+		stary = -350;	// -21.875 pixels (this one is a bit strange)
+		break;
+	case lickobj:
+		stary = -8*PIXGLOBAL;
+		break;
+	case inchwormobj:
+		starx = -4*PIXGLOBAL;
+		stary = -8*PIXGLOBAL;
+		break;
+	case slugobj:
+		stary = -8*PIXGLOBAL;
+		break;
+#elif defined KEEN5
+	case sparkyobj:
+		starx += 4*PIXGLOBAL;
+		break;
+	case amptonobj:
+		stary -= 8*PIXGLOBAL;
+		asm jmp done;		// just to recreate the original code's quirks, feel free to delete this
+		break;
+	case scottieobj:
+		stary -= 8*PIXGLOBAL;
+		break;
+#elif defined KEEN6
+	case blooguardobj:
+		starx = 16*PIXGLOBAL;
+		stary = -4*PIXGLOBAL;
+		break;
+	case flectobj:
+		starx = 4*PIXGLOBAL;
+		stary = -4*PIXGLOBAL;
+		break;
+	case bloogobj:
+	case nospikeobj:
+		starx = 8*PIXGLOBAL;
+		stary = -4*PIXGLOBAL;
+		break;
+	case bloogletobj:
+	case babobbaobj:
+		stary = -8*PIXGLOBAL;
+		break;
+	case fleexobj:
+		starx = 16*PIXGLOBAL;
+		stary = 8*PIXGLOBAL;
+		break;
+	case ceilickobj:
+		stary = 12*PIXGLOBAL;
+		break;
+	default:
+		Quit("No star spec for object!");
+#endif
+	}
+done:
+
+	ob->temp1 = ob->temp1 + tics;
+	if (ob->temp1 > 10)
+	{
+		ob->temp1 -= 10;
+		if (++ob->temp2 == 3)
+			ob->temp2 = 0;
+	}
+	if(!ob->temp3){
+		CK_SetSprite((objsprite**)(&ob->temp3), CKS_STARS);
+	}
+	RF_PlaceSprite((objsprite**)(&ob->temp3), ob->x+starx, ob->y+stary, ob->temp2+STUNSTARS1SPR, spritedraw, 3);
+	
 }
 
 
@@ -444,10 +1967,7 @@ void R_WalkNormal(objtype *ob)
 */
 
 void BadState(void){
-    // TODO:
-    // Make this work
-    while(1); // Just hang???
-	//Quit("Object with bad state!");
+	Quit("Object with bad state!");
 };
 
 

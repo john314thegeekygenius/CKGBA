@@ -4,6 +4,28 @@
     Feb 2023
 */
 
+/* Reconstructed Commander Keen 4-6 Source Code
+ * Copyright (C) 2021 K1n9_Duk3
+ *
+ * This file is primarily based on:
+ * Catacomb 3-D Source Code
+ * Copyright (C) 1993-2014 Flat Rock Software
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include "CK_Heads.h"
 
 
@@ -21,16 +43,60 @@
 
 void InitGame(void)
 {
+	//////////////////////////////
 	CK_InitVideo();
 	SD_InitAudio();
 	CK_SetupSprites();
 
+	US_InitRndT(true);              // Initialize the random number generator
+	US_Setup();
+	CK_FixPalette();
+#ifdef CK_INTR_ENDER
 	US_TextScreen();
+#endif
 
 	VW_ClearVideo(BLACK);
 };
 
+
 //===========================================================================
+
+/*
+=====================
+=
+= SizeText
+=
+= Calculates width and height of a string that contains line breaks
+= (Note: only the height is ever used, width is NOT calculated correctly)
+=
+=====================
+*/
+
+void SizeText(char *text, Uint16 *width, Uint16 *height)
+{
+	char *ptr;
+	char c;
+	Uint16 w, h;
+	char strbuf[80];
+
+	*width = *height = 0;
+	ptr = &strbuf[0];
+	while ((c=*(text++)) != '\0')
+	{
+		*(ptr++) = c;
+		if (c == '\n' || !*text)
+		{
+			USL_MeasureString(strbuf, &w, &h);	// BUG: strbuf may not have a terminating '\0' at the end!
+			*height += h;
+			if (*width < w)
+			{
+				*width = w;
+			}
+			ptr = &strbuf[0];
+		}
+	}
+}
+
 
 /*
 ==========================
@@ -40,48 +106,40 @@ void InitGame(void)
 ==========================
 */
 
+bool gameQuit = false;
+
 void Quit(char *error)
 {
-//	Uint16 finscreen;
-/*
-	if (!error)
-	{
-		CA_SetAllPurge();
-		CA_CacheGrChunk(ORDERSCREEN);
-		finscreen = (Uint16)grsegs[ORDERSCREEN];
-	}
+	gameQuit = true;
 
+	CK_NukeObjectsSprites();
+	SD_MusicOff();
+	GBA_StopChannel(GBA_CHANNEL_A);
+	GBA_StopChannel(GBA_CHANNEL_B);
 	VW_ClearVideo(BLACK);
-	VW_SetLineWidth(40);
+	CK_FixPalette();
+	// Remove the second background
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
+	VW_ClearScroll();
 
-	ShutdownId();
-	if (error && *error)
-	{
-		puts(error);
-		if (tedlevel)
-		{
-			getch();
-			execlp("TED5.EXE", "TED5.EXE", "/LAUNCH", NULL);
-		}
-		else if (US_ParmPresent("windows"))
-		{
-			bioskey(0);
-		}
-		exit(1);
+	if (!error || !(*error)){
+#ifdef CK_INTR_ENDER
+		US_ShowScreen(3);
+#endif
+		// Save the config data
+		US_Shutdown();
+		
+		while(1); // Make the game run forever?
+		return;
 	}
 
-	if (!NoWait)
-	{
-		movedata(finscreen, 7, 0xB800, 0, 4000);
-		gotoxy(1, 24);
-		if (US_ParmPresent("windows"))
-		{
-			bioskey(0);
-		}
-	}
-
-	exit(0);*/
-	VW_ClearVideo(0x49786234);
+	PrintX = 0;
+	PrintY = 0;
+	fontcolor = CK_EGA_WHITE;
+	US_SafePrint(error);
+	PrintX = 0;
+	PrintY += 8;
+	US_SafePrint(CK_DOS_PROMPT);
 	while(1); // Make the game run forever
 };
 
@@ -97,17 +155,15 @@ void Quit(char *error)
 
 void DemoLoop(void)
 {
-	static char *ParmStrings[] = {"easy", "normal", "hard", ""};
-
-	register Sint16 i, state;
+	Sint16 i, state;
 	Sint16 level;
-	DemoMode = 1;
+	DemoMode = demo_Off;
+
 //
 // demo loop
 //
 	state = 0;
-	playstate = ex_stillplaying;
-	while (1)
+	while (!gameQuit)
 	{
 		switch (state++)
 		{

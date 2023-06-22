@@ -1157,3 +1157,18 @@ const unsigned char CKS_BBirdWalk_data[] = {
 	0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 
 	};
+
+// Stores data as { boxl,boxt,boxr,boxb,offx,offy }
+const signed short CKS_BBirdWalk_boxinfo[] = {
+	8, 2, 23, 30, 0, 1, //367
+	8, 2, 23, 31, 0, 0, //368
+	8, 2, 23, 30, 0, 1, //369
+	8, 2, 23, 31, 0, 0, //370
+	8, 2, 23, 30, 0, 1, //371
+	8, 2, 23, 31, 0, 0, //372
+	8, 2, 23, 30, 0, 1, //373
+	8, 2, 23, 31, 0, 0, //374
+};
+
+const signed short CKS_BBirdWalk_gbainfo[] = {
+	1, 0, 1, 0, 1, 0, 1, 0, };

@@ -426,7 +426,15 @@ void HelpScreens(void)
 
 	CK_SetupHelp();
 	// Fix the scroll offsets
-	VW_ClearScroll();
+
+	*(volatile uint16_t*)GBA_REG_BG0HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG0VOFS = 0;
+
+	*(volatile uint16_t*)GBA_REG_BG1HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG1VOFS = 0;
+
+	*(volatile uint16_t*)GBA_REG_BG2HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG2VOFS = 0;
 	// Hide all the sprites
 	GBA_HideSprites();
 
@@ -491,9 +499,19 @@ void FinaleLayout(void){
 	// Remove the second background
 	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
 
+	StartMusic(ENDINGMUSIC);
+
     CK_SetupFinale();
 	// Fix the scroll offsets
-	VW_ClearScroll();
+
+	*(volatile uint16_t*)GBA_REG_BG0HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG0VOFS = 0;
+
+	*(volatile uint16_t*)GBA_REG_BG1HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG1VOFS = 0;
+
+	*(volatile uint16_t*)GBA_REG_BG2HOFS = 0;
+	*(volatile uint16_t*)GBA_REG_BG2VOFS = 0;
 	// Hide all the sprites
 	GBA_HideSprites();
 
@@ -507,5 +525,6 @@ void FinaleLayout(void){
 
 	RF_RestoreOfs();
 
+	SD_MusicOff();
 
 };

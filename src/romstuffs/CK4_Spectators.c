@@ -800,7 +800,11 @@ void RescuedMember(void)
 	IN_Ack();
 
 	US_CenterWindow(26, 8);
-	VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
+	if (mapon == 17){
+		VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1WATERPIC);
+	}else{
+		VWB_DrawPic(WindowX+WindowW-48, WindowY, KEENTALK1PIC);
+	}
 	WindowW -= 48;
 	PrintY += 12;
 	US_CPrint(keentext[gamestate.rescued]);
@@ -809,7 +813,11 @@ void RescuedMember(void)
 	IN_ClearKeysDown();
 	IN_Ack();
 
-	VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
+	if (mapon == 17){
+		VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2WATERPIC);
+	}else{
+		VWB_DrawPic(WindowX+WindowW, WindowY, KEENTALK2PIC);
+	}
 	VW_WaitVBL(30);
 	IN_ClearKeysDown();
 	IN_Ack();

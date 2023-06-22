@@ -169,6 +169,8 @@ typedef enum {
 	//
 
 	CP_MENUMASKPICM,             // 121
+	KEENTALK1WATERPIC,                // 122
+	KEENTALK2WATERPIC,                // 123
 
 }bitmap_gfxs;
 

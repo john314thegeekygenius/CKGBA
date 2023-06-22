@@ -308,6 +308,26 @@ void VWB_DrawPic (int x, int y, int chunknum)
 	}
 };
 
+void VWB_DrawPicStory(int x, int y, int chunknum)
+{
+	unsigned short height,width;
+	unsigned int *source;
+// mostly copied from drawpic
+	int	picnum = chunknum;
+
+	source = CK_BITMAP_MAPPER[chunknum*3];
+	width = *CK_BITMAP_MAPPER[(chunknum*3)+1];
+	width *= 2; // ???
+	height = *CK_BITMAP_MAPPER[(chunknum*3)+2];
+
+	width >>= 3;
+	height >>= 3;
+	for(int i = 0; i < height; i++){
+		GBA_DMA_Copy32((unsigned int *)GBA_VRAM2+(x<<3)+((i+y)<<8), source, width<<3);
+		source += width<<3;
+	}
+};
+
 void VWB_DrawMPic (int x, int y, int chunknum)
 {
 	unsigned short height,width;

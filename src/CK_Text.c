@@ -83,36 +83,63 @@ extern const unsigned int CK_BMP0045_height;
 extern const unsigned int CK_TXT0000_pages;
 extern const unsigned char CK_TXT0000_text[];
 extern const unsigned int CK_TXT0000_color[];
+extern const unsigned int CK_TXT0000_graphics[];
 
 extern const unsigned int CK_TXT0001_pages;
 extern const unsigned char CK_TXT0001_text[];
 extern const unsigned int CK_TXT0001_color[];
+extern const unsigned int CK_TXT0001_graphics[];
 
 extern const unsigned int CK_TXT0002_pages;
 extern const unsigned char CK_TXT0002_text[];
 extern const unsigned int CK_TXT0002_color[];
+extern const unsigned int CK_TXT0002_graphics[];
 
 extern const unsigned int CK_TXT0003_pages;
 extern const unsigned char CK_TXT0003_text[];
 extern const unsigned int CK_TXT0003_color[];
+extern const unsigned int CK_TXT0003_graphics[];
+
+extern const unsigned int CK_TXT0004_pages;
+extern const unsigned char CK_TXT0004_text[];
+extern const unsigned int CK_TXT0004_color[];
+extern const unsigned int CK_TXT0004_graphics[];
 
 const unsigned char * CK_TXTHELP_text[] = {
+	// Help Texts
 	CK_TXT0000_text,
-	CK_TXT0001_text,
 	CK_TXT0002_text,
+	CK_TXT0001_text,
 	CK_TXT0003_text,
+	// Special texts
+	CK_TXT0004_text,
 };
 const unsigned int * CK_TXTHELP_color[] = {
+	// Help Texts
 	CK_TXT0000_color,
-	CK_TXT0001_color,
 	CK_TXT0002_color,
+	CK_TXT0001_color,
 	CK_TXT0003_color,
+	// Special texts
+	CK_TXT0004_color,
+};
+const unsigned int * CK_TXTHELP_graphics[] = {
+	// Help Texts
+	CK_TXT0000_graphics,
+	CK_TXT0002_graphics,
+	CK_TXT0001_graphics,
+	CK_TXT0003_graphics,
+	// Special texts
+	CK_TXT0004_graphics,
 };
 const unsigned int * CK_TXTHELP_pages[] = {
+	// Help Texts
 	&CK_TXT0000_pages,
-	&CK_TXT0001_pages,
 	&CK_TXT0002_pages,
+	&CK_TXT0001_pages,
 	&CK_TXT0003_pages,
+	// Special texts
+	&CK_TXT0004_pages,
 };
 
 signed short CK_HelpLY = 0;
@@ -200,51 +227,77 @@ void CK_SetupHelp(){
 
 };
 
-void CK_PrintPage(unsigned int menuid, unsigned int pageid){
+int CK_PrintPage(unsigned int menuid, unsigned int pageid, bool isFinale){
 	// Determine the text info
 	const unsigned char *CK_PageText = CK_TXTHELP_text[menuid-1]+(pageid*CK_TXT_SIZE);
 	const unsigned int *CK_PageColor = CK_TXTHELP_color[menuid-1]+(pageid*CK_TXT_SIZE);
+	const unsigned int *CK_PageGraphic = CK_TXTHELP_graphics[menuid-1];
+	int longestTime = 0;
 
-	// Draw the border
-	CK_DrawHelpBorder();
-	// Add the special bottom part
-	for(int i = 0; i < 12; i++){
-		*(uint16_t*)(TILEMAP_0+i+(17*32)+2) = 0xC+i;
-		*(uint16_t*)(TILEMAP_0+i+(18*32)+2) = 0x18+i;
-		*(uint16_t*)(TILEMAP_0+i+(19*32)+2) = 0x24+i;
-
-		// Other one
-		*(uint16_t*)(TILEMAP_0+i+(17*32)+16) = 0xC+i;
-													// Other one is blank
-		*(uint16_t*)(TILEMAP_0+i+(19*32)+16) = 0x24+i;
+	// Offset to the correct graphic page
+	for(int i = 0; i < pageid; i++){
+		int gfxcnt = *CK_PageGraphic;
+		CK_PageGraphic++;
+		CK_PageGraphic += gfxcnt*4;
 	}
-	*(uint16_t*)(TILEMAP_0+(18*32)+16) = 0x18;
-	*(uint16_t*)(TILEMAP_0+(18*32)+27) = 0x18+11;
 
-	// Write the page info
-	CK_PrintX = 0x11;
-	CK_PrintY = 0x12;
-	CK_PrintC = CK_TXTCOL(CK_EGA_YELLOW);
-	char printBuffer[11] = "p  x of  x";
+	if(!isFinale){
+		// Draw the border
+		CK_DrawHelpBorder();
+		// Add the special bottom part
+		for(int i = 0; i < 12; i++){
+			*(uint16_t*)(TILEMAP_0+i+(17*32)+2) = 0xC+i;
+			*(uint16_t*)(TILEMAP_0+i+(18*32)+2) = 0x18+i;
+			*(uint16_t*)(TILEMAP_0+i+(19*32)+2) = 0x24+i;
 
-	// Replace the numbers
-	pageid++; // Increase by one
-	if(pageid >= 10)
-		printBuffer[2] = '0'+(pageid/10);
-	printBuffer[3] = '0'+(pageid%10);
-	if(*CK_TXTHELP_pages[menuid-1] >= 10)
-		printBuffer[8] = '0'+(*CK_TXTHELP_pages[menuid-1]/10);
-	printBuffer[9] = '0'+(*CK_TXTHELP_pages[menuid-1]%10);
+			// Other one
+			*(uint16_t*)(TILEMAP_0+i+(17*32)+16) = 0xC+i;
+														// Other one is blank
+			*(uint16_t*)(TILEMAP_0+i+(19*32)+16) = 0x24+i;
+		}
+		*(uint16_t*)(TILEMAP_0+(18*32)+16) = 0x18;
+		*(uint16_t*)(TILEMAP_0+(18*32)+27) = 0x18+11;
+	}
 
-	CK_Print(printBuffer);
-
-	// TODO:
-	// Handle other pages
 	for(int e = 0; e < CK_TXT_HEIGHT; e++){
 		for(int i = 0; i < CK_TXT_WIDTH; i++){
 			CK_BlitCharHelp(CK_PageText[(e*28)+i], i+1, e+1, CK_PageColor[(e*28)+i]);
 		}
 	}
+
+	int gfxcnt = *CK_PageGraphic;CK_PageGraphic++;
+	for(int i = 0; i < gfxcnt; i++){
+		int gx = *(CK_PageGraphic); CK_PageGraphic++;
+		int gy = *(CK_PageGraphic); CK_PageGraphic++;
+		int gid = *(CK_PageGraphic); CK_PageGraphic++;
+		int gtime = *(CK_PageGraphic); CK_PageGraphic++;
+		// Wait before drawing the picture
+		if(gtime){
+			longestTime ++;
+			GBA_Delay(gtime*30);
+		}
+		VWB_DrawPicStory(gx,gy,gid-CK_BITMAP_START);
+	}
+
+	if(!isFinale){
+		// Write the page info
+		CK_PrintX = 0x11;
+		CK_PrintY = 0x12;
+		CK_PrintC = CK_TXTCOL(CK_EGA_YELLOW);
+		char printBuffer[11] = "p  x of  x";
+
+		// Replace the numbers
+		pageid++; // Increase by one
+		if(pageid >= 10)
+			printBuffer[2] = '0'+(pageid/10);
+		printBuffer[3] = '0'+(pageid%10);
+		if(*CK_TXTHELP_pages[menuid-1] >= 10)
+			printBuffer[8] = '0'+(*CK_TXTHELP_pages[menuid-1]/10);
+		printBuffer[9] = '0'+(*CK_TXTHELP_pages[menuid-1]%10);
+
+		CK_Print(printBuffer);
+	}
+	return longestTime;
 };
 
 int CK_RunHelp(){
@@ -299,7 +352,7 @@ int CK_RunHelp(){
 				CK_UpdateHelpCursor = true;
 				lastButton = 0;
 				// Redraw the screen
-				CK_PrintPage(CK_MenuOn, CK_PageOn);
+				CK_PrintPage(CK_MenuOn, CK_PageOn, false);
 			}
 		}
 		if(GBA_TEST_BUTTONS(GBA_BUTTON_B)){
@@ -332,7 +385,7 @@ int CK_RunHelp(){
 				if(CK_PageOn > 0){
 					CK_PageOn--;
 					// Redraw the screen
-					CK_PrintPage(CK_MenuOn, CK_PageOn);
+					CK_PrintPage(CK_MenuOn, CK_PageOn, false);
 				}
 				lastButton = 0;
 			}
@@ -345,14 +398,11 @@ int CK_RunHelp(){
 				if(CK_PageOn < *CK_TXTHELP_pages[CK_MenuOn-1]-1){
 					CK_PageOn++;
 					// Redraw the screen
-					CK_PrintPage(CK_MenuOn, CK_PageOn);
+					CK_PrintPage(CK_MenuOn, CK_PageOn, false);
 				}
 				lastButton = 0;
 			}
 		}
-
-
-
 	}
 
 	return 0;
@@ -388,7 +438,74 @@ void HelpScreens(void)
 };
 
 
+// MODDERS:
+const int FinaleTxt = 5;
+
+void CK_SetupFinale(){
+	uint32_t *vram = (uint32_t*)GBA_VRAM;
+
+	// Copy help stuff
+	GBA_DMA_Copy32(vram, (uint32_t*)CK_HELP, CK_HELP_size>>2);
+	vram += (CK_HELP_size>>2);
+	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0006, CK_BMP0006_size>>2);
+	vram += (CK_BMP0006_size>>2);
+	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0045, CK_BMP0045_size>>2);
+	vram += (CK_BMP0045_size>>2);
+	GBA_DMA_Copy32(vram, (uint32_t*)CK_FONT, CK_FONT_size>>2);
+
+	CK_PageOn = 0;
+	lastButton = 0;
+};
+
+int CK_RunFinale(){
+	// MODDERS: Can get rid of this:
+	// Draw a green arrow
+	if(GBA_INV_BUTTONS){
+		VWB_DrawPicStory(27,18,H_FLASHARROW2PIC);
+	}else{
+		VWB_DrawPicStory(27,18,H_FLASHARROW1PIC);
+	}
+
+	if(GBA_INV_BUTTONS){
+		lastButton = GBA_INV_BUTTONS;
+	}else{
+		if(lastButton && !(lastButton&GBA_INV_BUTTONS)){
+			if(CK_PageOn < *CK_TXTHELP_pages[FinaleTxt-1]-1){
+				CK_PageOn++;
+				CK_PrintPage(FinaleTxt, CK_PageOn, true);
+			}else{
+				return 1; // We are done
+			}
+			lastButton = 0;
+		}
+	}
+
+	return 0;
+};
+
 void FinaleLayout(void){
-    // TODO:
-	// Make the end text showup
+	SD_MusicOff();
+	// Fix the GBA backgrounds
+	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | HELPMAP_MAP_0 | HELPMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
+	GBA_FINISH_BG1_4BIT(GBA_BG_MID | HELPMAP_MAP_1 | HELPMAP_BLOCK_1 | GBA_BG_SIZE_32x32);
+	// Remove the second background
+	*(volatile unsigned int*)GBA_REG_DISPCNT &= ~GBA_ENABLE_BG2;
+
+    CK_SetupFinale();
+	// Fix the scroll offsets
+	VW_ClearScroll();
+	// Hide all the sprites
+	GBA_HideSprites();
+
+	CK_DrawHelpBorder();
+
+	// Draw the first page
+	CK_PrintPage(FinaleTxt, CK_PageOn, true);
+	while(!CK_RunFinale()){};
+	// Fix the graphics
+	CA_FixGraphics();
+
+	RF_RestoreOfs();
+
+
 };

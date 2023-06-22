@@ -297,8 +297,13 @@ void UpdateScore(objtype *ob)
 	// -- oricale member display
 	if(showscorebox == CK_DISP_SCORE_GBA){
 		for(i = 13; i < 17; i++){
-			if(!gamestate.keys[i-13]) continue;
-			vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);			
+			vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+			if(!gamestate.keys[i-13]){
+				for(int drw = 0; drw < 8; drw++){
+					*(vidmem++) = ((uint32_t*)CK_HUD)[drw - 8 + (12*8)];
+				}
+				continue;
+			}
 			for(int drw = 0; drw < 8; drw++){
 				*(vidmem++) = ((uint32_t*)CK_HUD)[drw - 8 + (i*8)];
 			}

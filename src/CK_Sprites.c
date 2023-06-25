@@ -45,10 +45,11 @@ void CK_ClearSprite(objsprite *spr, bool overwrite){
     for(int i = 0; i < 16; i++)
         spr->sprsizes[i] = 0;
 
+    spr->rendered = false;
+
     if(spr->gfxsprindx != NULL_SPRITE){
         gfxhandler[spr->gfxsprindx].changed = false;
         gfxhandler[spr->gfxsprindx].removed = true;
-        gfxhandler[spr->gfxsprindx].rendered = false;
         if(gfxhandler[spr->gfxsprindx].sprnum == gfxhandler[spr->gfxsprindx].sprinit){
             gfxhandler[spr->gfxsprindx].isStatic = true; // Set this
         }else{
@@ -200,11 +201,11 @@ const unsigned int CK_SpriteSizes[] = {
 };
 
 void CK_GetSprGfxMem(objsprite *spr){
-    objsprite *spr2;
     
     // Find any similar sprites already alocated
     for(int si = 0; si < CK_NumOfGfxLocks; si++){
-        if(gfxhandler[si].gfxoffset != CK_GFX_NULL && gfxhandler[si].sprType == spr->ck_sprType){
+        if(gfxhandler[si].gfxoffset != CK_GFX_NULL && 
+           gfxhandler[si].sprType == spr->ck_sprType){
             if(gfxhandler[si].removed){
                 // We have a good sprite!
                 spr->gfxsprindx = si;
@@ -212,12 +213,12 @@ void CK_GetSprGfxMem(objsprite *spr){
                 gfxhandler[spr->gfxsprindx].removed = false;
                 gfxhandler[spr->gfxsprindx].sprnum = spr->spritenum;
                 return;
-            }else if(gfxhandler[si].sprnum == spr->spritenum){
+            }else if(gfxhandler[si].sprnum == spr->spritenum || gfxhandler[si].sprnum == NULL_SPRITE){
                 // Reuse a sprite
                 spr->gfxsprindx = si;
-                gfxhandler[spr->gfxsprindx].changed = true;
+                gfxhandler[spr->gfxsprindx].changed = false;
                 return;
-            }else if(gfxhandler[si].rendered == false){
+            }else if(spr->rendered == true && gfxhandler[spr->gfxsprindx].changed == false){
                 // Reuse a sprite
                 spr->gfxsprindx = si;
                 gfxhandler[spr->gfxsprindx].changed = true;
@@ -276,6 +277,7 @@ void CK_SetSprite(objsprite **sprite, CK_SpriteType type){
 
     spr->ck_prevType = type;
 
+    CK_UpdateSpriteGraphics(spr);
 };
 
 void CK_FixSpriteGraphics(objsprite *sprite) {
@@ -283,9 +285,26 @@ void CK_FixSpriteGraphics(objsprite *sprite) {
     if(sprite == NULL) Quit("CK_FixSpriteGraphics : Bad sprite!");
 
     // Make sure the graphics memory is ok
-//    if(sprite->gfxsprindx != NULL_SPRITE && gfxhandler[sprite->gfxsprindx].sprnum != sprite->spritenum) {
-    CK_GetSprGfxMem(sprite);
-//    }
+    if(sprite->gfxsprindx != NULL_SPRITE){
+        if(gfxhandler[sprite->gfxsprindx].isStatic == true){
+            if(gfxhandler[sprite->gfxsprindx].sprnum != sprite->spritenum){
+                // We need a new sprite
+                CK_GetSprGfxMem(sprite);
+                gfxhandler[sprite->gfxsprindx].isStatic = false;
+                gfxhandler[sprite->gfxsprindx].changed = true;
+            }
+        }else if(gfxhandler[sprite->gfxsprindx].sprnum != sprite->spritenum){
+            if(gfxhandler[sprite->gfxsprindx].changed == false){
+                gfxhandler[sprite->gfxsprindx].sprnum = sprite->spritenum;
+                gfxhandler[sprite->gfxsprindx].changed = true;
+            }else{
+                CK_GetSprGfxMem(sprite);
+                gfxhandler[sprite->gfxsprindx].isStatic = false;
+            }
+        }
+    }else{
+        CK_GetSprGfxMem(sprite);
+    }
 };
 
 
@@ -362,7 +381,7 @@ void CK_DrawSprite(objsprite *sprite){
     spry = CONVERT_GLOBAL_TO_PIXEL(spry);
     uint32_t vidmem = gfxhandler[sprite->gfxsprindx].gfxoffset;
 
-    gfxhandler[sprite->gfxsprindx].rendered = false;
+    sprite->rendered = false;
     for(int i = 0; i < sprite->gbaSpriteCount; i++){
         signed int chkx = sprx + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
         signed int chky = spry + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];
@@ -371,7 +390,7 @@ void CK_DrawSprite(objsprite *sprite){
             int gba_prior = GBA_SPRITE_ZTOP;
             if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
             int spriteid = GBA_CreateSpriteFast(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
-            gfxhandler[sprite->gfxsprindx].rendered = true;
+            sprite->rendered = true;
         }
         vidmem += CK_SpriteSizes[sprite->sprsizes[i]];
     }
@@ -590,31 +609,10 @@ void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
     spr->drawtype = draw;
     spr->priority = priority;
 
-    signed int sprx = spr->deltax - originxglobal;
-    signed int spry = spr->deltay - originyglobal;
-    sprx = CONVERT_GLOBAL_TO_PIXEL(sprx);
-    spry = CONVERT_GLOBAL_TO_PIXEL(spry);
-
-    if(spr->gfxsprindx != NULL_SPRITE){
-        if(gfxhandler[spr->gfxsprindx].isStatic == true){
-            if(gfxhandler[spr->gfxsprindx].sprnum != spr->spritenum){
-                // We need a new sprite
-                CK_FixSpriteGraphics(spr);
-                gfxhandler[spr->gfxsprindx].isStatic = false;
-            }
-        }else if(gfxhandler[spr->gfxsprindx].sprnum != spr->spritenum){
-            if(gfxhandler[spr->gfxsprindx].changed == false){
-                gfxhandler[spr->gfxsprindx].sprnum = spr->spritenum;
-                gfxhandler[spr->gfxsprindx].changed = true;
-            }else{
-                CK_FixSpriteGraphics(spr);
-                gfxhandler[spr->gfxsprindx].isStatic = false;
-            }
-        }
-    }else{
+    if(spr->rendered == true){
         CK_FixSpriteGraphics(spr);
+        CK_UpdateSpriteGraphics(spr);
     }
-    CK_UpdateSpriteGraphics(spr);
 }
 
 void RF_PlaceSpriteNU(void **user,unsigned globalx,unsigned globaly,

@@ -1588,7 +1588,8 @@ USL_PlayPong(void)
 	// Added:
 	objsprite *ballspr, *kpaddlespr, *cpaddlespr;
 	VWB_ClearSpriteCache();
-	CK_ResetSprGraphicsOffset();
+	// Bad! Do not run!
+	// CK_ResetSprGraphicsOffset();
 	ballspr = VWB_GetTempSprite(CKS_BALL);
 	kpaddlespr = VWB_GetTempSprite(CKS_PADDLE);
 	cpaddlespr = VWB_GetTempSprite(CKS_PADDLE);

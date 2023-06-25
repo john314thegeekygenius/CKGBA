@@ -23,6 +23,18 @@
 #ifndef __CK_SPRITES__
 #define __CK_SPRITES__
 
+typedef struct spritegfx_t {
+    bool changed;
+    bool isStatic;
+    bool removed;
+    bool rendered;
+    uint16_t sprnum, sprinit;
+    CK_SpriteType sprType;
+    unsigned int gfxoffset;
+}spritegfx;
+
+// Sprites should never have that many gfx sheets
+#define NULL_SPRITE 0xFFFF
 
 extern GBA_IN_EWRAM objtype CK_ObjectList[MAXACTORS+1]; // Plus dummy sprite
 extern unsigned int CK_NumOfObjects;

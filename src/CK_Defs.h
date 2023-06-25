@@ -359,7 +359,6 @@ typedef struct objsprite {
     GBA_SpriteIndex_t gbaSprites[MAX_GBA_SPRITES];
     unsigned int sprsizes[MAX_GBA_SPRITES];
     unsigned int gbaSpriteCount;
-    unsigned int gfxoffset;
 	uint16_t gfxsprindx;
     CK_SpriteType ck_sprType;
     CK_SpriteType ck_prevType;

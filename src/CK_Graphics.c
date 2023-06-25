@@ -469,8 +469,6 @@ void VWB_ClearSpriteCache(){
 objsprite *VWB_GetTempSprite(CK_SpriteType type){
 	objsprite *spr = &VW_DummySprites[vw_sprcnt];
 	
-    CK_ClearSprite(spr, true);
-
 	CK_SetSprite(&spr, type);
 	vw_sprcnt++;
 	if(vw_sprcnt >= 10) Quit("VWB_GetTempSprite : Too many sprites!");
@@ -479,6 +477,7 @@ objsprite *VWB_GetTempSprite(CK_SpriteType type){
 
 extern const unsigned int CK_SpriteSizes[];
 extern const unsigned int *CK_SpritePtrs[];
+extern GBA_IN_EWRAM spritegfx gfxhandler[MAXSPRITES];
 
 void VWB_DrawSprite(objsprite **spr, int x, int y, int chunknum){
 	objsprite *sprite = *spr;
@@ -495,7 +494,9 @@ void VWB_DrawSprite(objsprite **spr, int x, int y, int chunknum){
 
     CK_UpdateSpriteGraphics(sprite);
 
-    uint32_t vidmem = sprite->gfxoffset;
+	if(sprite->gfxsprindx == NULL_SPRITE) Quit("VWB_DrawSprite: Invalid sprite gfx index!");
+
+    uint32_t vidmem = gfxhandler[sprite->gfxsprindx].gfxoffset;
     for(int i = 0; i < sprite->gbaSpriteCount; i++){
         signed int chkx = x + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
         signed int chky = y + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];

@@ -1,4 +1,7 @@
 
+!! Sprites that don't update their graphic will 
+glitch when another sprite changes that graphic
+
 ** Adlib music breaks at the end
 ** Adlib sounds click at the end
 

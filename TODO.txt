@@ -1,6 +1,5 @@
 
-!! Sprites that don't update their graphic will 
-glitch when another sprite changes that graphic
+!! Eggs will glitch if one is broken
 
 ** Adlib music breaks at the end
 ** Adlib sounds click at the end
@@ -14,7 +13,6 @@ glitch when another sprite changes that graphic
 ?? Hitbox on wormmouth is wrong?
 
 ?? Treasure eater eats RAM ??? :O
-?? Sprites are broken TODO: Check this 
 
 ** Write the tool documentation
 ** Release tools_pack.zip (with win binaries??)

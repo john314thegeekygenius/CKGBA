@@ -13,7 +13,8 @@
 			"ck_defs.h": "c",
 			"ck_spritedefs.h": "c",
 			"sstream": "c",
-			"ck4_gfx.h": "c"
+			"ck4_gfx.h": "c",
+			"ck4_audiodef.h": "c"
 		}
 	}
 }

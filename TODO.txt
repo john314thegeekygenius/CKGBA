@@ -1,4 +1,5 @@
 
+!! Mimrocks will use the same graphic instead of getting a new one
 !! Eggs will glitch if one is broken
 
 ** Adlib music breaks at the end

@@ -23,8 +23,12 @@
 #include "CK_Heads.h"
 
 // Include the audio definitions
-#ifdef CK4
+#if defined CK4
 #include "romstuffs/CK4_AudioDef.h"
+#elif defined CK5
+#include "romstuffs/CK5_AudioDef.h"
+#elif defined CK6
+#include "romstuffs/CK6_AudioDef.h"
 #endif
 
 SDMode SoundMode;

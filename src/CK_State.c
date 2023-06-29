@@ -1907,7 +1907,6 @@ void R_Stunned(objtype *ob)
 		break;
 	case amptonobj:
 		stary -= 8*PIXGLOBAL;
-		asm jmp done;		// just to recreate the original code's quirks, feel free to delete this
 		break;
 	case scottieobj:
 		stary -= 8*PIXGLOBAL;
@@ -1941,7 +1940,6 @@ void R_Stunned(objtype *ob)
 		Quit("No star spec for object!");
 #endif
 	}
-done:
 
 	ob->temp1 = ob->temp1 + tics;
 	if (ob->temp1 > 10)

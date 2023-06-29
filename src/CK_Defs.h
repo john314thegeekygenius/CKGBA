@@ -367,6 +367,7 @@ typedef struct objsprite {
 	Sint32 deltax, deltay;
 	uint8_t drawtype;
 	uint16_t priority;
+	Uint16 gfxwidth, gfxheight;
 }objsprite;
 
 void ClearGameState();
@@ -530,9 +531,11 @@ extern const statetype s_keenwait3;
 extern const statetype s_keenwait4;
 extern const statetype s_keenwait5;
 extern const statetype s_keenwait6;
+#ifdef KEEN4
 extern const statetype s_keenmoon1;
 extern const statetype s_keenmoon2;
 extern const statetype s_keenmoon3;
+#endif
 extern const statetype s_keenread;
 extern const statetype s_keenread2;
 extern const statetype s_keenread3;
@@ -564,12 +567,19 @@ extern const statetype s_keenshootup2;
 extern const statetype s_keenswitch;
 extern const statetype s_keenswitch2;
 extern const statetype s_keenkey;
+#ifdef KEEN5
+extern const statetype s_keenenter0;
+extern const statetype s_keenteleport;
+#endif
 extern const statetype s_keenlineup;
 extern const statetype s_keenenter1;
 extern const statetype s_keenenter2;
 extern const statetype s_keenenter3;
 extern const statetype s_keenenter4;
 extern const statetype s_keenenter5;
+#ifdef KEEN5
+extern const statetype s_keenenter6;
+#endif
 extern const statetype s_keenpole;
 extern const statetype s_keenclimb1;
 extern const statetype s_keenclimb2;

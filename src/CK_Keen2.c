@@ -294,7 +294,6 @@ void UpdateScore(objtype *ob)
 	// custom gba status bar
 	// includes:
 	// -- gem display
-	// -- oricale member display
 	if(showscorebox == CK_DISP_SCORE_GBA){
 		for(i = 13; i < 17; i++){
 			vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
@@ -308,11 +307,25 @@ void UpdateScore(objtype *ob)
 				*(vidmem++) = ((uint32_t*)CK_HUD)[drw - 8 + (i*8)];
 			}
 		}
+#if defined CK4
+		// -- oricale member display
 		i = 17; // for safety (should already be 17)
-		vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);			
+		vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
 		for(int drw = 0; drw < 8; drw++){
 			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (gamestate.rescued*8)];
 		}
+#elif defined CK5
+		// -- keycard display
+		i = 17; // set to the tile index
+		vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+		for(int drw = 0; drw < 8; drw++){
+			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128];
+		}
+#elif defined CK6
+	// TODO:
+	// Draw Grapple, Sandwich, and Rocket Pass
+#endif
+
 	}
 
 
@@ -680,16 +693,7 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 	globalx = CONVERT_TILE_TO_GLOBAL(tileX);
 	globaly = CONVERT_TILE_TO_GLOBAL(tileY);
 
-#ifdef KEEN6Ev15
-	// We need to make the compiler "forget" that duration starts at 0
-	// to make sure the while-loop check is performed when entering the
-	// loop. Can't change compiler settings since we do need that loop
-	// optimization for the for-loop at the end of this routine.
-	if (true)
-		duration = 0;
-#else
 	duration = 0;
-#endif
 
 	while (duration < 130)
 	{
@@ -740,7 +744,8 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 	//
 	// teleport to new location
 	//
-	tile = *(mapsegs[2]+mapbwidthtable[tileY]/2 + tileX);
+	tile = CK_GetInfo((tileY*CK_CurLevelWidth)+tileX);
+
 	tileX = tile >> 8;
 	tileY = tile & 0x7F;	// BUG? y coordinate is limited to 1..127
 	ob->x = CONVERT_TILE_TO_GLOBAL(tileX);
@@ -748,14 +753,14 @@ void Teleport(Uint16 tileX, Uint16 tileY)
 	ob->xdir = 0;
 	ob->ydir = 1;
 	ob->temp1 = dir_South;
-	NewState(ob, ob->state, ob->sprite->curSprType);
+	NewState(ob, ob->state, ob->curSprType);
 	CenterActor(ob);
 
 	//
 	// draw flags/signs for new location
 	//
-	for (o=player->next; o; o=o->next)
-	{
+	for(int i = player->uuid; i < CK_NumOfObjects; i++){
+		o = &CK_ObjectList[i];
 		if (!o->active && o->obclass == flagobj
 			&& o->tileright >= originxtile-1 && o->tileleft <= originxtilemax+1
 			&& o->tiletop <= originytilemax+1 && o->tilebottom >= originytile-1)
@@ -878,7 +883,8 @@ void T_Elevate(objtype *ob)
 		{
 			for (x=0; x<2; x++)
 			{
-				tiles[y][x] = *(mapsegs[1]+mapbwidthtable[y]/2 + i*2 + x);
+				Uint16 *tile = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + i*2 + x;
+				tiles[y][x] = *tile;
 			}
 		}
 		RF_MemToMap(&tiles[0][0], 1, tx, ty-2, 2, 2);
@@ -975,7 +981,8 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 		{
 			for (x=0; x<2; x++)
 			{
-				tiles[y][x] = *(mapsegs[1]+mapbwidthtable[y]/2 + i*2 + x);
+				Uint16 *tile = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + i*2 + x;
+				tiles[y][x] = *tile;
 			}
 		}
 		RF_MemToMap(&tiles[0][0], 1, tileX+dir, tileY-1, 2, 2);
@@ -987,7 +994,7 @@ void Elevator(Uint16 tileX, Uint16 tileY, Sint16 dir)
 	// make Keen invisible (and not clipping) and send him to the destination
 	//
 	RF_RemoveSprite(&ob->sprite, true);
-	info = *(mapsegs[2] + mapbwidthtable[tileY]/2 + tileX);
+	info = CK_GetInfo((tileY*CK_CurLevelWidth)+tileX);
 	ob->temp2 = CONVERT_TILE_TO_GLOBAL(info >> 8);
 	ob->temp1 = CONVERT_TILE_TO_GLOBAL((info & 0x7F) + 1);	// BUG? y coordinate is limited to 1..127
 	if (ob->temp1 < ob->y)
@@ -1554,7 +1561,7 @@ temp1 = frame counter
 
 =============================================================================
 */
-statetype s_carddoor    = {0, 0, step, false, false, 15, 0, 0, CardDoorOpen, NULL, NULL, &s_carddoor};
+const statetype s_carddoor    = {0, 0, step, false, false, 15, 0, 0, CardDoorOpen, NULL, NULL, &s_carddoor};
 
 /*
 ======================
@@ -1567,12 +1574,12 @@ statetype s_carddoor    = {0, 0, step, false, false, 15, 0, 0, CardDoorOpen, NUL
 void CardDoorOpen(objtype *ob)
 {
 	Sint16 x, y;
-	Uint16 far *map;
+	Uint16 *map;
 	Uint16 tiles[16], *tileptr;
 
 	tileptr = tiles;
-	map = mapsegs[1] + mapbwidthtable[ob->y]/2 + ob->x;
-	for (y=0; y<4; y++, map+=mapwidth)
+	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->y*CK_CurLevelWidth) + ob->x;
+	for (y=0; y<4; y++, map+=CK_CurLevelWidth)
 	{
 		for (x=0; x<4; x++)
 		{

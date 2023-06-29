@@ -271,6 +271,11 @@ void RF_RestoreOfs(){
 	RF_SetOfs(rf_oldoffx,rf_oldoffy);
 };
 
+void RF_Refresh(){
+	// TODO:
+	// Make this do somthing?
+};
+
 extern const unsigned char TIL_8_UNMASKED[];
 extern const unsigned char TIL_8_MASKED[];
 

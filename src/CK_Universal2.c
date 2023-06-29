@@ -2377,7 +2377,6 @@ boolean US_ManualCheck(void)
 		listindex = (x + y) % (int)(sizeof(list)/sizeof(creatureinfo));
 	}
 
-	CA_UpLevel();
 	info = list[listindex];
 	name = info.name;
 	CA_ClearMarks();

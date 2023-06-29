@@ -478,7 +478,7 @@ void CK_UpdateLevel(){
             struct CK_TileAnimation * ck_ani = &CK_CurLevelAnimations[ani][p];
             if(!ck_ani->active) continue; // Don't worry about inactive animations
             ck_ani->ani_time -= tics;
-            while(ck_ani->ani_time < 1){
+            if(ck_ani->ani_time < 1){
                 // Update the tile
                 uint16_t *tile = &CK_CurLevelData[ck_ani->map_offset];
                 *tile += (signed short)ck_ani->tile_to;
@@ -522,7 +522,7 @@ void CK_FixTileAnimations(unsigned int toTick){
         for(int i = 0; i < toTick; i++){
             if(!ck_ani->active) continue; // Don't worry about inactive animations
             ck_ani->ani_time -= 1;
-            while(ck_ani->ani_time < 1){
+            if(ck_ani->ani_time < 1){
                 // Update the tile
                 uint16_t *tile = &CK_CurLevelData[ck_ani->map_offset];
                 *tile += (signed short)ck_ani->tile_to;

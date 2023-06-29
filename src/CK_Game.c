@@ -998,7 +998,6 @@ loaded:
 			break;
 
 		case ex_qedbroke:
-			FreeGraphics();
 			RF_FixOfs(0,0);
 			VW_FixRefreshBuffer();
 			FinaleLayout();
@@ -1019,7 +1018,6 @@ loaded:
 			goto completed;
 
 		case ex_molly:
-			FreeGraphics();
 			RF_FixOfs(0,0);
 			VW_FixRefreshBuffer();
 			FinaleLayout();

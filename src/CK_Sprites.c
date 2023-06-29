@@ -268,6 +268,9 @@ void CK_SetSprite(objsprite **sprite, CK_SpriteType type){
 
     for(int i = 0; i < spr->gbaSpriteCount; i++){
         spr->sprsizes[i] = CK_SpritePtrs[(spr->ck_sprType*5)][(i*4)];
+
+        spr->gfxwidth += CK_SpritePtrs[(spr->ck_sprType*5)][(i*4)+1];
+        spr->gfxheight += CK_SpritePtrs[(spr->ck_sprType*5)][(i*4)+2];
     }
     if(spr->gfxsprindx == NULL_SPRITE || 
             gfxhandler[spr->gfxsprindx].gfxoffset == CK_GFX_NULL || 
@@ -381,7 +384,8 @@ void CK_DrawSprite(objsprite *sprite){
     spry = CONVERT_GLOBAL_TO_PIXEL(spry);
     uint32_t vidmem = gfxhandler[sprite->gfxsprindx].gfxoffset;
 
-    sprite->rendered = false;
+    //sprite->rendered = false;
+
     for(int i = 0; i < sprite->gbaSpriteCount; i++){
         signed int chkx = sprx + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
         signed int chky = spry + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];
@@ -390,7 +394,7 @@ void CK_DrawSprite(objsprite *sprite){
             int gba_prior = GBA_SPRITE_ZTOP;
             if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
             int spriteid = GBA_CreateSpriteFast(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
-            sprite->rendered = true;
+            //sprite->rendered = true;
         }
         vidmem += CK_SpriteSizes[sprite->sprsizes[i]];
     }
@@ -608,6 +612,18 @@ void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
     spr->deltay = dy;
     spr->drawtype = draw;
     spr->priority = priority;
+
+    signed int sprx = spr->deltax - originxglobal;
+    signed int spry = spr->deltay - originyglobal;
+    sprx = CONVERT_GLOBAL_TO_PIXEL(sprx);
+    spry = CONVERT_GLOBAL_TO_PIXEL(spry);
+    signed int chkx = sprx + spr->gfxwidth;
+    signed int chky = spry + spr->gfxheight;
+
+    spr->rendered = false;
+    if(chkx >= 0 && chky >= 0 && sprx < GBA_SCREEN_WIDTH && spry < GBA_SCREEN_HEIGHT){
+        spr->rendered = true;
+    }
 
     if(spr->rendered == true){
         CK_FixSpriteGraphics(spr);

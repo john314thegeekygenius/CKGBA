@@ -24,7 +24,13 @@
 #define __CK_AUDIO__
 
 // Header from reconstructed source code
+#if defined CK4
 #include "romstuffs/AUDIOCK4.H"
+#elif defined CK5
+#include "romstuffs/AUDIOCK5.H"
+#elif defined CK6
+#include "romstuffs/AUDIOCK6.H"
+#endif
 
 #define CKM_LastSong LASTMUSIC
 

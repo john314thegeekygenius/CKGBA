@@ -39,6 +39,8 @@
 
 Sint16 singlegravity;	// left over from Keen Dreams, not used in Keen 4-6
 
+extern const CK_SpriteType CK_BonusShadows[];
+
 const Uint16 bounceangle [8][8] =
 {
 	{ 0,  0,  0,  0,  0,  0,  0,  0},
@@ -420,7 +422,7 @@ boolean CheckEnterHouse(objtype *ob)
 			ob->priority = 0;
 #ifdef KEEN5
 			{
-				infoval = *(mapsegs[2]+mapbwidthtable[ob->tiletop]/2+ob->tilemidx);
+				infoval = CK_GetInfo((ob->tiletop*CK_CurLevelWidth)+ob->tilemidx);
 				if (!infoval)
 					SpawnTeleport();
 			}

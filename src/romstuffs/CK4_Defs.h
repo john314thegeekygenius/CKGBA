@@ -65,6 +65,7 @@
 #define MTILESET_WIDTH_VAL (288)
 
 // Total number of tiles in each tileset
+// From GFXE_CK4.EQU
 #define TILESET_TILES 1296
 #define MTILESET_TILES 2916
 

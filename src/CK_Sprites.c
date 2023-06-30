@@ -548,7 +548,7 @@ DONT_OPTIMISE void RF_CalcTics (void)
 // take DEMOTICS or more tics, and modify Timecount to reflect time taken
 //
 		oldtimecount = lasttimecount;
-		while (TimeCount<oldtimecount+DEMOTICS*2);
+		while (TimeCount<oldtimecount+DEMOTICS*2) {}
 		lasttimecount = oldtimecount + DEMOTICS;
 		TimeCount = lasttimecount + DEMOTICS;
 		tics = DEMOTICS;

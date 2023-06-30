@@ -647,6 +647,10 @@ void RunDemo(Sint16 num)
 	for(int i  = 0; i < DemoSize; i++){
 	    DemoBuffer[i] = ((Uint8*)demodata)[i+4];
 	}
+
+	// Set the inactive distance to the DOS version
+	CK_ActivityDist = INACTIVATEDIST;
+
 	IN_StartDemoPlayback(DemoBuffer, DemoSize);
 	SetupGameLevel(true);
 	if (scorescreenkludge)
@@ -656,6 +660,9 @@ void RunDemo(Sint16 num)
 
 	PlayLoop();
 	IN_StopDemo();
+
+	CK_ActivityDist = INACTIVATEDIST_GBA;
+
 	CheckLastScan();
 }
 

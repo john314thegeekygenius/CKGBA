@@ -54,8 +54,7 @@
 #define MINDONELEVEL 1
 #define MAXDONELEVEL 17
 
-//TODO:?
-#define INACTIVATEDIST 2 // Set to 2 -- Should be 4?
+#define INACTIVATEDIST 4 
 
 // MODDERS:
 // Graphics Stuff

@@ -46,6 +46,9 @@
 
 #define	MAPBORDER			2		// map border must be at least 1
 
+#define INACTIVATEDIST_GBA 2 // Set to 2
+extern unsigned int CK_ActivityDist;
+
 #ifdef KEEN5
 
 #define	MAXSPRITES			200		// max tracked sprites // MODIFIED

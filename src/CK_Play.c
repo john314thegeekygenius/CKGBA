@@ -507,7 +507,9 @@ void StatusWindow(void)
 
 //===========================================================================
 
-		
+
+unsigned int CK_ActivityDist = 2; // Set to 2 -- Should be 4?
+
 /*
 ==================
 =
@@ -562,22 +564,22 @@ void CenterActor(objtype *ob)
 //
 	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
 	originytilemax = (originytile + PORTTILESHIGH) - 1;
-	inactivateleft = originxtile - INACTIVATEDIST;
+	inactivateleft = originxtile - CK_ActivityDist;
 	if (inactivateleft < 0)
 	{
 		inactivateleft = 0;
 	}
-	inactivateright = originxtilemax + INACTIVATEDIST;
+	inactivateright = originxtilemax + CK_ActivityDist;
 	if (inactivateright < 0)
 	{
 		inactivateright = 0;
 	}
-	inactivatetop = originytile - INACTIVATEDIST;
+	inactivatetop = originytile - CK_ActivityDist;
 	if (inactivatetop < 0)
 	{
 		inactivatetop = 0;
 	}
-	inactivatebottom = originytilemax + INACTIVATEDIST;
+	inactivatebottom = originytilemax + CK_ActivityDist;
 	if (inactivatebottom < 0)
 	{
 		inactivatebottom = 0;
@@ -660,22 +662,22 @@ void WorldScrollScreen(objtype *ob)
 //
 	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
 	originytilemax = (originytile + PORTTILESHIGH) - 1;
-	inactivateleft = originxtile - INACTIVATEDIST;
+	inactivateleft = originxtile - CK_ActivityDist;
 	if (inactivateleft < 0)
 	{
 		inactivateleft = 0;
 	}
-	inactivateright = originxtilemax + INACTIVATEDIST;
+	inactivateright = originxtilemax + CK_ActivityDist;
 	if (inactivateright < 0)
 	{
 		inactivateright = 0;
 	}
-	inactivatetop = originytile - INACTIVATEDIST;
+	inactivatetop = originytile - CK_ActivityDist;
 	if (inactivatetop < 0)
 	{
 		inactivatetop = 0;
 	}
-	inactivatebottom = originytilemax + INACTIVATEDIST;
+	inactivatebottom = originytilemax + CK_ActivityDist;
 	if (inactivatebottom < 0)
 	{
 		inactivatebottom = 0;
@@ -875,22 +877,22 @@ void ScrollScreen(objtype *ob)
 //
 	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
 	originytilemax = (originytile + PORTTILESHIGH) - 1;
-	inactivateleft = originxtile - INACTIVATEDIST;
+	inactivateleft = originxtile - CK_ActivityDist;
 	if (inactivateleft < 0)
 	{
 		inactivateleft = 0;
 	}
-	inactivateright = originxtilemax + INACTIVATEDIST;
+	inactivateright = originxtilemax + CK_ActivityDist;
 	if (inactivateright < 0)
 	{
 		inactivateright = 0;
 	}
-	inactivatetop = originytile - INACTIVATEDIST;
+	inactivatetop = originytile - CK_ActivityDist;
 	if (inactivatetop < 0)
 	{
 		inactivatetop = 0;
 	}
-	inactivatebottom = originytilemax + INACTIVATEDIST;
+	inactivatebottom = originytilemax + CK_ActivityDist;
 	if (inactivatebottom < 0)
 	{
 		inactivatebottom = 0;
@@ -1035,22 +1037,22 @@ void ScrollScreen_Custom(objtype *ob)
 //
 	originxtilemax = (originxtile + PORTTILESWIDE) - 1;
 	originytilemax = (originytile + PORTTILESHIGH) - 1;
-	inactivateleft = originxtile - INACTIVATEDIST;
+	inactivateleft = originxtile - CK_ActivityDist;
 	if (inactivateleft < 0)
 	{
 		inactivateleft = 0;
 	}
-	inactivateright = originxtilemax + INACTIVATEDIST;
+	inactivateright = originxtilemax + CK_ActivityDist;
 	if (inactivateright < 0)
 	{
 		inactivateright = 0;
 	}
-	inactivatetop = originytile - INACTIVATEDIST;
+	inactivatetop = originytile - CK_ActivityDist;
 	if (inactivatetop < 0)
 	{
 		inactivatetop = 0;
 	}
-	inactivatebottom = originytilemax + INACTIVATEDIST;
+	inactivatebottom = originytilemax + CK_ActivityDist;
 	if (inactivatebottom < 0)
 	{
 		inactivatebottom = 0;

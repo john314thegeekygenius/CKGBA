@@ -701,7 +701,7 @@ void WorldScrollScreen(objtype *ob)
 void ScrollScreen(objtype *ob)
 {
 	Sint16 xscroll, yscroll, pix, speed;
-	Uint16 bottom;
+	Uint16 bottom = 0;
 
 	if (keenkilled)
 		return;
@@ -903,7 +903,7 @@ void ScrollScreen(objtype *ob)
 void ScrollScreen_Custom(objtype *ob)
 {
 	Sint16 xscroll, yscroll, pix, speed;
-	Uint16 bottom;
+	Uint16 bottom = 0;
 
 	if (keenkilled)
 		return;

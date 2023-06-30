@@ -953,7 +953,11 @@ void ClipToSprite(objtype *push, objtype *solid, boolean squish)
 		}
 		return;
 	}
+#ifdef FIX_BUGS
+	else if (topinto >= 0 && topinto <= -ymove)
+#else
 	else if (topinto >= 0 && topinto <= ymove)	// BUG: should be 'topinto <= -ymove'
+#endif
 	{
 		ytry = topinto;
 		ClipToWalls(push);
@@ -1401,7 +1405,11 @@ void DoTinyGravity(objtype *ob)
 //
 	for (i = lasttimecount-tics; i<lasttimecount; i++)
 	{
+#ifdef FIX_GRAVITY
+		if (!(i & 3))
+#else
 		if (!i & 3)	//BUG: this is equal to ((!i) & 3), not (!(i & 3))
+#endif
 		{
 			ob->yspeed++;
 			if (ob->yspeed > 70)
@@ -1580,7 +1588,7 @@ void FrictionX(objtype *ob)
 
 void FrictionY(objtype *ob)
 {
-	Sint16 friction, oldsign;
+	Sint16 friction, oldsign = 0;
 	Sint32 i;
 
 	if (ob->yspeed > 0)

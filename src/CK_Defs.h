@@ -30,6 +30,7 @@
 #define __CK_DEF__
 
 #define FIX_BUGS 1
+//#define FIX_GRAVITY 1
 
 // Pulled from ID_RF.H
 /*

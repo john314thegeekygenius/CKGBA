@@ -403,6 +403,9 @@ boolean CheckEnterHouse(objtype *ob)
 				ob->state = &s_keenenter0;
 				ob->priority = 0;
 				upheld = true;
+#ifdef FIX_BUGS
+				ob->ydir = 1;
+#endif
 				return true;
 			}
 			else
@@ -1811,6 +1814,9 @@ void KeenContact(objtype *ob, objtype *hit)
 			ChangeState(ob, &s_keenstun);
 		}
 		// BUG: there is no break here - this causes the impossible bullet bug
+#ifdef FIX_BUGS
+	break;
+#endif
 	case platformobj:
 		if (!gamestate.riding)
 			ClipToSpriteTop(ob, hit);
@@ -1834,6 +1840,9 @@ void KeenPosContact(objtype *ob, objtype *hit)
 #if defined KEEN4
 	case platformobj:
 		// BUG: priority is not reset here
+		#ifdef FIX_BUGS
+		ob->priority = 1;
+		#endif
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
@@ -1854,6 +1863,9 @@ void KeenPosContact(objtype *ob, objtype *hit)
 #elif defined KEEN5
 	case platformobj:
 		// BUG: priority is not reset here
+		#ifdef FIX_BUGS
+		ob->priority = 1;
+		#endif
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
@@ -1875,7 +1887,9 @@ void KeenPosContact(objtype *ob, objtype *hit)
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
+#ifdef FIX_BUGS
 		ClipToSpriteTop(ob, hit);	// BUG: allows Keen to stand on Blooglets and Flects
+#endif
 		break;
 #endif
 	}

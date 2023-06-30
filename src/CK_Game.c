@@ -537,7 +537,13 @@ void PatchWorldMap(void)
 			if (level >= MINDONELEVEL && level <= MAXDONELEVEL && gamestate.leveldone[level])
 			{
 				tag = info >> 8;
+#ifdef FIX_BUGS
+				if(tag == 0xC0){
+#endif
 				CK_SetInfo((y*CK_CurLevelWidth)+x,0);	// BUG: infoplane value should only be set to 0 if tag == 0xC0
+#ifdef FIX_BUGS
+				}
+#endif
 				if (tag == 0xD0)
 				{
 					CK_CurLevelData[CK_CurLevelSize + planeoff] = 0;

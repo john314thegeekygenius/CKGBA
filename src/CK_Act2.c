@@ -467,9 +467,15 @@ void BerkeThink(objtype *ob)
 		// BUG: might be about to move off a ledge, causing it to get stuck
 		// after throwing (the throw states don't use BerkeWalkReact)!
 		// To avoid that, set xtry to 0 here.
+		#ifdef FIX_BUGS
+		xtry = 0;
+		#endif
 
 		ob->state = &s_berkethrow1;
 		// BUG? this doesn't play the attack sound
+		#ifdef FIX_BUGS
+		SD_PlaySound(SND_BERKELOIDATTACK);
+		#endif
 	}
 	else if (US_RndT() <= 0x40)
 	{
@@ -481,6 +487,9 @@ void BerkeThink(objtype *ob)
 			// BUG: might be about to move off a ledge, causing it to get stuck
 			// after throwing (the throw states don't use BerkeWalkReact)!
 			// To avoid that, set xtry to 0 here.
+			#ifdef FIX_BUGS
+			xtry = 0;
+			#endif
 
 			ob->state = &s_berkethrow1;
 			SD_PlaySound(SND_BERKELOIDATTACK);

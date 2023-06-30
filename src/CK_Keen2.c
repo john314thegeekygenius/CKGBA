@@ -1454,6 +1454,10 @@ void T_Shot(objtype *ob)
 			}
 			if (ob->obclass == nothing)	//BUG: obclass is 'inertobj' for the exploded shot
 				break;
+			#ifdef FIX_BUGS
+			if (ob->obclass == inertobj)
+				break;
+			#endif
 		}
 	}
 }

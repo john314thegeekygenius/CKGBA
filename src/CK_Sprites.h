@@ -27,6 +27,7 @@ typedef struct spritegfx_t {
     bool changed;
     bool isStatic;
     bool removed;
+    bool wasRendered;
     uint16_t sprnum, sprinit, refs;
     CK_SpriteType sprType;
     unsigned int gfxoffset;

@@ -356,12 +356,8 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	{
 		ob->shapenum = state->leftshapenum;
 	}
-	signed short *shape = CK_GetSprShape(ob->sprite);
-	ob->left = ob->x + shape[0] * HITGLOBAL;
-	ob->right = ob->x + shape[2]* HITGLOBAL;
-	ob->top = ob->y + shape[1]* HITGLOBAL;
-	ob->bottom = ob->y + shape[3]* HITGLOBAL;
-	ob->midx = ob->left + (ob->right-ob->left)/2;
+	CalcBounds(ob);
+
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
 	ob->tiletop = CONVERT_GLOBAL_TO_TILE(ob->top);
@@ -370,7 +366,7 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 	return CheckPosition(ob);
 }
 
-#ifdef KEEN5
+//#ifdef KEEN5
 /*
 ===========================
 =
@@ -379,16 +375,18 @@ boolean StatePositionOk(objtype *ob, statetype *state)
 ===========================
 */
 
-void CalcBounds(objtype *ob)	//not present in Keen 4 & 6
+void CalcBounds(objtype *ob)	//not present in original Keen 4 & 6
 {
+	if(!ob || !ob->sprite) return; // Uhhh
 	signed short *shape = CK_GetSprShape(ob->sprite);
 	ob->left = ob->x + shape[0] * HITGLOBAL;
 	ob->right = ob->x + shape[2]* HITGLOBAL;
 	ob->top = ob->y + shape[1]* HITGLOBAL;
 	ob->bottom = ob->y + shape[3]* HITGLOBAL;
+
 	ob->midx = ob->left + (ob->right-ob->left)/2;
 }
-#endif
+//#endif
 
 //==========================================================================
 
@@ -481,13 +479,7 @@ void ClipToWalls(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	signed short *shape = CK_GetSprShape(ob->sprite);
-
-	ob->left = ob->x + shape[0] * HITGLOBAL;
-	ob->right = ob->x + shape[2]* HITGLOBAL;
-	ob->top = ob->y + shape[1]* HITGLOBAL;
-	ob->bottom = ob->y + shape[3]* HITGLOBAL;
-	ob->midx = ob->left + (ob->right-ob->left)/2;
+	CalcBounds(ob);
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
@@ -555,11 +547,7 @@ void ClipToWalls(objtype *ob)
 		ob->y = oldy;
 		ob->x = oldx + xtry;
 
-		ob->left = ob->x + shape[0]*HITGLOBAL;
-		ob->right = ob->x + shape[2]*HITGLOBAL;
-		ob->top = ob->y + shape[1]*HITGLOBAL;
-		ob->bottom = ob->y + shape[3]*HITGLOBAL;
-		ob->midx = ob->left + (ob->right-ob->left)/2;
+		CalcBounds(ob);
 
 		ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 		ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
@@ -620,7 +608,6 @@ void FullClipToWalls(objtype *ob)
 	{
 		return;
 	}
-	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	switch (ob->obclass)
 	{
@@ -716,12 +703,8 @@ void FullClipToWalls(objtype *ob)
 	ob->xmove = ob->xmove + (ob->x - oldx);
 	ob->ymove = ob->ymove + (ob->y - oldy);
 
-	ob->left = ob->x + shape[0] * HITGLOBAL;
-	ob->right = ob->x + shape[2]* HITGLOBAL;
-	ob->top = ob->y + shape[1]* HITGLOBAL;
-	ob->bottom = ob->y + shape[3]* HITGLOBAL;
-	ob->midx = ob->left + (ob->right-ob->left)/2;
-	
+	CalcBounds(ob);
+
 }
 
 /*
@@ -758,7 +741,6 @@ void PushObj(objtype *ob)
 	}
 
 	if(!ob->sprite) Quit("PushObj () : Bad Obj sprite!");
-	signed short *shape = CK_GetSprShape(ob->sprite);
 
 	oldtileright = ob->tileright;
 	oldtiletop = ob->tiletop;
@@ -772,11 +754,7 @@ void PushObj(objtype *ob)
 	oldbottom = ob->bottom;
 	oldmidx = ob->midx;
 
-	ob->left = ob->x + shape[0] * HITGLOBAL;
-	ob->right = ob->x + shape[2]* HITGLOBAL;
-	ob->top = ob->y + shape[1]* HITGLOBAL;
-	ob->bottom = ob->y + shape[3]* HITGLOBAL;
-	ob->midx = ob->left + (ob->right-ob->left)/2;
+	CalcBounds(ob);
 
 	ob->tileleft = CONVERT_GLOBAL_TO_TILE(ob->left);
 	ob->tileright = CONVERT_GLOBAL_TO_TILE(ob->right);
@@ -1279,11 +1257,12 @@ void NewState(objtype *ob, statetype *state, CK_SpriteType type)
 
 void ChangeState(objtype *ob, statetype *state)
 {
-	if(!state) Quit("ChangeState : Bad State");
+//	if(!state) Quit("ChangeState : Bad State"); // What???
 	if(!ob) Quit("ChangeState : Bad Obj");
 
 	ob->state = state;
 	ob->ticcount = 0;
+	if(!state) return;
 	if (state->rightshapenum)
 	{
 		if (ob->xdir > 0)

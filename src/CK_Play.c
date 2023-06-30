@@ -1349,6 +1349,10 @@ void PlayLoop(void)
 					{
 						continue;
 					}
+					// TODO:
+					// This might be slow to do?
+					//CalcBounds(obj);
+
 					if (obj->right > check->left && obj->left < check->right
 						&& obj->top < check->bottom && obj->bottom > check->top)
 					{

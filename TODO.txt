@@ -1,4 +1,6 @@
 
+! Dead skypests don't load with dead animation
+
 ** Adlib music breaks at the end
 ** Adlib sounds click at the end
 

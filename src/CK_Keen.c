@@ -676,6 +676,11 @@ void KeenLookDownThink(objtype *ob)
 	Sint16 y, ymove;
 	Uint16 tile;
 
+	// TODO: Hack!
+	// Find out why keen's hitbox doesn't work right when
+	// he looks down!
+	CalcBounds(ob);
+	
 	if (jumpbutton && ! jumpheld && (ob->hitnorth & 7) == 1)
 	{
 	//

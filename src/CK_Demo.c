@@ -446,8 +446,8 @@ void Terminator(void)
 */
 
 
-extern const unsigned char STORYBG[];
-extern const unsigned int STORYBG_size;
+extern const unsigned char CK_STORYBG[];
+extern const unsigned int CK_STORYBG_size;
 
 extern const unsigned char CK_STORYTXT[];
 extern const unsigned int CK_STORYTXT_size;
@@ -559,7 +559,7 @@ void StarWars(void)
 	for(int i = 0; i < 160; i++){
 		offset = (i%8)+((i>>3)<<8);
 		vram = (uint32_t*)GBA_VRAM+offset;//;
-		gfxbuffer = (uint32_t*)STORYBG+offset;
+		gfxbuffer = (uint32_t*)CK_STORYBG+offset;
 		for(int e = 0; e < 32; e++){
 			*vram = *gfxbuffer;
 			vram += 8;

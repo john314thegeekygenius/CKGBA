@@ -418,6 +418,11 @@ int CK_RunHelp(){
 void HelpScreens(void)
 {
 	SD_MusicOff();
+
+#ifndef CK4
+	StartMusic(HELPMUSIC);
+#endif
+
 	// Fix the GBA backgrounds
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | HELPMAP_MAP_0 | HELPMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
 	GBA_FINISH_BG1_4BIT(GBA_BG_MID | HELPMAP_MAP_1 | HELPMAP_BLOCK_1 | GBA_BG_SIZE_32x32);

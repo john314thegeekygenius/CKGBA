@@ -797,12 +797,12 @@ extern const unsigned int CK_LevelAudio[];
 
 void ShowHighScores(void)
 {	
-	CA_CacheMarks(levelenter[HIGHSCORE_MAP]);
+//	CA_CacheMarks(levelenter[HIGHSCORE_MAP]);
 	DelayedFade();
 	scorescreenkludge = true;
 	while(IN_IsUserInput());
 	IN_ClearKeysDown();
-	StartMusic(CK_LevelAudio[HIGHSCORE_MAP]);
+	StartMusic(HIGHSCORE_MAP);
 	DrawHighScores();
 	VW_FadeIn();
 	while(!IN_IsUserInput());

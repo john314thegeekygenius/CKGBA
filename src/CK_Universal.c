@@ -942,8 +942,9 @@ rndindex	dw	?
 LastRnd		dw	?
 */
 
-const unsigned char ck_rndtable[] = {0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66,
-  74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36,
+const unsigned char ck_rndtable[] = {
+0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66,
+74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36,
 95, 110,  85,  48, 212, 140, 211, 249,  22,  79, 200,  50,  28, 188,
 52, 140, 202, 120,  68, 145,  62,  70, 184, 190,  91, 197, 152, 224,
 149, 104,  25, 178, 252, 182, 202, 182, 141, 197,   4,  81, 181, 242,
@@ -998,15 +999,15 @@ PROC	US_InitRndT randomize:word
 
 ENDP
 */
-//unsigned int CK_US_InitRndT(unsigned short randomize){
-unsigned int US_InitRndT(){
-//    if(randomize){
-        // Initiate with (time)
-//        ck_rndindex = time(t);
-//    }else{
+extern unsigned int GBA_VSyncCounter;
+unsigned int US_InitRndT(unsigned short randomize){
+    if(randomize){
+		// Initiate with a value
+		ck_rndindex = GBA_VSyncCounter&0xFF;
+    }else{
         // Initiate with nothing
         ck_rndindex = 0;
-//    }
+    }
 };
 
 /*
@@ -1036,6 +1037,10 @@ ENDP
 */
 
 unsigned int US_RndT(){
-    return ck_rndtable[(ck_rndindex++)&0xFF];
+	int new_index = ck_rndtable[ck_rndindex]; // mov	bx,[es:rndindex]
+	new_index += 1;                           // inc	bx
+	new_index &= 0xFF;                        // and	bx,0ffh
+	ck_rndindex = new_index;                  // mov	[es:rndindex],bx
+    return ck_rndtable[ck_rndindex];          // mov	al,[es:rndtable+BX]
 };
 

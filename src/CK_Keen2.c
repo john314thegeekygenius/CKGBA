@@ -505,6 +505,8 @@ void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY)
 =
 ======================
 */
+
+// MODDERS:
 #define CK_MAX_LEVELS 18
 
 void CheckEnterLevel(objtype *ob)

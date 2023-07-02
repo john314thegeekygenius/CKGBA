@@ -623,6 +623,7 @@ extern const char *levelenter[GAMELEVELS];
 
 void SetupGameLevel(boolean loadnow)
 {
+	GBA_HideSprites();
 	CK_SetupLevelGBAMaps();
 
 //
@@ -1005,7 +1006,7 @@ loaded:
 
 		case ex_qedbroke:
 			RF_FixOfs(0,0);
-			VW_FixRefreshBuffer();
+			//VW_FixRefreshBuffer();
 			FinaleLayout();
 			CheckHighScore(gamestate.score, 0);
 			return;
@@ -1025,7 +1026,7 @@ loaded:
 
 		case ex_molly:
 			RF_FixOfs(0,0);
-			VW_FixRefreshBuffer();
+			//VW_FixRefreshBuffer();
 			FinaleLayout();
 			goto check_score;
 

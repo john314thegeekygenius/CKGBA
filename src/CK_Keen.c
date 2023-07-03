@@ -398,14 +398,15 @@ boolean CheckEnterHouse(objtype *ob)
 				ck_newobj->active = ac_allways;
 				ck_newobj->needtoclip = cl_noclip;
 				ck_newobj->obclass = inertobj;
+				ck_newobj->temp1 = 0;
+#ifdef FIX_BUGS
+		ob->ydir = 1;
+#endif
 				NewState(ck_newobj, &s_carddoor, CKS_EOL);
 				// Note: no invincibility here - card doors were always used as level exits in Keen 5
 				ob->state = &s_keenenter0;
 				ob->priority = 0;
 				upheld = true;
-#ifdef FIX_BUGS
-				ob->ydir = 1;
-#endif
 				return true;
 			}
 			else
@@ -683,7 +684,7 @@ void KeenLookDownThink(objtype *ob)
 	// Find out why keen's hitbox doesn't work right when
 	// he looks down!
 	CalcBounds(ob);
-	
+
 	if (jumpbutton && ! jumpheld && (ob->hitnorth & 7) == 1)
 	{
 	//
@@ -961,8 +962,7 @@ void KeenSwitchThink(objtype *ob)
 #ifdef KEEN5
 		if (tile >= DIRARROWSTART && tile < DIRARROWEND)
 		{
-			Quit("KeenSwitchThink : Handle this!");
-			*map = arrowflip[tile-DIRARROWSTART]+DIRARROWSTART;
+			CK_SetInfo(tileoff, arrowflip[tile-DIRARROWSTART]+DIRARROWSTART);
 			return;
 		}
 #endif
@@ -1814,9 +1814,6 @@ void KeenContact(objtype *ob, objtype *hit)
 			ChangeState(ob, &s_keenstun);
 		}
 		// BUG: there is no break here - this causes the impossible bullet bug
-#ifdef FIX_BUGS
-	break;
-#endif
 	case platformobj:
 		if (!gamestate.riding)
 			ClipToSpriteTop(ob, hit);
@@ -1840,9 +1837,9 @@ void KeenPosContact(objtype *ob, objtype *hit)
 #if defined KEEN4
 	case platformobj:
 		// BUG: priority is not reset here
-		#ifdef FIX_BUGS
+#ifdef FIX_BUGS
 		ob->priority = 1;
-		#endif
+#endif
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
@@ -1863,9 +1860,9 @@ void KeenPosContact(objtype *ob, objtype *hit)
 #elif defined KEEN5
 	case platformobj:
 		// BUG: priority is not reset here
-		#ifdef FIX_BUGS
+#ifdef FIX_BUGS
 		ob->priority = 1;
-		#endif
+#endif
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
@@ -1887,7 +1884,7 @@ void KeenPosContact(objtype *ob, objtype *hit)
 		ob->needtoclip = cl_midclip;
 		ChangeState(ob, &s_keenjump3);
 		jumptime = ob->xspeed = ob->yspeed = 0;
-#ifdef FIX_BUGS
+#ifndef FIX_BUGS
 		ClipToSpriteTop(ob, hit);	// BUG: allows Keen to stand on Blooglets and Flects
 #endif
 		break;
@@ -2384,9 +2381,10 @@ void KeenAirReact(objtype *ob)
 ============================
 */
 
+static const Uint16 fuse_tiles[] = {1932, 1950};	
 void BreakFuse(Uint16 tileX, Uint16 tileY)
 {
-	Uint16 tiles[] = {1932, 1950};	// should be 'static' for less overhead
+	// should be 'static' for less overhead
 
 	// The original disassembly had some code here equivalent to this:
 	//
@@ -2400,7 +2398,7 @@ void BreakFuse(Uint16 tileX, Uint16 tileY)
 	{
 		SpawnDeadMachine();
 	}
-	RF_MemToMap(tiles, 1, tileX, tileY, 1, 2);
+	RF_MemToMap(fuse_tiles, 1, tileX, tileY, 1, 2);
 }
 #endif
 

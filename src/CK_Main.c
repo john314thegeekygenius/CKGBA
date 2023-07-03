@@ -198,6 +198,7 @@ void DemoLoop(void)
 
 		while (playstate == ex_resetgame || playstate == ex_loadedgame)
 		{
+			CK_ActivityDist = INACTIVATEDIST_GBA;
 			GameLoop();
 			ShowHighScores();
 			if (playstate == ex_resetgame || playstate == ex_loadedgame)

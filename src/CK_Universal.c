@@ -1039,7 +1039,7 @@ ENDP
 */
 
 unsigned int US_RndT(){
-	int new_index = ck_rndtable[ck_rndindex]; // mov	bx,[es:rndindex]
+	int new_index = ck_rndindex; // mov	bx,[es:rndindex]
 	new_index += 1;                           // inc	bx
 	new_index &= 0xFF;                        // and	bx,0ffh
 	ck_rndindex = new_index;                  // mov	[es:rndindex],bx

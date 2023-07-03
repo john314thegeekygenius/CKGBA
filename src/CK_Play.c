@@ -62,6 +62,8 @@ boolean debugok;
 
 boolean jumpbutton, jumpheld, pogobutton, pogoheld, firebutton, fireheld, upheld;
 
+unsigned int CK_ActivityDist = INACTIVATEDIST_GBA;
+
 /*
 =============================================================================
 
@@ -461,6 +463,9 @@ void StatusWindow(void)
 	int debugSCount = 0;
 	// Draw it like CGA mode
 
+	// Play a sound
+	SD_PlaySound(SND_SHOWSTATUS);
+
 	// Hide all the sprites
 	GBA_HideSprites();
 	// Fix the scroll offsets
@@ -503,13 +508,15 @@ void StatusWindow(void)
 		}
 #endif
 	}
+
+	SD_PlaySound(SND_HIDESTATUS);
+
 }
 
 
 //===========================================================================
 
 
-unsigned int CK_ActivityDist = 2; // Set to 2 -- Should be 4?
 
 /*
 ==================

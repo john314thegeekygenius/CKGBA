@@ -30,7 +30,6 @@
 #define __CK_DEF__
 
 #define FIX_BUGS 1
-//#define FIX_GRAVITY 1
 
 // Pulled from ID_RF.H
 /*
@@ -480,6 +479,7 @@ void Terminator(void);
 #define CK_HALF_SCREENY 105 // 140
 
 extern boolean singlestep, jumpcheat, godmode, keenkilled;
+extern boolean enableRumble;
 extern exittype playstate;
 extern gametype gamestate;
 extern objtype *ck_newobj, *player, *scoreobj;
@@ -816,9 +816,9 @@ void ClipToSides(objtype *ob);
 boolean CheckPosition(objtype *ob);
 boolean StatePositionOk(objtype *ob, statetype *state);
 
-#ifdef KEEN5
+//#ifdef KEEN5
 void CalcBounds(objtype *ob);
-#endif
+//#endif
 
 void ClipToWalls(objtype *ob);
 void FullClipToWalls(objtype *ob);

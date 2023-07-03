@@ -38,6 +38,7 @@
 */
 
 boolean singlestep, jumpcheat = false, godmode = false, keenkilled;
+boolean enableRumble = true;
 boolean infinitelives= false, infiniteammo= false;
 
 exittype playstate;
@@ -460,10 +461,10 @@ void StatusWindow(void)
 	int debugSCount = 0;
 	// Draw it like CGA mode
 
-	// Fix the scroll offsets
-	VW_FixGraphics();
 	// Hide all the sprites
 	GBA_HideSprites();
+	// Fix the scroll offsets
+	VW_FixGraphics();
 	// Fix the scroll
 	CK_SnapScroll();
 
@@ -701,7 +702,7 @@ void WorldScrollScreen(objtype *ob)
 void ScrollScreen(objtype *ob)
 {
 	Sint16 xscroll, yscroll, pix, speed;
-	Uint16 bottom = 0;
+	Uint16 bottom;
 
 	if (keenkilled)
 		return;
@@ -903,7 +904,7 @@ void ScrollScreen(objtype *ob)
 void ScrollScreen_Custom(objtype *ob)
 {
 	Sint16 xscroll, yscroll, pix, speed;
-	Uint16 bottom = 0;
+	Uint16 bottom;
 
 	if (keenkilled)
 		return;

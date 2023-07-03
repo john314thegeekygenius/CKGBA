@@ -95,6 +95,7 @@ typedef enum
 			// Added
 			uc_WipeRom,
 			uc_Saving,
+			uc_C_Rumble,
 			//// Cheats
 			uc_C_GodMode,
 			uc_C_InfAmmo,
@@ -210,7 +211,7 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 	{
 		{DefRButton(0,"NO MUSIC")},
 		{DefRButton(0,"ADLIB")},
-		{DefRButton(0,"FANCY")},
+//		{DefRButton(0,"FANCY")},
 		{uii_Bad}
 	};
 	UserItemGroup   musicgroup = {0,8,CP_MUSICMENUPIC,0,musici};
@@ -260,7 +261,8 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 
 	UserItem optionsi[] =
 	{
-		{DefFolder(0,"",&scoregroup)},
+		{DefFolder(0,"",&scoregroup)}, // Scorebox
+		{uii_Button,ui_Normal,0,"",uc_C_Rumble}, // Rumble
 //#ifdef KEEN
 //		{DefFolder(0,"",&twogroup)},
 //#endif
@@ -691,6 +693,22 @@ USL_ConfirmComm(UComm comm)
 		dialog = true;
 		break;
 
+	case uc_C_Rumble:
+		s1 = "RUMBLE";
+		enableRumble = !enableRumble;
+		if(enableRumble){
+			s2 = "ENABLED";
+			optionsi[1].text = "RUMBLE (ON)";
+		}else {
+			s2 = "DISABLED";
+			optionsi[1].text = "RUMBLE (OFF)";
+		}
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
+
 	case uc_C_GodMode:
 		s1 = "GOD MODE";
 		godmode = !godmode;
@@ -827,6 +845,11 @@ static void
 USL_SetOptionsText(void)
 {
 	optionsi[0].text = showscorebox? ((showscorebox==2)?"SCORE BOX (GBA)" : "SCORE BOX (ON)") : "SCORE BOX (OFF)";
+	if(enableRumble){
+		optionsi[1].text = "RUMBLE (ON)";
+	}else{
+		optionsi[1].text = "RUMBLE (OFF)";
+	}
 //	optionsi[1].text = oldshooting? "TWO-BUTTON FIRING (ON)" : "TWO-BUTTON FIRING (OFF)";
 /*
 #if GRMODE != CGAGR
@@ -2076,6 +2099,7 @@ USL_HandleComm(UComm comm)
 	{
 	case uc_Loaded:
 	case uc_Saving:
+	case uc_C_Rumble:
 	case uc_Return:
 	case uc_WipeRom:
 	case uc_C_GodMode:
@@ -2379,9 +2403,9 @@ boolean US_ManualCheck(void)
 
 	info = list[listindex];
 	name = info.name;
-	CA_ClearMarks();
-	CA_MarkGrChunk(info.shapenum);
-	CA_CacheMarks(NULL);
+//	CA_ClearMarks();
+//	CA_MarkGrChunk(info.shapenum);
+//	CA_CacheMarks(NULL);
 
 	VWB_Bar(0, 0, 320, 200, BackColor);
 	spritewidth = spritetable[info.shapenum - STARTSPRITES].width;
@@ -2443,7 +2467,6 @@ boolean US_ManualCheck(void)
 	}
 
 	VWB_Bar(0, 0, 320, 200, BackColor);
-	CA_DownLevel();
 	checkpassed = correct;
 	return correct;
 }

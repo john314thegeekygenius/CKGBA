@@ -63,16 +63,6 @@ void CK_ClearSprite(objsprite *spr, bool overwrite){
     spr->ck_sprType = CKS_EOL;
 };
 
-static void CK_FreeObject(objtype *obj){
-    if(!obj) Quit("CK_FreeObject : Bad obj");
-
-    obj->curSprType = CKS_EOL;
-
-    obj->removed = true;
-
-    obj->isFree = true;
-};
-
 static void CK_ClearObject(objtype *obj,bool overwrite){
     if(!obj) Quit("CK_ClearObject : Bad obj");
 	obj->obclass = 0;
@@ -105,6 +95,7 @@ static void CK_ClearObject(objtype *obj,bool overwrite){
         obj->isFree = true;
     }
 };
+
 
 DONT_OPTIMISE objtype *GetNewObj(boolean usedummy){
     // Find an old object to use
@@ -183,8 +174,7 @@ void RemoveObj(objtype *ob){
 		RF_RemoveSprite(&ob->temp3, false);
 	}
 
-    CK_FreeObject(ob);
-
+    CK_ClearObject(ob, true);
 };
 
 
@@ -217,14 +207,7 @@ void CK_GetSprGfxMem(objsprite *spr){
         if(gfxhandler[si].gfxoffset != CK_GFX_NULL && 
            gfxhandler[si].sprType == spr->ck_sprType){
             if(gfxhandler[si].isStatic == false){
-                // If the sprite isn't on the screen, use it anyway
-                if(!gfxhandler[si].wasRendered){
-                    spr->gfxsprindx = si;
-                    gfxhandler[spr->gfxsprindx].changed = true;
-                    gfxhandler[spr->gfxsprindx].sprnum = spr->spritenum;
-                    gfxhandler[spr->gfxsprindx].refs += 1;
-                    return;
-                }
+                continue;
             }
             if(gfxhandler[si].removed){
                 // We have a good sprite!
@@ -238,6 +221,13 @@ void CK_GetSprGfxMem(objsprite *spr){
                 // Reuse a sprite
                 spr->gfxsprindx = si;
                 gfxhandler[spr->gfxsprindx].changed = false;
+                gfxhandler[spr->gfxsprindx].refs += 1;
+                return;
+            }else if(spr->rendered == false){
+                // Reuse a sprite
+                spr->gfxsprindx = si;
+                gfxhandler[spr->gfxsprindx].changed = true;
+                gfxhandler[spr->gfxsprindx].sprnum = spr->spritenum;
                 gfxhandler[spr->gfxsprindx].refs += 1;
                 return;
             }
@@ -316,17 +306,12 @@ void CK_FixSpriteGraphics(objsprite *sprite) {
     if(sprite->gfxsprindx != NULL_SPRITE){
         if(gfxhandler[sprite->gfxsprindx].refs>1){
             if(gfxhandler[sprite->gfxsprindx].sprnum != sprite->spritenum){
-//                if(gfxhandler[sprite->gfxsprindx].wasRendered || gfxhandler[sprite->gfxsprindx].changed){
-                    // We need a new sprite
-                    gfxhandler[sprite->gfxsprindx].refs -= 1;
-                    CK_GetSprGfxMem(sprite);
-                    gfxhandler[sprite->gfxsprindx].isStatic = false;
-                    gfxhandler[sprite->gfxsprindx].sprnum = sprite->spritenum;
-                    gfxhandler[sprite->gfxsprindx].changed = true;
-//                }else{
-//                    gfxhandler[sprite->gfxsprindx].sprnum = sprite->spritenum;
-//                    gfxhandler[sprite->gfxsprindx].changed = true;
-//                }
+                // We need a new sprite
+                gfxhandler[sprite->gfxsprindx].refs -= 1;
+                CK_GetSprGfxMem(sprite);
+                gfxhandler[sprite->gfxsprindx].isStatic = false;
+                gfxhandler[sprite->gfxsprindx].sprnum = sprite->spritenum;
+                gfxhandler[sprite->gfxsprindx].changed = true;
             }
         }else {
             if(gfxhandler[sprite->gfxsprindx].sprnum != sprite->spritenum){
@@ -337,9 +322,6 @@ void CK_FixSpriteGraphics(objsprite *sprite) {
         }
     }else{
         CK_GetSprGfxMem(sprite);
-    }
-    if(sprite->rendered == true){
-        gfxhandler[sprite->gfxsprindx].wasRendered = true;
     }
 };
 
@@ -402,7 +384,6 @@ void CK_UpdateSprites(){
     // Reset this incase the sprite isn't being drawn anymore
     for(int ckcnt = 0; ckcnt < CK_NumOfGfxLocks; ckcnt ++){
         gfxhandler[ckcnt].changed = false;
-        gfxhandler[ckcnt].wasRendered = false;
     }
     GBA_UPDATE_SPRITES()
 };
@@ -418,33 +399,18 @@ void CK_DrawSprite(objsprite *sprite){
     spry = CONVERT_GLOBAL_TO_PIXEL(spry);
     uint32_t vidmem = gfxhandler[sprite->gfxsprindx].gfxoffset;
 
-    {
-        signed int chkx = sprx + sprite->gfxwidth;
-        signed int chky = spry + sprite->gfxheight;
+    //sprite->rendered = false;
 
-        if(chkx >= 0 && chky >= 0 && sprx < GBA_SCREEN_WIDTH && spry < GBA_SCREEN_HEIGHT){
-            sprite->rendered = true;
-            CK_FixSpriteGraphics(sprite);
-            // MODDERS:
-            // This if case will stop sprites with custom drawing
-            // to not break
-            if(sprite->ck_sprType != CKS_SCOREBOXDOS &&
-                sprite->ck_sprType != CKS_SCOREBOXGBA){
-                CK_UpdateSpriteGraphics(sprite);
-            }
-        }else{
-            return; // No need?
-        }
-    }
-    
     for(int i = 0; i < sprite->gbaSpriteCount; i++){
         signed int chkx = sprx + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
-        signed int chky = spry + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2]; 
-        int gfxtile = vidmem>>3;
-        int gba_prior = GBA_SPRITE_ZTOP;
-        if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
-        int spriteid = GBA_CreateSpriteFast(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
-
+        signed int chky = spry + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];
+        if(chkx > -64 && chky > -64 && chkx < GBA_SCREEN_WIDTH && chky < GBA_SCREEN_HEIGHT){
+            int gfxtile = vidmem>>3;
+            int gba_prior = GBA_SPRITE_ZTOP;
+            if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
+            int spriteid = GBA_CreateSpriteFast(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
+            //sprite->rendered = true;
+        }
         vidmem += CK_SpriteSizes[sprite->sprsizes[i]];
     }
     if(GBA_SpriteIndex >= 127){
@@ -572,7 +538,7 @@ DONT_OPTIMISE void RF_CalcTics (void)
 // take DEMOTICS or more tics, and modify Timecount to reflect time taken
 //
 		oldtimecount = lasttimecount;
-		while (TimeCount<oldtimecount+DEMOTICS*2) {}
+		while (TimeCount<oldtimecount+DEMOTICS*2);
 		lasttimecount = oldtimecount + DEMOTICS;
 		TimeCount = lasttimecount + DEMOTICS;
 		tics = DEMOTICS;
@@ -734,6 +700,12 @@ void RF_RemoveSprite (void **user, bool cache){
     if(cache) {
         objsprite *spr = (*(objsprite**)user);
         spr->drawtype = 0xF; // Invalid draw type
+        if(spr->gfxsprindx != NULL_SPRITE){
+            gfxhandler[spr->gfxsprindx].isStatic = true; // Set this
+            gfxhandler[spr->gfxsprindx].changed = false;
+            gfxhandler[spr->gfxsprindx].sprnum = NULL_SPRITE;
+            gfxhandler[spr->gfxsprindx].refs -= 1;
+        }
         return;
     }
     CK_ClearSprite(*user, false);

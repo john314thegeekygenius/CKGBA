@@ -763,8 +763,10 @@ void GBA_UserIRQ(){
 // Custom function
 unsigned short ck_rumbleticks = 0;
 void CK_TimedRumble(unsigned short ticks){
-	ck_rumbleticks = ticks;
-	GBA_RumbleOn();
+	if(enableRumble){
+		ck_rumbleticks = ticks;
+		GBA_RumbleOn();
+	}
 };
 
 

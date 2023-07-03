@@ -213,7 +213,7 @@ const unsigned char *CKS_PC_Samples [] = {
 	&SND1_050_data, 
 	&SND1_051_data, 
 };
-const unsigned char *CKS_PC_SampleLens [] = {
+const unsigned int *CKS_PC_SampleLens [] = {
 	&SND1_000_length, 
 	&SND1_001_length, 
 	&SND1_002_length, 
@@ -267,7 +267,7 @@ const unsigned char *CKS_PC_SampleLens [] = {
 	&SND1_050_length, 
 	&SND1_051_length, 
 };
-const unsigned char *CKS_SamplePriorities [] = {
+const unsigned short *CKS_SamplePriorities [] = {
 	&SND1_000_priority, 
 	&SND1_001_priority, 
 	&SND1_002_priority, 

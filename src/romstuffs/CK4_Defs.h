@@ -57,6 +57,10 @@
 #define INACTIVATEDIST 4 
 
 // MODDERS:
+// Number of levels that could be entered
+#define CK_MAX_LEVELS 18
+
+// MODDERS:
 // Graphics Stuff
 
 // Width of each tileset in pixels

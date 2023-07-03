@@ -319,7 +319,7 @@ void UpdateScore(objtype *ob)
 		i = 17; // set to the tile index
 		vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
 		for(int drw = 0; drw < 8; drw++){
-			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128];
+			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (gamestate.keycard*8)];
 		}
 #elif defined CK6
 	// TODO:
@@ -505,9 +505,6 @@ void SpawnWorldKeenPort(Uint16 tileX, Uint16 tileY)
 =
 ======================
 */
-
-// MODDERS:
-#define CK_MAX_LEVELS 18
 
 void CheckEnterLevel(objtype *ob)
 {
@@ -1050,6 +1047,7 @@ void CheckWorldInTiles(objtype *ob)
 		if (!gamestate.wetsuit)
 		{
 			SD_PlaySound(SND_NOWAY);
+			CK_TimedRumble(15); // Rumble for 15 ticks
 			CantSwim();
 			RF_ForceRefresh();
 			xtry = -ob->xmove;
@@ -1456,10 +1454,6 @@ void T_Shot(objtype *ob)
 			}
 			if (ob->obclass == nothing)	//BUG: obclass is 'inertobj' for the exploded shot
 				break;
-			#ifdef FIX_BUGS
-			if (ob->obclass == inertobj)
-				break;
-			#endif
 		}
 	}
 }
@@ -1583,6 +1577,9 @@ void CardDoorOpen(objtype *ob)
 	Uint16 *map;
 	Uint16 tiles[16], *tileptr;
 
+	// Hack because setting the object to null doesnt work?
+	if(ob->temp1 >= 3){ return; }
+
 	tileptr = tiles;
 	map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (ob->y*CK_CurLevelWidth) + ob->x;
 	for (y=0; y<4; y++, map+=CK_CurLevelWidth)
@@ -1594,8 +1591,9 @@ void CardDoorOpen(objtype *ob)
 	}
 	RF_MemToMap(tiles, 1, ob->x, ob->y, 4, 4);
 
-	if (++ob->temp1 == 3)
+	if (++ob->temp1 == 3){
 		ob->state = NULL;
+	}
 }
 
 #endif

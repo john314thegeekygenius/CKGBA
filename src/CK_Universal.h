@@ -159,7 +159,7 @@ unsigned int _ck_strlen(char *str);
 boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok, int maxchars,int maxwidth);
 
 // From Assembly Code
-unsigned int US_InitRndT();
+unsigned int US_InitRndT(unsigned short ticks);
 unsigned int US_RndT();
 
 

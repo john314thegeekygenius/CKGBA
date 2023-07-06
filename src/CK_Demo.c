@@ -691,7 +691,7 @@ void DrawHighScores(void)
 	// Hide any sprites
 	CK_RemoveSprites();
 	// Fix the screen pos
-	RF_SetOfs(8,0);
+	RF_SetOffs(8,0);
 
 	*(volatile uint16_t*)GBA_REG_BG1HOFS = 4;
 	*(volatile uint16_t*)GBA_REG_BG1VOFS = 4;

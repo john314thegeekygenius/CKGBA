@@ -508,6 +508,8 @@ void HelpScreens(void)
 {
 	SD_MusicOff();
 
+	RF_StoreOrg();
+
 #ifdef CK5
 	StartMusic(HELPMUSIC);
 #endif
@@ -536,7 +538,8 @@ void HelpScreens(void)
 	// Fix the graphics
 	CA_FixGraphics();
 
-	RF_RestoreOfs();
+	RF_RestoreOrg();
+	RF_RestoreOffs(); // TODO: Hmmm
 };
 
 
@@ -588,6 +591,9 @@ int CK_RunFinale(){
 
 void FinaleLayout(void){
 	SD_MusicOff();
+
+	RF_StoreOrg();
+
 	// Fix the GBA backgrounds
 	GBA_FINISH_BG0_4BIT(GBA_BG_BACK | HELPMAP_MAP_0 | HELPMAP_BLOCK_0 | GBA_BG_SIZE_32x32);
 	GBA_FINISH_BG1_4BIT(GBA_BG_MID | HELPMAP_MAP_1 | HELPMAP_BLOCK_1 | GBA_BG_SIZE_32x32);
@@ -618,7 +624,8 @@ void FinaleLayout(void){
 	// Fix the graphics
 	CA_FixGraphics();
 
-	RF_RestoreOfs();
+	RF_RestoreOrg();
+	RF_RestoreOffs(); // TODO: Hmmm
 
 	SD_MusicOff();
 

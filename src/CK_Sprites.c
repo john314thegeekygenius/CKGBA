@@ -393,7 +393,7 @@ void CK_UpdateSprites(){
 void CK_DrawSprite(objsprite *sprite){
     if(!sprite) return;
     if(sprite->gfxsprindx == NULL_SPRITE || gfxhandler[sprite->gfxsprindx].gfxoffset == CK_GFX_NULL) return;
-    if(sprite->ck_sprType == CKS_EOL) return;
+    if(sprite->ck_sprType == CKS_EOL || sprite->ck_sprType == CKS_DUMMY) return;
 
     signed int sprx = sprite->deltax - originxglobal;
     signed int spry = sprite->deltay - originyglobal;

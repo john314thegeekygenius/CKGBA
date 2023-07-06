@@ -112,8 +112,15 @@ bool CK_UpdateRendering = false;
 
 uint32_t CK_UpdateTick = 0;
 
+#ifdef CK4
 #include "romstuffs/CK4_Spectators.c"
-
+#endif
+#ifdef CK5
+#include "romstuffs/CK5_Spectators.c"
+#endif
+#ifdef CK6
+#include "romstuffs/CK6_Spectators.c"
+#endif
 
 unsigned short CK_GetInfo(unsigned int offset){
     for(int i = 0; i < CK_InfoPlaneBlockCount; i++){
@@ -321,6 +328,10 @@ void CK_SetMapTile(unsigned short x, unsigned short y, unsigned short tile, unsi
 
     // Assumes that plane is never anything other than 0 and 1
     uint32_t doffset = (y*CK_CurLevelWidth)+x;
+    if(plane == 2){
+        CK_SetInfo(doffset, tile);
+        return;
+    }
     CK_CurLevelData[doffset+(CK_CurLevelSize*plane)] = tile;
 };
 

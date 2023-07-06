@@ -31,7 +31,6 @@
 // For the EZ Flash cart
 //#define __EZ_FLASH
 
-#define CK4
 #define KEEN
 
 //

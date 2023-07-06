@@ -1,10 +1,13 @@
 
+EPISODE := CK4
+GB_GBA  := CK4GBA
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-mthumb -mthumb-interwork
 
-CFLAGS := -O3 -w -mcpu=arm7tdmi -nostartfiles -Tlnkscript
+CFLAGS := -O3 -w -mcpu=arm7tdmi -nostartfiles -Tlnkscript -D$(EPISODE)
 
 CC := arm-none-eabi-gcc
 
@@ -13,8 +16,6 @@ CC := arm-none-eabi-gcc
 #---------------------------------------------------------------------------------
 #LIBS	:= -lmm -lgba
 #CLIBS := 
-
-GB_GBA = CK4GBA
 
 SRC_FILES=$(wildcard src/*.c)
 OBJ_SRC=$(addprefix obj/, $(notdir $(SRC_FILES:.c=.o)))

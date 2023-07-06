@@ -272,8 +272,12 @@ void RF_RestoreOfs(){
 };
 
 void RF_Refresh(){
-	// TODO:
-	// Make this do somthing?
+	// Waste some time
+	GBA_WAIT_VBLANK
+	GBA_Delay(25);
+	// Redraw the level
+	CK_ForceLevelRedraw();
+	CK_RenderLevel();
 };
 
 extern const unsigned char TIL_8_UNMASKED[];

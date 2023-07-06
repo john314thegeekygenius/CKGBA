@@ -414,8 +414,8 @@ void DrawStatusWindow(void)
 	// draw the tiles for "PRESS A KEY":
 	for (i = 0; i < 10; i++)
 	{
-		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 140+offy, i+72);
-		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 148+offy, i+82);
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 148+offy, i+72);
+		VWB_DrawTile8(i*8+STATUS_PRESSKEY_X+offx, 156+offy, i+82);
 	}
 }
 

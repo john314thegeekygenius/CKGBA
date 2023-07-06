@@ -72,10 +72,19 @@ extern const unsigned int CK_BMP0006_width;
 extern const unsigned int CK_BMP0006_height;
 extern const unsigned int CK_BMP0006_size;
 
+#ifndef CK6
+#ifdef CK4
 extern const unsigned char CK_BMP0045[];
 extern const unsigned int CK_BMP0045_size;
 extern const unsigned int CK_BMP0045_width;
 extern const unsigned int CK_BMP0045_height;
+#elif defined CK5
+extern const unsigned char CK_BMP0024[];
+extern const unsigned int CK_BMP0024_size;
+extern const unsigned int CK_BMP0024_width;
+extern const unsigned int CK_BMP0024_height;
+#endif
+#endif
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -84,7 +93,8 @@ extern const unsigned int CK_TXT0000_pages;
 extern const unsigned char CK_TXT0000_text[];
 extern const unsigned int CK_TXT0000_color[];
 extern const unsigned int CK_TXT0000_graphics[];
-
+// There's no help in Keen 6
+#ifndef CK6
 extern const unsigned int CK_TXT0001_pages;
 extern const unsigned char CK_TXT0001_text[];
 extern const unsigned int CK_TXT0001_color[];
@@ -104,42 +114,112 @@ extern const unsigned int CK_TXT0004_pages;
 extern const unsigned char CK_TXT0004_text[];
 extern const unsigned int CK_TXT0004_color[];
 extern const unsigned int CK_TXT0004_graphics[];
+#ifdef CK5
+extern const unsigned int CK_TXT0005_pages;
+extern const unsigned char CK_TXT0005_text[];
+extern const unsigned int CK_TXT0005_color[];
+extern const unsigned int CK_TXT0005_graphics[];
+#endif
+#endif
 
 const unsigned char * CK_TXTHELP_text[] = {
+#ifndef CK6
 	// Help Texts
+#ifdef CK4
 	CK_TXT0000_text,
 	CK_TXT0002_text,
 	CK_TXT0001_text,
 	CK_TXT0003_text,
+#elif defined CK5
+	CK_TXT0000_text,
+	CK_TXT0001_text,
+	CK_TXT0002_text,
+	CK_TXT0003_text,
+#endif
 	// Special texts
 	CK_TXT0004_text,
+#ifdef CK5
+	CK_TXT0005_text,
+#endif
+#else
+	// End Text
+	CK_TXT0000_text,
+#endif
 };
+
 const unsigned int * CK_TXTHELP_color[] = {
+#ifndef CK6
 	// Help Texts
+#ifdef CK4
 	CK_TXT0000_color,
 	CK_TXT0002_color,
 	CK_TXT0001_color,
 	CK_TXT0003_color,
+#elif defined CK5
+	CK_TXT0000_color,
+	CK_TXT0001_color,
+	CK_TXT0002_color,
+	CK_TXT0003_color,
+#endif
 	// Special texts
 	CK_TXT0004_color,
+#ifdef CK5
+	CK_TXT0005_color,
+#endif
+#else
+	// End Text
+	CK_TXT0000_color,
+#endif
 };
+
 const unsigned int * CK_TXTHELP_graphics[] = {
+#ifndef CK6
 	// Help Texts
+#ifdef CK4
 	CK_TXT0000_graphics,
 	CK_TXT0002_graphics,
 	CK_TXT0001_graphics,
 	CK_TXT0003_graphics,
+#elif defined CK5
+	CK_TXT0000_graphics,
+	CK_TXT0001_graphics,
+	CK_TXT0002_graphics,
+	CK_TXT0003_graphics,
+#endif
 	// Special texts
 	CK_TXT0004_graphics,
+#ifdef CK5
+	CK_TXT0005_graphics,
+#endif
+#else
+	// End Text
+	CK_TXT0000_graphics,
+#endif
 };
+
 const unsigned int * CK_TXTHELP_pages[] = {
+#ifndef CK6
 	// Help Texts
+#ifdef CK4
 	&CK_TXT0000_pages,
 	&CK_TXT0002_pages,
 	&CK_TXT0001_pages,
 	&CK_TXT0003_pages,
+#elif defined CK5
+	&CK_TXT0000_pages,
+	&CK_TXT0001_pages,
+	&CK_TXT0002_pages,
+	&CK_TXT0003_pages,
+#endif
 	// Special texts
 	&CK_TXT0004_pages,
+#ifdef CK5
+	&CK_TXT0005_pages,
+#endif
+#else
+	// End Text
+	&CK_TXT0000_pages,
+#endif
 };
 
 signed short CK_HelpLY = 0;
@@ -209,8 +289,13 @@ void CK_SetupHelp(){
 	vram += (CK_HELP_size>>2);
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0006, CK_BMP0006_size>>2);
 	vram += (CK_BMP0006_size>>2);
+#ifdef CK5
+	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0024, CK_BMP0024_size>>2);
+	vram += (CK_BMP0024_size>>2);
+#else
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0045, CK_BMP0045_size>>2);
 	vram += (CK_BMP0045_size>>2);
+#endif
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_FONT, CK_FONT_size>>2);
 
 	CK_MenuOn = 0;
@@ -307,7 +392,11 @@ int CK_RunHelp(){
 			CK_UpdateHelpCursor = false;
 
 			// Draw the pointer
+#ifdef CK5
+			for(int i = 0; i < CK_BMP0024_width>>2; i++){
+#else
 			for(int i = 0; i < CK_BMP0045_width>>2; i++){
+#endif
 				*(uint16_t*)(TILEMAP_0+i+(((CK_HelpLY*3)+5)*32)+2) = 0; // Clear the last one
 				*(uint16_t*)(TILEMAP_0+i+(((CK_HelpLY*3)+6)*32)+2) = 0; // Clear the last one
 				*(uint16_t*)(TILEMAP_0+i+(((CK_HelpLY*3)+7)*32)+2) = 0; // Clear the last one
@@ -419,7 +508,7 @@ void HelpScreens(void)
 {
 	SD_MusicOff();
 
-#ifndef CK4
+#ifdef CK5
 	StartMusic(HELPMUSIC);
 #endif
 
@@ -452,19 +541,19 @@ void HelpScreens(void)
 
 
 // MODDERS:
-const int FinaleTxt = 5;
+int FinaleTxt = 5; // Indexed from 1
 
 void CK_SetupFinale(){
 	uint32_t *vram = (uint32_t*)GBA_VRAM;
 
 	// Copy help stuff
 	GBA_DMA_Copy32(vram, (uint32_t*)CK_HELP, CK_HELP_size>>2);
-	vram += (CK_HELP_size>>2);
-	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0006, CK_BMP0006_size>>2);
-	vram += (CK_BMP0006_size>>2);
-	GBA_DMA_Copy32(vram, (uint32_t*)CK_BMP0045, CK_BMP0045_size>>2);
-	vram += (CK_BMP0045_size>>2);
-	GBA_DMA_Copy32(vram, (uint32_t*)CK_FONT, CK_FONT_size>>2);
+
+#ifdef KEEN5
+	if (gamestate.leveldone[13] == ex_fusebroke){
+		FinaleTxt = 6;
+	}
+#endif
 
 	CK_PageOn = 0;
 	lastButton = 0;
@@ -473,6 +562,7 @@ void CK_SetupFinale(){
 int CK_RunFinale(){
 	// MODDERS: Can get rid of this:
 	// Draw a green arrow
+
 	if(GBA_INV_BUTTONS){
 		VWB_DrawPicStory(27,18,H_FLASHARROW2PIC);
 	}else{

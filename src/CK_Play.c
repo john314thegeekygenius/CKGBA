@@ -38,7 +38,7 @@
 */
 
 boolean singlestep, jumpcheat = false, godmode = false, keenkilled;
-boolean enableRumble = true;
+boolean enableRumble = false;
 boolean infinitelives= false, infiniteammo= false;
 
 exittype playstate;

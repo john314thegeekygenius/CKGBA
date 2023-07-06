@@ -359,8 +359,8 @@ boolean LoadTheGame(FileHandle handle)
 	if (readHandle(&handle, &CK_CurLevelAniTick, sizeof(CK_CurLevelAniTick)) == File_ReadFail)
 		return false;
 	
-	// TODO:
-	// This takes a long time???
+	// Modulate by 256 to save on loading time
+	CK_CurLevelAniTick %= 256;
 	CK_FixTileAnimations(CK_CurLevelAniTick); // Fix the animations to the number of ticks
 
 	struct CK_MapBlock tempblock;

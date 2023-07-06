@@ -91,7 +91,9 @@ void VW_FixGraphics();
 void VW_ClearVideo(unsigned int color);
 void VW_ClearScroll();
 void RF_FixOfs(int x, int y);
-void RF_RestoreOfs();
+void RF_StoreOrg();
+void RF_RestoreOrg();
+void RF_RestoreOffs();
 void RF_Refresh();
 
 void VWB_Bar(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned char c);
@@ -109,7 +111,6 @@ void VWB_Vlin (int y1, int y2, int x, int color);
 DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls);
 
 void VW_UpdateScreen();
-void VWB_ClearSpriteCache();
 objsprite *VWB_GetTempSprite(CK_SpriteType type);
 void VWB_DrawSprite(objsprite **sprite, int x, int y, int chunknum);
 

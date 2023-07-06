@@ -151,6 +151,7 @@ objsprite *CK_GetNewSprite(CK_SpriteType type){
         if(spr->ck_prevType == type && spr->gbaSpriteCount==0 && spr->ck_sprType == CKS_EOL){
             CK_ClearSprite(spr, false);
             spr->ck_prevType = type;
+            spr->ck_sprType = type;
             return spr;
         }
     }
@@ -158,6 +159,7 @@ objsprite *CK_GetNewSprite(CK_SpriteType type){
     if(CK_NumOfSprites > MAXSPRITES) Quit("CK_GetNewSprite() : No free sprites!");
     CK_ClearSprite(spr, true);
     spr->ck_prevType = type;
+    spr->ck_sprType = type;
     return spr;
 };
 
@@ -681,8 +683,13 @@ void RF_PlaceSpriteNU(void **user,unsigned globalx,unsigned globaly,
     spr->drawtype = draw;
     spr->priority = priority;
 
+    spr->rendered = true;
+
 };
 
+void RF_DrawSprite(void **user,unsigned pixelx,unsigned pixely,unsigned spritenumber){
+    RF_PlaceSprite(user, CONVERT_PIXEL_TO_GLOBAL(pixelx), CONVERT_PIXEL_TO_GLOBAL(pixely), spritenumber, spritedraw, 1);
+};
 
 //===========================================================================
 

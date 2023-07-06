@@ -224,9 +224,13 @@ void VW_ClearVideo(unsigned int color){
 	GBA_DMA_MemSet32((unsigned int *)GBA_VRAM, color, 32*32*12);
 };
 
+unsigned int rf_oldorgx = 0, rf_oldorgy = 0;
+
 void VW_ClearScroll(){
 	originxglobal = 0;
 	originyglobal = 0;
+	rf_oldorgx = 0;
+	rf_oldorgy = 0;
 
 	CK_CameraX = 0;
 	CK_CameraY = 0;
@@ -244,7 +248,7 @@ void VW_ClearScroll(){
 int rf_oldoffx = 0;
 int rf_oldoffy = 0;
 
-void RF_SetOfs(int x, int y){
+void RF_SetOffs(int x, int y){
 	rf_oldoffx = x;
 	rf_oldoffy = y;
 	*(volatile uint16_t*)GBA_REG_BG0HOFS = x;
@@ -264,11 +268,22 @@ void RF_FixOfs(int x, int y){
 	CK_CameraX = x;
 	CK_CameraY = y;
 
-	RF_SetOfs(x,y);
+	RF_SetOffs(x,y);
 };
 
-void RF_RestoreOfs(){
-	RF_SetOfs(rf_oldoffx,rf_oldoffy);
+
+void RF_StoreOrg(){
+	rf_oldorgx = originxglobal;
+	rf_oldorgy = originyglobal;
+};
+
+void RF_RestoreOrg(){
+	originxglobal = rf_oldorgx;
+	originyglobal = rf_oldorgy;
+};
+
+void RF_RestoreOffs(){
+	RF_SetOffs(rf_oldoffx,rf_oldoffy);
 };
 
 void RF_Refresh(){
@@ -277,7 +292,6 @@ void RF_Refresh(){
 	GBA_Delay(25);
 	// Redraw the level
 	CK_ForceLevelRedraw();
-	CK_RenderLevel();
 };
 
 extern const unsigned char TIL_8_UNMASKED[];
@@ -461,61 +475,4 @@ DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls){
 
 void VW_UpdateScreen(){
 	screenchanged = true;
-};
-
-// Sprites to be used with DrawSprite
-objsprite VW_DummySprites[10];
-int vw_sprcnt = 0;
-
-void VWB_ClearSpriteCache(){
-	vw_sprcnt = 0;
-	for(int i = 0; i < 10; i++){
-		objsprite *spr = &VW_DummySprites[i];
-		RF_RemoveSprite(&spr, false);
-	}
-};
-
-objsprite *VWB_GetTempSprite(CK_SpriteType type){
-	objsprite *spr = &VW_DummySprites[vw_sprcnt];
-	
-	CK_SetSprite(&spr, type);
-	vw_sprcnt++;
-	if(vw_sprcnt >= 10) Quit("VWB_GetTempSprite : Too many sprites!");
-	return spr; 
-};
-
-extern const unsigned int CK_SpriteSizes[];
-extern const unsigned int *CK_SpritePtrs[];
-extern GBA_IN_EWRAM spritegfx gfxhandler[MAXSPRITES];
-
-void VWB_DrawSprite(objsprite **spr, int x, int y, int chunknum){
-	objsprite *sprite = *spr;
-
-    sprite->spritenum = chunknum-1;
-
-    signed short *shape = CK_GetSprShape(sprite);
-
-    signed int dx = x;
-    signed int dy = y;
-
-	dx += shape[4];
-	dy += shape[5];
-
-    CK_UpdateSpriteGraphics(sprite);
-
-	if(sprite->gfxsprindx == NULL_SPRITE) Quit("VWB_DrawSprite: Invalid sprite gfx index!");
-
-    uint32_t vidmem = gfxhandler[sprite->gfxsprindx].gfxoffset;
-    for(int i = 0; i < sprite->gbaSpriteCount; i++){
-        signed int chkx = x + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+1];
-        signed int chky = y + CK_SpritePtrs[(sprite->ck_sprType*5)][(i*4)+2];
-        if(chkx > -64 && chky > -64 && chkx < GBA_SCREEN_WIDTH && chky < GBA_SCREEN_HEIGHT){
-            int gfxtile = vidmem>>3;
-            int gba_prior = GBA_SPRITE_ZTOP;
-            if(sprite->priority != 3) gba_prior = GBA_SPRITE_ZMID;
-            int spriteid = GBA_CreateSprite(chkx,chky,sprite->sprsizes[i], gfxtile,gba_prior,sprite->drawtype);
-        }
-        vidmem += CK_SpriteSizes[sprite->sprsizes[i]];
-    }
-
 };

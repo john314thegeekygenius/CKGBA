@@ -43,6 +43,8 @@ extern const unsigned int CK_GFX_NULL;
 
 DONT_OPTIMISE objtype * GetNewObj(boolean dummy);
 
+objsprite *CK_GetNewSprite(CK_SpriteType type);
+
 void CK_SetSprite(objsprite **spr, CK_SpriteType type);
 
 void CK_FixSpriteGraphics(objsprite *sprite);
@@ -70,5 +72,13 @@ void CK_RemoveSprites();
 void CK_RemoveDummySprites();
 
 void RF_RemoveSprite (void **user, bool cache);
+
+void RF_PlaceSprite (void **user,unsigned globalx,unsigned globaly,
+	unsigned spritenumber, drawtype draw, int priority);
+
+void RF_PlaceSpriteNU(void **user,unsigned globalx,unsigned globaly,
+	unsigned spritenumber, drawtype draw, int priority);
+
+void RF_DrawSprite(void **user,unsigned pixelx,unsigned pixely,unsigned spritenumber);
 
 #endif

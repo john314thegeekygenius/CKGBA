@@ -1610,12 +1610,20 @@ USL_PlayPong(void)
 
 	// Added:
 	objsprite *ballspr, *kpaddlespr, *cpaddlespr;
-	VWB_ClearSpriteCache();
+
 	// Bad! Do not run!
 	// CK_ResetSprGraphicsOffset();
-	ballspr = VWB_GetTempSprite(CKS_BALL);
-	kpaddlespr = VWB_GetTempSprite(CKS_PADDLE);
-	cpaddlespr = VWB_GetTempSprite(CKS_PADDLE);
+	ballspr = CK_GetNewSprite(CKS_BALL);
+	kpaddlespr = CK_GetNewSprite(CKS_PADDLE);
+	cpaddlespr = CK_GetNewSprite(CKS_PADDLE);
+
+	CK_SetSprite(&ballspr, CKS_BALL);
+	CK_SetSprite(&kpaddlespr, CKS_PADDLE);
+	CK_SetSprite(&cpaddlespr, CKS_PADDLE);
+
+	RF_StoreOrg();
+	originxglobal = originyglobal = 0;
+
 	do
 	{
 
@@ -1639,7 +1647,8 @@ USL_PlayPong(void)
 				balltime = TickBase;
 				speedup = 10;
 				killball = false;
-				VWB_Bar(oldbx,oldby,5,5,BackColor);
+				//VWB_Bar(oldbx,oldby,5,5,BackColor);
+				RF_DrawSprite(&ballspr, -16, -16,BALLSPR);
 			}
 
 			if (ball && (cycle++ % 3))
@@ -1749,29 +1758,34 @@ USL_PlayPong(void)
 					}
 				}
 			}
+			CK_UpdateSprites();
 		}
-	    GBA_ClearSpriteCache();
 
 		if (ball)
 		{
 			//VWB_Bar(oldbx,oldby,5,5,BackColor);
 			oldbx = x;
 			oldby = y;
-			VWB_DrawSprite(&ballspr, x-8,y,(x & 1)? BALL1PIXELTOTHERIGHTSPR : BALLSPR);
+			RF_DrawSprite(&ballspr, x-8,y,(x & 1)? BALL1PIXELTOTHERIGHTSPR : BALLSPR);
 		}
 		//VWB_Bar(oldcx-3,CPaddleY,16,3,BackColor);
 		oldcx = cx;
-		VWB_DrawSprite(&kpaddlespr,cx-8,CPaddleY,PADDLESPR);
+		RF_DrawSprite(&kpaddlespr,cx-8,CPaddleY,PADDLESPR);
 		//VWB_Bar(oldkx-3,KPaddleY,16,3,BackColor);
 		oldkx = kx;
-		VWB_DrawSprite(&cpaddlespr,kx-8,KPaddleY,PADDLESPR);
+		RF_DrawSprite(&cpaddlespr,kx-8,KPaddleY,PADDLESPR);
 
-		GBA_UPDATE_SPRITES()
+		CK_UpdateSprites();
 
 	} while ((LastScan != GBA_BUTTON_B) && !done);
+
+	RF_RestoreOrg();
+
 	IN_ClearKeysDown();
-	VWB_ClearSpriteCache();
     // Clear any software sprites
+	RF_RemoveSprite(&ballspr, false);
+	RF_RemoveSprite(&kpaddlespr, false);
+	RF_RemoveSprite(&cpaddlespr, false);
     GBA_ResetSprites();
 }
 
@@ -2078,7 +2092,7 @@ USL_SetUpCtlPanel(void)
 #else
 //	VW_ClearVideo(3);
 #endif
-	RF_SetOfs(8,0);
+	RF_SetOffs(8,0);
 
 	Communication = uc_None;
 	USL_ClearFlags(&rootgroup);

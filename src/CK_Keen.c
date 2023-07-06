@@ -1664,7 +1664,7 @@ void KillKeen(void)
 	if (invincible || godmode)
 		return;
 
-	if (player->state != &s_keendead)
+	if (player->state != &s_keendead && OnScreen(player))
 	{
 
 		moonok = 0;

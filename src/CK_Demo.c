@@ -456,7 +456,7 @@ extern const unsigned int CK_STORYTXT_size;
 
 // Constants
 const uint16_t CK_StoryScrollSpeed = 8;
-const uint32_t CK_StoryHeight = 400/8;
+const uint32_t CK_StoryHeight = STORY_TEXT_HEIGHT/8;
 
 
 const uint32_t *CK_TXTVRAM = (uint32_t*)(GBA_VRAM+(0x8000));
@@ -696,9 +696,7 @@ void DrawHighScores(void)
 	*(volatile uint16_t*)GBA_REG_BG1HOFS = 4;
 	*(volatile uint16_t*)GBA_REG_BG1VOFS = 4;
 
-	// TODO:
-	// Set the font color to somthing different?
-	fontcolor = BLACK;
+	fontcolor = CK_TXTCOL(HIGH_SCORES_TXT_COL);
 
 	for (i=0, entry=&Scores[0]; i<MaxScores; i++, entry++)
 	{
@@ -808,6 +806,8 @@ void ShowHighScores(void)
 	while(!IN_IsUserInput());
 	while(IN_IsUserInput());
 	scorescreenkludge = false;
+	CK_CameraX = CK_CameraY = 0;
+	CA_FixGraphics();
 	StopMusic();
 }
 

@@ -170,6 +170,19 @@ void VW_FadeOut(){
 	}
 };
 
+void CK_SetPalette(Uint8 *paldata){
+	uint16_t* paletteA = (uint16_t*)GBA_PAL_BG_START;
+	uint16_t* paletteB = (uint16_t*)GBA_PAL_SPR_START;
+	uint16_t* keenpalette = (uint16_t*)COMMANDER_KEEN_PALETTE+(CK_PaletteSet*16);
+	for(int i = 0; i < 16; i++){
+		int indx = *paldata++;
+		*paletteA = keenpalette[indx];
+		*paletteB = keenpalette[indx];
+		paletteA++;
+		paletteB++;
+	}
+};
+
 
 uint16_t *TILEMAP_0 = (uint16_t*)GBA_SCREEN_BLOCK(30);
 uint16_t *TILEMAP_1 = (uint16_t*)GBA_SCREEN_BLOCK(31);
@@ -469,6 +482,7 @@ void VWB_Vlin2 (int y1, int y2, int x, int color)
 DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls){
 	while(vbls--){
 		GBA_WAIT_VBLANK
+		GBA_Delay(10); // Hmmm
 	}
 };
 

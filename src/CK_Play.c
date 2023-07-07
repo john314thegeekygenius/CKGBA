@@ -1483,13 +1483,9 @@ void PlayLoop(void)
 //
 		if (DemoMode == demo_Playback)
 		{
-			if (!screenfaded && IN_IsUserInput())
-			{
+			if (!screenfaded && IN_IsUserInput()){
 				playstate = ex_completed;
-				/*if (LastScan != sc_F1)
-				{
-					LastScan = sc_Space;
-				}*/
+				LastScan = GBA_BUTTON_A;
 			}
 		}
 		else if (DemoMode == demo_PlayDone)

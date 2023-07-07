@@ -84,6 +84,7 @@ void CA_FixGraphics();
 
 void CK_FixPalette();
 void CK_FixPaletteU(); // For Universal.c
+void CK_SetPalette(Uint8 *paldata); // For keen 5
 
 extern boolean	screenfaded;
 

@@ -481,6 +481,12 @@ unsigned int _ck_strlen(char *str){
 	return len;	
 };
 
+char _ck_toupper(char ch){
+	if(ch >= 97 && ch <= 122)
+		return ch-32;
+	return ch;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////
 //

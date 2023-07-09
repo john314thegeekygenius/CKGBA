@@ -456,7 +456,8 @@ extern const unsigned int CK_STORYTXT_size;
 
 // Constants
 const uint16_t CK_StoryScrollSpeed = 8;
-const uint32_t CK_StoryHeight = STORY_TEXT_HEIGHT/8;
+
+extern const unsigned int CK_STORYTXT_height;
 
 
 const uint32_t *CK_TXTVRAM = (uint32_t*)(GBA_VRAM+(0x8000));
@@ -473,6 +474,7 @@ const unsigned int CK_STAR_PAL[] = STARPALETTE;
 */
 
 void ScrollSWText(void) {
+	const uint32_t CK_StoryHeight = CK_STORYTXT_height/8;
 
 	// Stuff
 	uint16_t CK_StoryTextY = 0;
@@ -683,7 +685,7 @@ void DrawHighScores(void)
 	HighScore *entry;
 	char buf[16], *bufptr;
 
-	VW_ClearVideo(CK_TXTCOL(CK_EGA_BLUE));
+	VW_ClearVideo(CK_EGA_BLUE);
 	VW_FixGraphics();
 	CA_FixGraphics();
 	// Copy the image over
@@ -762,11 +764,7 @@ void CheckHighScore(Sint32 score, Sint16 completed)
 	if (index != -1)
 	{
 #ifdef KEEN5
-#if GRMODE == CGAGR
-		fontcolor = 2;
-#else
-		fontcolor = BLUE ^ LIGHTMAGENTA;	// blue text on light magenta background (XOR draw mode!)
-#endif
+	fontcolor = HIGH_SCORES_TXT_COL;	// blue text on light magenta background (XOR draw mode!)
 #endif
 		// Redraw the highscores???? 
 		DrawHighScores();

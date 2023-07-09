@@ -401,8 +401,8 @@ typedef struct
 
 
 // Found in CK_Sprites.c
-extern statetype sc_deadstate;
-extern statetype sc_badstate;
+extern const statetype sc_deadstate;
+extern const statetype sc_badstate;
 
 /*
 =============================================================================
@@ -852,9 +852,6 @@ void R_Walk(objtype *ob);
 void R_WalkNormal(objtype *ob);
 void BadState(void);
 void R_Stunned(objtype *ob);
-
-extern statetype sc_deadstate;
-extern statetype sc_badstate;
 
 
 #endif

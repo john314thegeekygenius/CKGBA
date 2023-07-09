@@ -154,6 +154,7 @@ extern void US_TextScreen(),
 int _ck_strcpy(char *dest, char *src);
 char *_ck_ultoa(unsigned int n, char*buff, int mode);
 char *_ck_ltoa(int n, char*buff, int mode);
+char _ck_toupper(char ch);
 unsigned int _ck_strlen(char *str);
 
 boolean US_LineInput(int x,int y,char *buf,char *def,boolean escok, int maxchars,int maxwidth);

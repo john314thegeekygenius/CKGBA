@@ -521,16 +521,16 @@ void ClipToWalls(objtype *ob)
 		//
 		if (ob == player && (ob->hitnorth & 7) > 1 && (ob->hiteast || ob->hitwest))
 		{
-			Uint16 far *map;
+			Uint16 *map;
 			Uint16 pixx, clip, move;
 			Uint16 wall;
 
 			pixx = CONVERT_GLOBAL_TO_PIXEL(ob->midx & (15*PIXGLOBAL));
-			map = (Uint16 far *)mapsegs[1] + mapbwidthtable[oldtilebottom]/2 + ob->tilemidx;
+			map = (Uint16 *)CK_CurLevelData + CK_CurLevelSize + (oldtilebottom)*CK_CurLevelWidth + ob->tilemidx;
 
-			for (y=oldtilebottom; ob->tilebottom+1 >= y; y++, map+=mapwidth)
+			for (y=oldtilebottom; ob->tilebottom+1 >= y; y++, map+=CK_CurLevelWidth)
 			{
-				if ((wall = tinf[*map + NORTHWALL]) != 0)
+				if ((wall = CK_TileInfo[1][*map + NORTHWALL]) != 0)
 				{
 					clip = wallclip[wall & 7][pixx];
 					move = CONVERT_TILE_TO_GLOBAL(y) + clip - 1 - ob->bottom;
@@ -1958,8 +1958,8 @@ void BadState(void){
 
 //==========================================================================
 
-statetype sc_deadstate = {0, 0, think, false, false, 0, 0, 0, NULL, NULL, NULL, NULL};
+const statetype sc_deadstate = {0, 0, think, false, false, 0, 0, 0, NULL, NULL, NULL, NULL};
 #pragma warn -sus	//BadState is not a valid think/contact/react function. Nobody cares.
-statetype sc_badstate  = {0, 0, think, false, false, 0, 0, 0, &BadState, &BadState, &BadState, NULL};
+const statetype sc_badstate  = {0, 0, think, false, false, 0, 0, 0, &BadState, &BadState, &BadState, NULL};
 #pragma warn +sus
 

@@ -150,6 +150,33 @@ void CK_ForceLevelRedraw(){
     CK_UpdateSprites();
 };
 
+void CK_AddAnimationBlock(int offset, int tileoff, int p){
+    // Setup any animations 
+    uint8_t animation_time;
+    if(p==0) {
+        animation_time = CK_TileInfo[p][tileoff];
+    }
+    if(p==1){ 
+        animation_time = CK_TileInfo[p][tileoff+(CK_TileInfo_FGTiles*6)];
+    }
+    
+    if(animation_time){
+        CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].map_offset = offset;
+        CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].ani_time = animation_time;
+        CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].active = true;
+
+        if(p == 0){
+            CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].tile_to = (signed char)CK_TileInfo[p][tileoff+CK_TileInfo_BGTiles];
+        }
+        if(p == 1){
+            CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].tile_to = (signed char)CK_TileInfo[p][tileoff+(CK_TileInfo_FGTiles*4)];
+        }
+
+        ++CK_NumOfAnimations[p];
+    }
+
+};
+
 void CK_FixAnimationBlocks(){
     // Remove any animations
     CK_NumOfAnimations[0] = CK_NumOfAnimations[1] = 0;
@@ -160,30 +187,7 @@ void CK_FixAnimationBlocks(){
             for(int x = 0; x < CK_CurLevelWidth; x++){
                 const uint32_t offset = (y*CK_CurLevelWidth)+x+(CK_CurLevelSize*p);
                 // Copy the level data over
-                uint32_t tileoff = CK_CurLevelData[offset];
-                // Setup any animations 
-                uint8_t animation_time;
-                if(p==0) {
-                    animation_time = CK_TileInfo[p][tileoff];
-                }
-                if(p==1){ 
-                    animation_time = CK_TileInfo[p][tileoff+(CK_TileInfo_FGTiles*6)];
-                }
-                
-                if(animation_time){
-                    CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].map_offset = offset;
-                    CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].ani_time = animation_time;
-                    CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].active = true;
-
-                    if(p == 0){
-                        CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].tile_to = (signed char)CK_TileInfo[p][tileoff+CK_TileInfo_BGTiles];
-                    }
-                    if(p == 1){
-                        CK_CurLevelAnimations[CK_NumOfAnimations[p]][p].tile_to = (signed char)CK_TileInfo[p][tileoff+(CK_TileInfo_FGTiles*4)];
-                    }
-
-                    ++CK_NumOfAnimations[p];
-                }
+                CK_AddAnimationBlock(offset, CK_CurLevelData[offset], p);
             }
         }
     }
@@ -343,13 +347,20 @@ void RF_MapToMap(unsigned short srcx, unsigned short srcy,
     uint32_t doffset = (dsty*CK_CurLevelWidth)+dstx;
     uint16_t * smap = CK_CurLevelData + soffset;
     uint16_t * dmap = CK_CurLevelData + doffset;
+    // Remove old animations
+    RFL_RemoveAnimsInBlock (dstx,dsty,width,height);
+
     // Will bug out if map src and dst overlap???
     for(int y = 0; y < height; ++y){
         for(int x = 0; x < width; ++x){
+            int offset = (y*CK_CurLevelWidth) + x;
             // Copy all the tiles over
-            dmap[(y*CK_CurLevelWidth) + x] = smap[(y*CK_CurLevelWidth) + x];
-            dmap[(y*CK_CurLevelWidth) + x + CK_CurLevelSize] = smap[(y*CK_CurLevelWidth) + x+ CK_CurLevelSize];
-            CK_SetInfo(doffset+(y*CK_CurLevelWidth) + x, CK_GetInfo(soffset+(y*CK_CurLevelWidth) + x));
+            dmap[offset] = smap[offset];
+            dmap[offset + CK_CurLevelSize] = smap[offset+CK_CurLevelSize];
+            CK_SetInfo(doffset+offset + x, CK_GetInfo(soffset+offset));
+            // Handle any animations too
+            CK_AddAnimationBlock(doffset+offset, dmap[offset], 0);
+            CK_AddAnimationBlock(doffset+offset+CK_CurLevelSize, dmap[offset+CK_CurLevelSize], 1);
         }
     }
 
@@ -362,6 +373,8 @@ void RF_MemToMap(uint16_t *data, uint16_t plane, uint16_t x, uint16_t y, uint16_
         uint32_t doffset = ((y+e)*CK_CurLevelWidth)+x+(CK_CurLevelSize*plane);
         for(int i = 0; i < w; i++){
             CK_CurLevelData[doffset] = data[(e*w)+i];
+            // Handle any animations too
+            CK_AddAnimationBlock(doffset, CK_CurLevelData[doffset], plane);
             doffset++;
         }
     }
@@ -478,6 +491,24 @@ void CK_RenderLevel(){
     }*/
 };
 
+// MODDERS:
+// What tiles play what sounds
+#ifdef KEEN6
+
+#define SOUNDTILES 2
+
+typedef struct {
+    uint16_t tileid;
+    uint16_t soundid;
+}tilesoundtype;
+
+tilesoundtype soundtiles[SOUNDTILES] = {
+	{2152, SND_STOMP},
+    {2208, SND_FLAME}
+};
+#endif
+
+
 void CK_UpdateLevel(){
     uint32_t voff_s = ((CK_CameraBlockY)*CK_CurLevelWidth)+CK_CameraBlockX;
     uint32_t voff_e = ((10+CK_CameraBlockY)*CK_CurLevelWidth)+15+CK_CameraBlockX;
@@ -502,22 +533,15 @@ void CK_UpdateLevel(){
                     ck_ani->ani_time = CK_TileInfo[p][*tile+(CK_TileInfo_FGTiles*6)];
                 }
                 if(ck_ani->map_offset >= voff_s && ck_ani->map_offset <= voff_e){
-                    /*
-                    uint16_t tiley = ck_ani->map_offset / CK_CurLevelWidth;
-                    uint16_t tilex = ck_ani->map_offset - (tiley*CK_CurLevelWidth);
-                    tilex -= CK_CameraBlockX;
-                    tiley -= CK_CameraBlockY;
-
-                    CK_UpdatePOI[CK_POICount][p] = 0;
-                    CK_POICount++;
-    //                */CK_UpdateRendering = true;
-                }
 #ifdef KEEN6
-                if (anim->visible && anim->current == anim->soundtile && anim->sound != -1)
-                {
-                    SD_PlaySound(anim->sound);
+                for(int sndid = 0; sndid < SOUNDTILES; sndid++){
+                    if(*tile == soundtiles[sndid].tileid){
+                        SD_PlaySound(soundtiles[sndid].soundid);
+                    }
                 }
 #endif
+                    CK_UpdateRendering = true;
+                }
             }
         }
         voff_s += CK_CurLevelSize;

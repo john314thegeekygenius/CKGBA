@@ -454,7 +454,7 @@ boolean LoadTheGame(FileHandle handle)
 			ck_newobj->temp3 = 0;	//clear sprite ptr
 		}
 #endif
-		if (i < objectCount) // TODO: Bug here??
+		if (i < objectCount)
 		{
 			GetNewObj(false);
 		}
@@ -922,15 +922,14 @@ void GameLoop(void)
 #endif
 
 #ifdef KEEN6
-	if (!storedemo)
+#ifdef DO_MANUAL_CHECK
+	if (!US_ManualCheck())
 	{
-		if (!US_ManualCheck())
-		{
-			loadedgame = false;
-			restartgame = gd_Continue;
-			return;
-		}
+		loadedgame = false;
+		restartgame = gd_Continue;
+		return;
 	}
+#endif
 #endif
 
 	if (playstate == ex_loadedgame)

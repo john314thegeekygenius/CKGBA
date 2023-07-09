@@ -773,7 +773,6 @@ USL_ConfirmComm(UComm comm)
 #elif defined CK5
 		gamestate.keycard = true;
 #elif defined CK6
-		// TODO: Are these items?
 		gamestate.sandwichstate = 1; 
 		gamestate.hookstate = 1; 
 		gamestate.passcardstate = 1; 
@@ -2365,32 +2364,33 @@ extern void HelpScreens(void);
 }
 
 #ifdef KEEN6
+typedef struct {
+	char *name;
+	int shapenum;
+	int x, y;
+} creatureinfo;
+
+const static creatureinfo creature_list[] = {
+	{"BIP",       BIPSHIPRSPR,        -2,  0},
+	{"BABOBBA",   BABOBBAR1SPR,        0,  0},
+	{"BLORB",     BLORB1SPR,          -2,  0},
+	{"GIK",       GIKWALKR1SPR,       -1,  0},
+	{"CEILICK",   CEILICK1SPR,         0,  0},
+	{"BLOOGLET",  RBLOOGLETWALKR1SPR, -2,  0},
+	{"BLOOGUARD", BLOOGUARDWALKL1SPR, -3, -1},
+	{"FLECT",     FLECTSTANDSPR,      -1,  0},
+	{"BOBBA",     BOBBAR1SPR,         -2,  0},
+	{"NOSPIKE",   NOSPIKESTANDSPR,    -2,  0},
+	{"ORBATRIX",  ORBATRIXR1SPR,      -2,  1},
+	{"FLEEX",     FLEEXWALKR1SPR,     -2,  0}
+};
 
 boolean US_ManualCheck(void)
 {
-	typedef struct {
-		char far *name;
-		int shapenum;
-		int x, y;
-	} creatureinfo;
 
-	static creatureinfo list[] = {
-		{"BIP",       BIPSHIPRSPR,        -2,  0},
-		{"BABOBBA",   BABOBBAR1SPR,        0,  0},
-		{"BLORB",     BLORB1SPR,          -2,  0},
-		{"GIK",       GIKWALKR1SPR,       -1,  0},
-		{"CEILICK",   CEILICK1SPR,         0,  0},
-		{"BLOOGLET",  RBLOOGLETWALKR1SPR, -2,  0},
-		{"BLOOGUARD", BLOOGUARDWALKL1SPR, -3, -1},
-		{"FLECT",     FLECTSTANDSPR,      -1,  0},
-		{"BOBBA",     BOBBAR1SPR,         -2,  0},
-		{"NOSPIKE",   NOSPIKESTANDSPR,    -2,  0},
-		{"ORBATRIX",  ORBATRIXR1SPR,      -2,  1},
-		{"FLEEX",     FLEEXWALKR1SPR,     -2,  0}
-	};
-
+	return true;
 	boolean correct;
-	char far *name;
+	char *name;
 	char c;
 	char *ptr;
 	unsigned spriteheight, spritewidth;
@@ -2403,8 +2403,8 @@ boolean US_ManualCheck(void)
 		return true;
 
 	correct = false;
-	if (listindex == -1)
-	{
+	if (listindex == -1) {
+		/*
 		_AH = 0x2C;	// get time
 		geninterrupt(0x21);
 		x = _CH;	// store hours
@@ -2412,19 +2412,20 @@ boolean US_ManualCheck(void)
 		geninterrupt(0x21);
 		y = _DL;	// store day
 
-		listindex = (x + y) % (int)(sizeof(list)/sizeof(creatureinfo));
+		listindex = (x + y) % (int)(sizeof(creature_list)/sizeof(creatureinfo));
+		*/
+		// TODO:
+		listindex = 0;
 	}
 
-	info = list[listindex];
+	info = creature_list[listindex];
 	name = info.name;
 //	CA_ClearMarks();
 //	CA_MarkGrChunk(info.shapenum);
 //	CA_CacheMarks(NULL);
 
 	VWB_Bar(0, 0, 320, 200, BackColor);
-	spritewidth = spritetable[info.shapenum - STARTSPRITES].width;
-	spriteheight = spritetable[info.shapenum - STARTSPRITES].height;
-	US_CenterWindow(30, (spriteheight+41)/8 + 1);
+	US_CenterWindow(30, 16);
 	PrintY = WindowY + 2;
 	US_CPrint("What is the name of this creature?");
 
@@ -2456,7 +2457,7 @@ boolean US_ManualCheck(void)
 		while (*name)
 		{
 			c = *ptr;
-			if ((islower(c)? _toupper(c) : c) != *name)
+			if (_ck_toupper(c) != *name)
 			{
 				correct = false;
 			}

@@ -67,12 +67,12 @@ void CK_Print(char*pstr){
 extern const unsigned char CK_HELP[];
 extern const unsigned int CK_HELP_size;
 
+#ifndef CK6
 extern const unsigned char CK_BMP0006[];
 extern const unsigned int CK_BMP0006_width;
 extern const unsigned int CK_BMP0006_height;
 extern const unsigned int CK_BMP0006_size;
 
-#ifndef CK6
 #ifdef CK4
 extern const unsigned char CK_BMP0045[];
 extern const unsigned int CK_BMP0045_size;
@@ -232,7 +232,6 @@ bool CK_UpdateHelpCursor = false;
 // Move to a CK_CheckLast( BUTTON ) function
 uint32_t lastButton = 0;
 
-
 void CK_DrawHelpBorder(){
 	// Set the map up
 	for(int i = 0; i < 32*32; i++){
@@ -245,7 +244,7 @@ void CK_DrawHelpBorder(){
 
 	// Copy help stuff
 	GBA_DMA_MemSet32(vram, (uint32_t*)0, 32*20*8);	
-
+#ifndef KEEN6
 	for(int i = 0; i < 30; i++){
 		*(uint16_t*)(HELPMAP_0+i) = 0x5; // Top
 		*(uint16_t*)(HELPMAP_0+i+(32*19)) = 0xB; // Bottom
@@ -259,7 +258,10 @@ void CK_DrawHelpBorder(){
 	*(uint16_t*)(HELPMAP_0+29) = 0x6;
 	*(uint16_t*)(HELPMAP_0+(32*19)) = 0x8;
 	*(uint16_t*)(HELPMAP_0+(32*19)+29) = 0xA;
+#endif
 };
+
+#ifndef CK6
 
 void CK_DrawHelpMenu(){
 
@@ -311,6 +313,7 @@ void CK_SetupHelp(){
 	CK_DrawHelpMenu();
 
 };
+#endif
 
 int CK_PrintPage(unsigned int menuid, unsigned int pageid, bool isFinale){
 	// Determine the text info
@@ -325,7 +328,7 @@ int CK_PrintPage(unsigned int menuid, unsigned int pageid, bool isFinale){
 		CK_PageGraphic++;
 		CK_PageGraphic += gfxcnt*4;
 	}
-
+#ifndef CK6
 	if(!isFinale){
 		// Draw the border
 		CK_DrawHelpBorder();
@@ -343,7 +346,7 @@ int CK_PrintPage(unsigned int menuid, unsigned int pageid, bool isFinale){
 		*(uint16_t*)(TILEMAP_0+(18*32)+16) = 0x18;
 		*(uint16_t*)(TILEMAP_0+(18*32)+27) = 0x18+11;
 	}
-
+#endif
 	for(int e = 0; e < CK_TXT_HEIGHT; e++){
 		for(int i = 0; i < CK_TXT_WIDTH; i++){
 			CK_BlitCharHelp(CK_PageText[(e*28)+i], i+1, e+1, CK_PageColor[(e*28)+i]);
@@ -384,6 +387,7 @@ int CK_PrintPage(unsigned int menuid, unsigned int pageid, bool isFinale){
 	}
 	return longestTime;
 };
+#ifndef CK6
 
 int CK_RunHelp(){
 	if(CK_MenuOn == 0){
@@ -504,6 +508,7 @@ int CK_RunHelp(){
 =
 =================
 */
+
 void HelpScreens(void)
 {
 	SD_MusicOff();
@@ -541,7 +546,7 @@ void HelpScreens(void)
 	RF_RestoreOrg();
 	RF_RestoreOffs(); // TODO: Hmmm
 };
-
+#endif
 
 // MODDERS:
 int FinaleTxt = 5; // Indexed from 1
@@ -554,10 +559,13 @@ void CK_SetupFinale(){
 
 #ifdef KEEN5
 	if (gamestate.leveldone[13] == ex_fusebroke){
+		// MODDERS:
 		FinaleTxt = 6;
 	}
 #endif
-
+#ifdef KEEN6
+	FinaleTxt = 1;
+#endif
 	CK_PageOn = 0;
 	lastButton = 0;
 };
@@ -565,13 +573,19 @@ void CK_SetupFinale(){
 int CK_RunFinale(){
 	// MODDERS: Can get rid of this:
 	// Draw a green arrow
-
+#ifdef KEEN6
+	if(GBA_INV_BUTTONS){
+		VWB_DrawPicStory(28,18,H_FLASHARROW2PIC);
+	}else{
+		VWB_DrawPicStory(28,18,H_FLASHARROW1PIC);
+	}
+#else
 	if(GBA_INV_BUTTONS){
 		VWB_DrawPicStory(27,18,H_FLASHARROW2PIC);
 	}else{
 		VWB_DrawPicStory(27,18,H_FLASHARROW1PIC);
 	}
-
+#endif
 	if(GBA_INV_BUTTONS){
 		lastButton = GBA_INV_BUTTONS;
 	}else{
@@ -603,6 +617,9 @@ void FinaleLayout(void){
 	StartMusic(ENDINGMUSIC);
 
     CK_SetupFinale();
+
+	IN_ClearKeysDown();
+
 	// Fix the scroll offsets
 
 	*(volatile uint16_t*)GBA_REG_BG0HOFS = 0;

@@ -322,8 +322,13 @@ void UpdateScore(objtype *ob)
 			*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (gamestate.keycard*8)];
 		}
 #elif defined CK6
-	// TODO:
 	// Draw Grapple, Sandwich, and Rocket Pass
+	i = 17; // set to the tile index
+	vidmem = CK_GetSpriteGfxOffset(scoreobj->sprite, CK_GBAScoreBoxNumPos[i*2]) + (CK_GBAScoreBoxNumPos[(i*2)+1]>>2);
+	i = ((gamestate.passcardstate<<2) | (gamestate.hookstate<<1) | gamestate.sandwichstate); // set to the item index
+	for(int drw = 0; drw < 8; drw++){
+		*(vidmem++) = ((uint32_t*)CK_HUD)[drw + 128 + (i*8)];
+	}
 #endif
 
 	}
@@ -1177,7 +1182,7 @@ void SpawnFlag(Sint16 x, Sint16 y)
 #endif
 	ck_newobj->y = CONVERT_TILE_TO_GLOBAL(y) + -26*PIXGLOBAL;
 	{
-		Uint16 tile = *(mapsegs[1]+mapbwidthtable[y]/2 + x) + 1;
+		Uint16 tile = *(CK_CurLevelData + CK_CurLevelSize + (y*CK_CurLevelWidth) + x) + 1;
 		RF_MemToMap(&tile, 1, x, y, 1, 1);
 	}
 #endif
@@ -1301,7 +1306,7 @@ void FlagAlign(objtype *ob)
 	SD_PlaySound(SND_FLAGLAND);
 #ifdef KEEN6
 	{
-		Uint16 tile = *(mapsegs[1]+mapbwidthtable[flagy]/2 + flagx) + 1;
+		Uint16 tile = *(CK_CurLevelData + CK_CurLevelSize + (flagy*CK_CurLevelWidth) + flagx) + 1;
 		RF_MemToMap(&tile, 1, flagx, flagy, 1, 1);
 	}
 #endif
@@ -1378,8 +1383,8 @@ void SpawnShot(Uint16 x, Uint16 y, Direction dir)
 	{
 		objtype *ob;
 
-		for (ob=player->next; ob; ob=ob->next)
-		{
+		for(int i = player->uuid; i < CK_NumOfObjects; i++){
+			ob = &CK_ObjectList[i];
 			if (ob->active
 				&& ck_newobj->right > ob->left && ck_newobj->left < ob->right
 				&& ck_newobj->top < ob->bottom && ck_newobj->bottom > ob->top

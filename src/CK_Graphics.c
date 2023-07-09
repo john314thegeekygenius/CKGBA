@@ -112,6 +112,8 @@ void CK_FixPaletteU(){
 void VW_FadeIn(){
 	uint16_t* paletteA = (uint16_t*)GBA_PAL_BG_START;
 	uint16_t* paletteB = (uint16_t*)GBA_PAL_SPR_START;
+	// Stop any stray sounds
+	SD_StopSound();
 	// Copy the palette
 	for(int fade = 3; fade >= 0; fade--){
 		for(int i = 0; i < 16; i++){
@@ -143,6 +145,8 @@ void VW_FadeIn(){
 void VW_FadeOut(){
 	uint16_t* paletteA = (uint16_t*)GBA_PAL_BG_START;
 	uint16_t* paletteB = (uint16_t*)GBA_PAL_SPR_START;
+	// Stop any stray sounds
+	SD_StopSound();
 	// Copy the palette
 	for(int fade = 0; fade < 4; fade++){
 		for(int i = 0; i < 16; i++){
@@ -490,3 +494,11 @@ DONT_OPTIMISE void VW_WaitVBL(unsigned int vbls){
 void VW_UpdateScreen(){
 	screenchanged = true;
 };
+
+// Draws a sprite to the screen
+void VWB_DrawSprite(int x, int y, int chunknum){
+	// TODO:
+	// Draw the sprite
+
+};
+

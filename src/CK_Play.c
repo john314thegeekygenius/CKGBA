@@ -307,10 +307,10 @@ void DrawStatusWindow(void)
 	PrintY = 92+offy;
 	PrintX = 80+offx;
 	US_Print("KEYCARD");
-	VWB_Bar(135+offx, 91+offy, 10, 10, NUMBERBACK);
+	VWB_Bar(144+offx, 91+offy, 10, 10, NUMBERBACK);
 	if (gamestate.keycard)
 	{
-		VWB_DrawTile8(136+offx, 92+offy, 40);
+		VWB_DrawTile8(144+offx, 92+offy, 40);
 	}
 #endif
 
@@ -337,32 +337,32 @@ void DrawStatusWindow(void)
 
 #ifdef KEEN6
 	PrintX = 80+offx;
-	PrintY = 96+offy;
+	PrintY = 88+offy;
 	US_Print("ITEMS");
 	VWB_Bar(127+offx, 95+offy, 26, 10, NUMBERBACK);
 	if (gamestate.sandwichstate == 1)
 	{
-		VWB_DrawTile8(128+offx, 96+offy, 2);
+		VWB_DrawTile8(127+offx, 95+offy, 2);
 	}
 	else
 	{
-		VWB_DrawTile8(128+offx, 96+offy, 1);
+		VWB_DrawTile8(127+offx, 95+offy, 1);
 	}
 	if (gamestate.hookstate == 1)
 	{
-		VWB_DrawTile8(136+offx, 96+offy, 4);
+		VWB_DrawTile8(135+offx, 95+offy, 4);
 	}
 	else
 	{
-		VWB_DrawTile8(136+offx, 96+offy, 3);
+		VWB_DrawTile8(135+offx, 95+offy, 3);
 	}
 	if (gamestate.passcardstate == 1)
 	{
-		VWB_DrawTile8(144+offx, 96+offy, 6);
+		VWB_DrawTile8(143+offx, 95+offy, 6);
 	}
 	else
 	{
-		VWB_DrawTile8(144+offx, 96+offy, 5);
+		VWB_DrawTile8(143+offx, 95+offy, 5);
 	}
 #endif
 
@@ -389,8 +389,11 @@ void DrawStatusWindow(void)
 	US_Print("KEENS");
 	VWB_Bar(128+offx, 128+offy, 18, 10, NUMBERBACK);
 	PrintNumbers(128+offx, 128+offy, 2, 41, gamestate.lives);
-
+#ifdef CK5
+	PrintX = 168+offx;
+#else
 	PrintX = 176+offx;
+#endif
 	PrintY = 128+offy;
 	US_Print(DROPSNAME);
 	VWB_Bar(224+offx, 128+offy, 16, 10, NUMBERBACK);
@@ -706,6 +709,18 @@ void WorldScrollScreen(objtype *ob)
 ==================
 */
 
+#ifdef KEEN6
+const static Sint16 shaketable[] = {0,
+		-64,  -64,  -64,  64,  64,  64,
+	-200, -200, -200, 200, 200, 200,
+	-250, -250, -250, 250, 250, 250,
+	-250, -250, -250, 250, 250, 250
+};
+#endif
+
+
+/*
+// Dos version (Harder to see on the GBA)
 void ScrollScreen(objtype *ob)
 {
 	Sint16 xscroll, yscroll, pix, speed;
@@ -775,12 +790,6 @@ void ScrollScreen(objtype *ob)
 #ifdef KEEN6
 	if (groundslam)
 	{
-		const static Sint16 shaketable[] = {0,
-			 -64,  -64,  -64,  64,  64,  64,
-			-200, -200, -200, 200, 200, 200,
-			-250, -250, -250, 250, 250, 250,
-			-250, -250, -250, 250, 250, 250
-		};
 		yscroll = yscroll + (bottom - (ob->bottom + shaketable[groundslam]));	// BUG: 'bottom' has not been initialized yet!
 	}
 	else
@@ -905,7 +914,7 @@ void ScrollScreen(objtype *ob)
 	{
 		inactivatebottom = 0;
 	}
-}
+}*/
 
 
 void ScrollScreen_Custom(objtype *ob)
@@ -991,16 +1000,11 @@ void ScrollScreen_Custom(objtype *ob)
 	}
 
 #ifdef KEEN6
-	if (groundslam)
-	{
-		const static Sint16 shaketable[] = {0,
-			 -64,  -64,  -64,  64,  64,  64,
-			-200, -200, -200, 200, 200, 200,
-			-250, -250, -250, 250, 250, 250,
-			-250, -250, -250, 250, 250, 250
-		};
-		bottom = 0; // Fixed!
-		yscroll = yscroll + (bottom - (ob->bottom + shaketable[groundslam]));	// BUG: 'bottom' has not been initialized yet!
+	if (groundslam) {
+#ifdef FIX_BUGS
+		bottom = 0;	// BUG: 'bottom' has not been initialized yet!
+#endif
+		yscroll = yscroll + (bottom + (ob->bottom - shaketable[groundslam])/6);
 	}
 	else
 #endif

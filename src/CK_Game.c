@@ -87,7 +87,10 @@ void ClearGameState(){
 	gamestate.destroyed = 0;	// never used
 	gamestate.numfuses = 0;
 #elif defined CK6
-	gamestate.sandwichstate = gamestate.hookstate = gamestate.passcardstate = gamestate.rocketstate;
+	gamestate.sandwichstate = 
+	  gamestate.hookstate = 
+	  gamestate.passcardstate = 
+	  gamestate.rocketstate = 0; // Oopse, these weren't set to 0
 #endif
 	gamestate.keys[0] = gamestate.keys[1] = gamestate.keys[2] = gamestate.keys[3] = 0;
 	gamestate.mapon = -1;

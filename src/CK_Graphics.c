@@ -496,9 +496,15 @@ void VW_UpdateScreen(){
 };
 
 // Draws a sprite to the screen
-void VWB_DrawSprite(int x, int y, int chunknum){
-	// TODO:
+void VWB_DrawSprite(int x, int y, int chunknum, CK_SpriteType type){
+	// Get a sprite
+	objsprite* localsprite = NULL;
+	CK_SetSprite(&localsprite, type);
 	// Draw the sprite
+	unsigned int place_x = originxglobal + CONVERT_PIXEL_TO_GLOBAL(x);
+	unsigned int place_y = originyglobal + CONVERT_PIXEL_TO_GLOBAL(y);
+	RF_PlaceSprite(&localsprite, place_x, place_y, chunknum, spritedraw, 3); // Highest priority?
 
+	CK_UpdateSprites();
 };
 

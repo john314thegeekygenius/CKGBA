@@ -101,6 +101,7 @@ typedef enum
 			uc_C_InfAmmo,
 			uc_C_InfLives,
 			uc_C_JumpCheat,
+			uc_C_AllKeys,
 			uc_C_AllItems,
 		} UComm;
 typedef enum
@@ -327,6 +328,7 @@ static  boolean USL_ConfigCustom(UserCall call,struct UserItem *item),
 		{uii_Button,ui_Normal,0,"JUMP CHEAT",uc_C_JumpCheat},
 		{uii_Button,ui_Normal,0,"INFIN AMMO",uc_C_InfAmmo},
 		{uii_Button,ui_Normal,0,"INFIN LIVES",uc_C_InfLives},
+		{uii_Button,ui_Normal,0,"FULL KEYS",uc_C_AllKeys},
 		{uii_Button,ui_Normal,0,"FULL ITEMS",uc_C_AllItems},
 		{uii_Bad}
 	};
@@ -712,6 +714,9 @@ USL_ConfirmComm(UComm comm)
 	case uc_C_GodMode:
 		s1 = "GOD MODE";
 		godmode = !godmode;
+		if(mapon == 0){
+			player->needtoclip = cl_noclip;
+		}
 		if(godmode){
 			s2 = "ENABLED";
 		}else {
@@ -776,7 +781,6 @@ USL_ConfirmComm(UComm comm)
 		gamestate.sandwichstate = 1; 
 		gamestate.hookstate = 1; 
 		gamestate.passcardstate = 1; 
-		gamestate.rocketstate = 1;
 #endif
 		s2 = "";
 		s3 = "PRESS KEY";
@@ -784,7 +788,16 @@ USL_ConfirmComm(UComm comm)
 		dialog = false;
 		return false;
 		break;
-
+case uc_C_AllKeys:
+		s1 = "KEYS ADDED";
+		gamestate.keys[0] = gamestate.keys[1] = 
+			gamestate.keys[2] = gamestate.keys[3] = 99;
+		s2 = "";
+		s3 = "PRESS KEY";
+		USL_CtlDialog(s1,s2,s3);
+		dialog = false;
+		return false;
+		break;
 	}
 
 	confirm = dialog? USL_CtlDialog(s1,s2,s3) : true;
@@ -2119,6 +2132,7 @@ USL_HandleComm(UComm comm)
 	case uc_C_JumpCheat:
 	case uc_C_InfAmmo:
 	case uc_C_InfLives:
+	case uc_C_AllKeys:
 	case uc_C_AllItems:
 		break;
 	case uc_Abort:
@@ -2368,27 +2382,30 @@ typedef struct {
 	char *name;
 	int shapenum;
 	int x, y;
+	int sprtype;
 } creatureinfo;
 
 const static creatureinfo creature_list[] = {
-	{"BIP",       BIPSHIPRSPR,        -2,  0},
-	{"BABOBBA",   BABOBBAR1SPR,        0,  0},
-	{"BLORB",     BLORB1SPR,          -2,  0},
-	{"GIK",       GIKWALKR1SPR,       -1,  0},
-	{"CEILICK",   CEILICK1SPR,         0,  0},
-	{"BLOOGLET",  RBLOOGLETWALKR1SPR, -2,  0},
-	{"BLOOGUARD", BLOOGUARDWALKL1SPR, -3, -1},
-	{"FLECT",     FLECTSTANDSPR,      -1,  0},
-	{"BOBBA",     BOBBAR1SPR,         -2,  0},
-	{"NOSPIKE",   NOSPIKESTANDSPR,    -2,  0},
-	{"ORBATRIX",  ORBATRIXR1SPR,      -2,  1},
-	{"FLEEX",     FLEEXWALKR1SPR,     -2,  0}
+	{"BIP",       BIPSHIPRSPR,        -2,  3, CKS_BIPSHIP},
+	{"BABOBBA",   BABOBBAR1SPR,       -1,  3, CKS_BABOBBA},
+	{"BLORB",     BLORB1SPR,          -2,  3, CKS_BLORB},
+	{"GIK",       GIKWALKR1SPR,       -1,  4, CKS_GIK},
+	{"CEILICK",   CEILICK1SPR,         -1,  0, CKS_CEILICK},
+	{"BLOOGLET",  RBLOOGLETWALKR1SPR, -1,  3, CKS_RBLOOGLET},
+	{"BLOOGUARD", BLOOGUARDWALKL1SPR, -3,  1, CKS_BLOOGUARD},
+	{"FLECT",     FLECTSTANDSPR,      -1,  3, CKS_FLECT},
+	{"BOBBA",     BOBBAR1SPR,         -2,  1, CKS_BOBBA},
+	{"NOSPIKE",   NOSPIKESTANDSPR,    -2,  2, CKS_NOSPIKE},
+	{"ORBATRIX",  ORBATRIXR1SPR,      -2,  3, CKS_ORBATRIX},
+	{"FLEEX",     FLEEXWALKR1SPR,     -2,  2, CKS_FLEEX}
 };
+
+extern unsigned int GBA_VSyncCounter;
+int fail_count = 0;
 
 boolean US_ManualCheck(void)
 {
 
-	return true;
 	boolean correct;
 	char *name;
 	char c;
@@ -2404,48 +2421,47 @@ boolean US_ManualCheck(void)
 
 	correct = false;
 	if (listindex == -1) {
-		/*
-		_AH = 0x2C;	// get time
-		geninterrupt(0x21);
-		x = _CH;	// store hours
-		_AH = 0x2A;	// get date
-		geninterrupt(0x21);
-		y = _DL;	// store day
-
-		listindex = (x + y) % (int)(sizeof(creature_list)/sizeof(creatureinfo));
-		*/
-		// TODO:
-		listindex = 0;
+		listindex = GBA_VSyncCounter % (int)(sizeof(creature_list)/sizeof(creatureinfo));
 	}
 
 	info = creature_list[listindex];
 	name = info.name;
-//	CA_ClearMarks();
-//	CA_MarkGrChunk(info.shapenum);
-//	CA_CacheMarks(NULL);
 
-	VWB_Bar(0, 0, 320, 200, BackColor);
-	US_CenterWindow(30, 16);
-	PrintY = WindowY + 2;
-	US_CPrint("What is the name of this creature?");
+	CK_FixPalette();
+	VW_ClearVideo(CK_TXTCOL(BackColor));
+	CA_FixGraphics();
+	// Hide any sprites
+	CK_RemoveSprites();
+	// Fix the screen pos
+//	RF_SetOffs(8,0);
+	originxglobal = originyglobal = 0;
+	// Draw the dialog
+	US_CenterWindow(24, 14);
+	PrintY = WindowY + 2;		
+	if (info.sprtype == CKS_CEILICK){
+		PrintY += 16;
+	}
+	US_CPrint("What is the name");
+	US_CPrint("of this creature?");
 
 	x = WindowX + (WindowW-spritewidth)/2 + info.x*8;
 	y = WindowY + 15;
-	if (info.shapenum == CEILICK1SPR)
+	if (info.sprtype == CKS_CEILICK)
 	{
 		y++;
 	}
-	else
-	{
+	else {
 		y += info.y * 8;
 	}
-	VWB_DrawSprite(x, y, info.shapenum);
-
+	VWB_DrawSprite(x, y, info.shapenum, info.sprtype);
+	
 	y = WindowY + WindowH - 16;
 	editwidth = 100;
 	x = WindowX + (WindowW - 100) / 2;
-	VWB_Bar(x, y, editwidth, 14, BLACK);
-	VWB_Bar(x+1, y+1, editwidth-2, 12, WHITE);
+	VWB_Hlin(x, editwidth+x, y-1, BLACK);
+	VWB_Hlin(x, editwidth+x, y+9, BLACK);
+	VWB_Vlin(y, y+8, x, BLACK);
+	VWB_Vlin(y, y+8, editwidth+x, BLACK);
 	x += 2;
 	y += 2;
 	editwidth -= 8;
@@ -2472,16 +2488,24 @@ boolean US_ManualCheck(void)
 
 		if (!correct)
 		{
-			VWB_Bar(0, 0, 320, 200, BackColor);
-			US_CenterWindow(35, 5);
+			VW_ClearVideo(CK_TXTCOL(BackColor));
+			CA_FixGraphics();
+			US_CenterWindow(28, 6);
 			PrintY += 11;
-			US_CPrint("Sorry, that's not quite right.");
-			US_CPrint("Please check your manual and try again.");
+			US_CPrint("Sorry, that's not\nquite right.");
+			US_CPrint("Please check your\nmanual and try again.");
 			IN_Ack();
+			fail_count++;
+			if(fail_count > 3){
+				correct = true;
+			}
 		}
 	}
 
-	VWB_Bar(0, 0, 320, 200, BackColor);
+    GBA_ResetSprites();
+	CK_NukeObjectsSprites(); // Remove all and any sprites / objects
+	VW_ClearVideo(CK_TXTCOL(BackColor));
+	CA_FixGraphics();
 	checkpassed = correct;
 	return correct;
 }

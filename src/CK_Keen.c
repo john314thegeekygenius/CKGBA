@@ -1795,8 +1795,8 @@ void KeenContact(objtype *ob, objtype *hit)
 		break;
 	case lindseyobj:
 		PrincessLindsey();
-		RemoveObj(hit);
 		RF_ForceRefresh();
+		RemoveObj(hit);
 		break;
 	case footobj:
 		playstate = ex_foot;

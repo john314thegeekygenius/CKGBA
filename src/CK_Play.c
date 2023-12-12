@@ -484,6 +484,7 @@ void StatusWindow(void)
 	VW_UpdateScreen();
 	IN_ClearKeysDown();
 	ScanCode sc = 0;
+	US_EnableCheatMenu();
 
 	// Wait for the select button to be pressed again
 	while(sc != GBA_BUTTON_SELECT){
@@ -505,7 +506,6 @@ void StatusWindow(void)
 			US_Print("Cheats Enabled");
 			VW_UpdateScreen();
 			IN_Ack();
-			debugok = true;
 			US_EnableCheatMenu();
 			return; // I guess return now?
 		}
@@ -1368,11 +1368,12 @@ void PlayLoop(void)
 					if (obj->right > check->left && obj->left < check->right
 						&& obj->top < check->bottom && obj->bottom > check->top)
 					{
-						if (obj->state->contact)
+						// Fixed Bug? -- Did not make sure state was not NULL
+						if (obj->state && obj->state->contact)
 						{
 							obj->state->contact(obj, check);
 						}
-						if (check->state->contact)
+						if (check->state && check->state->contact)
 						{
 							check->state->contact(check, obj);
 						}
@@ -1421,6 +1422,11 @@ void PlayLoop(void)
 					RemoveObj(obj);
 				}
 				continue;
+			}
+			// Fixed Bug? -- Did not make sure state was not NULL
+			if(obj->state == NULL) {
+				// Bad state, so remove it
+				RemoveObj(obj);
 			}
 			if (obj->needtoreact && obj->state->react)
 			{

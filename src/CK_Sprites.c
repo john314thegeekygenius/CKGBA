@@ -379,6 +379,7 @@ void CK_UpdateSprites(){
     for(int chkpr = 3; chkpr >= 0; chkpr--){
         for(int i = 0; i < CK_NumOfSprites; i++){
             objsprite *spr = &CK_SpriteList[i];
+            if(spr == NULL) continue; // FIXED Bug? - Would try null sprites!
             if(spr->priority == chkpr && spr->drawtype != 0xF)
                 CK_DrawSprite(spr);
         }

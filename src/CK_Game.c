@@ -499,7 +499,6 @@ boolean LoadTheGame(FileHandle handle)
 =
 ============================
 */
-
 void ResetGame(void)
 {
 	NewGame();

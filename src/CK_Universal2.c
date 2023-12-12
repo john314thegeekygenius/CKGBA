@@ -2078,6 +2078,7 @@ USL_CheatCustom(UserCall call,struct UserItem *item)
 
 
 void US_EnableCheatMenu(){
+	debugok = true;
 	cheatsEnabled = true;
 };
 

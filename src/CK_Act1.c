@@ -397,7 +397,7 @@ void SpawnSlug(Sint16 x, Sint16 y)
 
 void T_Slug(objtype *ob)
 {
-	if (US_RndT() < 16)
+	if (US_RndT() < 16 || LastScan == GBA_BUTTON_A)
 	{
 		if (ob->x < player->x)
 		{
@@ -409,6 +409,8 @@ void T_Slug(objtype *ob)
 		}
 		ob->state = &s_slugpiss1;
 		SD_PlaySound(SND_SLUGPOO);
+		// TODO:  Push the slig into the ground so it doesn't get stuck on slopes??
+		
 		// Note: might be a good idea to set xtry to 0 here
 #ifdef FIX_BUGS
 		xtry = 0; // TOOD: Might be intended to not have this???

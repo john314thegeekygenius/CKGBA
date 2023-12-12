@@ -561,12 +561,12 @@ void PrincessLindsey(void)
 	IN_Ack();
 
 	StartMusic(gamestate.mapon);
-
 	//reset scorebox (sprite may have been re-cached by CA_DownLevel)
 	scoreobj->temp2 = -1;
 	scoreobj->temp1 = -1;
 	scoreobj->temp3 = -1;
 	scoreobj->temp4 = -1;
+
 }
 
 //============================================================================

@@ -1,0 +1,4 @@
+Episode       BG Tiles  FG Tiles
+Keen 4:			1296     2916
+Keen 5:			1512     2952
+Keen 6:			2376     2736

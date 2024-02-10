@@ -357,7 +357,7 @@ void RF_MapToMap(unsigned short srcx, unsigned short srcy,
             // Copy all the tiles over
             dmap[offset] = smap[offset];
             dmap[offset + CK_CurLevelSize] = smap[offset+CK_CurLevelSize];
-            CK_SetInfo(doffset+offset + x, CK_GetInfo(soffset+offset));
+            CK_SetInfo(doffset+offset, CK_GetInfo(soffset+offset));
             // Handle any animations too
             CK_AddAnimationBlock(doffset+offset, dmap[offset], 0);
             CK_AddAnimationBlock(doffset+offset+CK_CurLevelSize, dmap[offset+CK_CurLevelSize], 1);
